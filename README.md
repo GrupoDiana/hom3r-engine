@@ -1,0 +1,1 @@
+HOM3R ENGINE is a set of libraries that implement the central functionalities of hom3r (Hierarchical prOduct Model 3D vieweR).
