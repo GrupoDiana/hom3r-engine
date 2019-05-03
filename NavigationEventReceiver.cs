@@ -1,0 +1,53 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class NavigationEventReceiver : MonoBehaviour {
+
+    private void OnEnable()
+    {       
+        hom3r.coreLink.SubscribeEventObserver(DoInternalEventCommand);      //Subscribe a method to the event delegate
+    }
+
+    private void OnDisable()
+    {     
+        hom3r.coreLink.UnsubscribeEventObserver(DoInternalEventCommand);    //Unsubscribe a method to the event delegate
+    }
+
+    private void DoInternalEventCommand(CCoreEvent _event)
+    {
+        if (_event.GetType() == typeof(CCoreEvent)) { ExecuteCoreEvents(_event); }
+        else { /* Do nothing */ }
+    }
+    
+    /// <summary>Execute internal events commands</summary>
+    /// <param name="_event">command to be executed</param>
+    private void ExecuteCoreEvents(CCoreEvent _event)
+    {
+        if (_event.data != null)
+        {
+            switch (_event.data.commandEvent)
+            {
+                case TCoreEvent.MouseManager_RightButtonDragMovement:
+                    hom3r.quickLinks.orbitPlane.GetComponent<NavigationManager>().SetMouseMovement(_event.data.mouseDragMovementX, _event.data.mouseDragMovementY, 0.0f);
+                    break;
+                case TCoreEvent.MouseManager_WheelMovement:
+                    hom3r.quickLinks.orbitPlane.GetComponent<NavigationManager>().SetMouseMovement(0.0f, 0.0f, _event.data.mouseWhellMovement);
+                    break;
+                case TCoreEvent.ModelManagement_3DLoadSuccess:                    
+                    hom3r.quickLinks.orbitPlane.GetComponent<NavigationManager>().InitNavigation(_event.data.text);
+                    break;                
+                case TCoreEvent.ModelManagement_ResetModel:                                        
+                    break;
+                case TCoreEvent.TouchManager_DragMovemment:
+                    hom3r.quickLinks.orbitPlane.GetComponent<NavigationManager>().SetTouchMovement(_event.data.value1, _event.data.value2);
+                    break;
+                case TCoreEvent.TouchManager_PinchZoom:
+                    hom3r.quickLinks.orbitPlane.GetComponent<NavigationManager>().SetTouchPithZoom(_event.data.value1);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+}
