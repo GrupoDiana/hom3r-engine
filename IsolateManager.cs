@@ -51,7 +51,8 @@ public class IsolateManager : MonoBehaviour
         else
         {
             //Debug.LogError("ANY GameObject selected");
-            this.GetComponent<Core>().Do(new UICoreCommand(TUICommands.ShowAlertText, "No product was selected: there is nothing to focus"), Constants.undoNotAllowed);
+            //TODO: show messege in UI
+            //this.GetComponent<Core>().Do(new UICoreCommand(TUICommands.ShowAlertText, "No product was selected: there is nothing to focus"), Constants.undoNotAllowed);
         }
     }
 
@@ -75,7 +76,8 @@ public class IsolateManager : MonoBehaviour
         else
         {
             //Debug.LogError("ANY GameObject selected");
-            this.GetComponent<Core>().Do(new UICoreCommand(TUICommands.ShowAlertText, "No product was selected: there is nothing to focus"), Constants.undoNotAllowed);
+            //TODO: Show messege in UI    
+            //this.GetComponent<Core>().Do(new UICoreCommand(TUICommands.ShowAlertText, "No product was selected: there is nothing to focus"), Constants.undoNotAllowed);
         }
     }
 
@@ -97,7 +99,8 @@ public class IsolateManager : MonoBehaviour
         else
         {
             //Debug.LogError("ANY GameObject selected");
-            this.GetComponent<Core>().Do(new UICoreCommand(TUICommands.ShowAlertText, "No product was selected: there is nothing to focus"), Constants.undoNotAllowed);
+            //TODO: Show messege in UI    
+        //this.GetComponent<Core>().Do(new UICoreCommand(TUICommands.ShowAlertText, "No product was selected: there is nothing to focus"), Constants.undoNotAllowed);
         }
     }
 

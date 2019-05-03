@@ -924,15 +924,20 @@ public class LabelManager : MonoBehaviour
     {        
         StartCoroutine(DoAfterScalingCouroutine(_label, 2.0f));
     }
-   
+
 
     IEnumerator DoAfterScalingCouroutine(GameObject _label, float delayTime)
     {
         yield return new WaitForSeconds(delayTime);
 
-        GameObject panel3D_canvas = _label.transform.Find("Panel3D").gameObject;
-        TMP_Text panel3D_text = _label.transform.Find("TextMeshPro").gameObject.GetComponent<TMP_Text>();
+        if (_label != null)
+        {
 
-        panel3D_canvas.transform.localPosition = new Vector3(panel3D_text.transform.localPosition.x, panel3D_canvas.transform.localPosition.y, panel3D_canvas.transform.localPosition.z);
+            GameObject panel3D_canvas = _label.transform.Find("Panel3D").gameObject;
+            TMP_Text panel3D_text = _label.transform.Find("TextMeshPro").gameObject.GetComponent<TMP_Text>();
+
+            panel3D_canvas.transform.localPosition = new Vector3(panel3D_text.transform.localPosition.x, panel3D_canvas.transform.localPosition.y, panel3D_canvas.transform.localPosition.z);
+
+        }
     }
 }

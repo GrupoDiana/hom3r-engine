@@ -272,7 +272,7 @@ public class ExplosionManager : MonoBehaviour
             Debug.Log("Loading Explosion : " + url);
             //goScript.GetComponent<Core>().DebugConsoleWeb("Loading Explosion XML: " + url);
             string message = "Loading Explosion XML: " + url;
-            hom3r.coreLink.Do(new CIOCommand(TIOCommands.DebugConsoleWeb, message), Constants.undoNotAllowed);
+            //hom3r.coreLink.Do(new CIOCommand(TIOCommands.DebugConsoleWeb, message), Constants.undoNotAllowed);
         }
     }//END LoadProducExplosionModel
 

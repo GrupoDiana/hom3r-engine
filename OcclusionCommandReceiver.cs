@@ -201,7 +201,8 @@ public class COcclusionCommand : CCoreCommand
                     }
                     else
                     {
-                        m.GetComponent<Core>().Do(new UICoreCommand(TUICommands.ShowAlertText, "No product was selected: there is nothing to focus"), Constants.undoNotAllowed);
+                        //TODO: Show messege in UI    
+                        //m.GetComponent<Core>().Do(new UICoreCommand(TUICommands.ShowAlertText, "No product was selected: there is nothing to focus"), Constants.undoNotAllowed);
                     }
                     break;
 
@@ -349,7 +350,8 @@ public class COcclusionCommand : CCoreCommand
                             hom3r.state.currentVisualizationMode = THom3rIsolationMode.IDLE;
                         }
                         //4. Move to reset Position
-                        hom3r.coreLink.Do(new UICoreCommand(TUICommands.HomeButtonPressed), Constants.undoNotAllowed);
+                        //TODO: Do reset with a navigation command
+                        //hom3r.coreLink.Do(new UICoreCommand(TUICommands.HomeButtonPressed), Constants.undoNotAllowed);
                     }
                     break;
 

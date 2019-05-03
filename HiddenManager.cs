@@ -244,10 +244,10 @@ public class HiddenManager : MonoBehaviour {
 		{            
             if (!this.GetComponent<SelectionManager> ().IsConfirmedNodeLeaf(obj))
             {
-                if (!this.GetComponent<SinglePointManager>().IsASinglePoint(obj))
-                {
-                    obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Hidden_On, duration);
-                }
+                //if (!this.GetComponent<SinglePointManager>().IsASinglePoint(obj))
+                //{
+                //    obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Hidden_On, duration);
+                //}
 			}            
 		}
 		//Call again to itself with one child

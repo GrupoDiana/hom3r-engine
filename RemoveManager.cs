@@ -72,10 +72,10 @@ public class RemoveManager : MonoBehaviour {
         {
             if (!this.GetComponent<SelectionManager>().IsConfirmedNodeLeaf(obj))
             {
-                if (!this.GetComponent<SinglePointManager>().IsASinglePoint(obj))
-                {
-                    obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Remove_On, duration);
-                }
+                //if (!this.GetComponent<SinglePointManager>().IsASinglePoint(obj))
+                //{
+                //    obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Remove_On, duration);
+                //}
             }
         }
         //Call again to itself with one child
