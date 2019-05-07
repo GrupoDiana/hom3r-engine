@@ -30,7 +30,7 @@ public class NavigationManager : MonoBehaviour {
     /// <summary>Initialize variables and structures</summary>
     private void Awake()
     {
-        hom3r.quickLinks.orbitPlane = GameObject.FindGameObjectWithTag("OrbitPlane_Tag");       //Initialize the quick link to the orbit plane object
+        hom3r.quickLinks.orbitPlane = GameObject.FindGameObjectWithTag("NavigationSystem_tag");       //Initialize the quick link to the orbit plane object
         
         cameraInitialPosition = Vector3.zero;       // Initialize Scene parameters 
         cameraMinimumDistance = 0.0f;               // Initialize Scene parameters

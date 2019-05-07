@@ -85,7 +85,7 @@ public class CNavigationCommand : CCoreCommand
                 switch (data.commandEvent)
                 {
                     case TNavigationCommands.InitializeNavigation:
-                        //hom3r.quickLinks.orbitPlane.GetComponent<NavigationManager>().InitNavigation(data.main3DModelAxis);
+                        hom3r.quickLinks.orbitPlane.GetComponent<NavigationManager>().InitNavigation("vertical");
                         break;
                     case TNavigationCommands.MouseMovement:                        
                         hom3r.quickLinks.orbitPlane.GetComponent<NavigationManager>().SetMouseMovement(data.mouseX, data.mouseY, data.mouseWheel);
