@@ -762,12 +762,21 @@ public class ModelManager : MonoBehaviour {
     /// <returns>Returns true if this ID correspond to a special node of the product node</returns>    
     public bool IsSpecialNode(string nodeID) { return productModel.IsSpecialNode(nodeID);   }
 
-
+    /// <summary>
+    /// Return if an Area is selectable or not
+    /// </summary>
+    /// <param name="areaID">areaID</param>
+    /// <returns></returns>
     public bool IsAreaSelectable(string areaID)
     {
         return productModel.IsAreaSelectable(areaID);
     }
 
+    /// <summary>
+    /// Return the mode navigation axis read from the product model file
+    /// </summary>
+    /// <returns>string that contains "vertical" or "horizontal"</returns>
+    public string GetModelNavigationAxis() { return productModel.navigation_axis; }
 
     /// <summary>Get the full description of a node by its ID. Full description contains its description plus its parent description.</summary>
     /// <param name="nodeID">ID of the node</param>
