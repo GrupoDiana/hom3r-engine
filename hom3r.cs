@@ -105,14 +105,16 @@ public enum THom3rLabelMode { IDLE, SHOWLABEL };
 /// <summary> Class to store the state of the app in every moment.</summary>
 public class CHom3rState
 {
-    //Config from the interface
-    public bool UIEnable { get; set; }             //UI enable or not
-    public bool automaticSelection { get; set; }    //This controlled what happens when the user click over a object
+    // Configuration from the interface
+    //public bool UIEnable { get; set; }                  // UI enable or not
+    //public bool automaticSelection { get; set; }        // This controlled what happens when the user click over a object
+    //public bool touchInteractionEnable { get; set; }    // This control if the touch interaction is On or not
+    //public bool mouseInteractionEnable { get; set; }    // This control if the touch interaction is On or not
 
     //Internal use
     public bool generalState { get; set; }                      //Is false when any error happens
     public bool productModel_Loaded { get; set; }               //Store if the model has been loaded or not    
-    public THom3rPlatform platform { get; set; }       //Store the enviroment if which Hom3r is working    
+    public THom3rPlatform platform { get; set; }                //Store the environment if which Hom3r is working    
     public float alphaTransparencyLevel { get; set; }
 
     //Modes Management
@@ -135,12 +137,12 @@ public class CHom3rState
 
 public class CQuickLinks
 {
-    public GameObject orbitPlane;      // Pointer to the main camera object
-    //public GameObject mainCamera;      //Pointer to main camera
-    public GameObject _3DModelRoot;    // Pointer to the main product object
-    public GameObject uiObject;        // Pointer to the UI object
-    public GameObject scriptsObject;       // Pointer to the scripts container object
-    public GameObject labelsObject;     // Pointer to the label container object
+    public GameObject navigationSystemObject;   // Pointer to the main camera object        
+    public GameObject uiObject;                 // Pointer to the UI object
+    public GameObject scriptsObject;            // Pointer to the scripts container object
+    //public GameObject configurationObject;      // Pointer to the configuration script container object
+    public GameObject _3DModelRoot;             // Pointer to the main product object
+    public GameObject labelsObject;             // Pointer to the label container object
 } 
 
 public static class hom3r {

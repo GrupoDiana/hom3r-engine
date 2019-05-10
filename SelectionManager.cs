@@ -377,12 +377,10 @@ public class SelectionManager : MonoBehaviour
     }//removeDuplicates
 
 
-
-
     /// <summary>
-    /// Execute the indication of and Area or Component
+    /// Execute the indication of an Area or Component
     /// </summary>
-    /// <param name="obj"></param>
+    /// <param name="obj">Area GameObject to indicate</param>
     public void ExecuteIndication(GameObject obj)
     {
         //Get the areaIDs of the area selected        
@@ -422,19 +420,229 @@ public class SelectionManager : MonoBehaviour
             //this.GetComponent<Core_Script>().Do(new UICoreCommand("UI/SetActiveAlertText", "This product part cannot be selected because it is not in the product model. PartName = " + obj.name), Constants.undoNotAllowed);
         }
     }
-    private void IndicateList()
-    {
 
+
+    /// <summary>
+    /// Execute the confirmation of an Area or Component
+    /// </summary>
+    /// <param name="obj">Area GameObject to indicate</param>
+    /// <param name="multiple">True if we are executing multiple confirmation</param>
+    public void ExecuteConfirmation(GameObject obj, bool multiple)
+    {
+        List<GameObject> _areaList = new List<GameObject>();
+        List<string> _areaIDList = new List<string>();
+        //Get the areaIDs of the area selected
+        //List<string> areaIDs = new List<string>(obj.GetComponent<ObjectStateManager>().areaID);
+        string areaID = obj.GetComponent<ObjectStateManager>().areaID;
+        if (areaID != null)
+        {
+            if (hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().IsAreaSelectable(areaID))
+            {
+                //Filled _areaList to be selected in a different way, depending of the selection mode
+                string _specialNodeID = null;
+
+                if (hom3r.state.currentSelectionMode == THom3rSelectionMode.AREA)
+                {//Select only the area selected by the mouse
+                    _areaList.Add(obj);
+                    //_areaIDList = areaIDs;
+                    _areaIDList.Add(areaID);
+                }
+                else if (hom3r.state.currentSelectionMode == THom3rSelectionMode.SPECIAL_NODE)
+                {
+                    //Select all the areas with the same special ancestor. Suppose all the IDs of the area have the same ancestor.
+                    _specialNodeID = this.GetComponent<ModelManager>().GetSpecialAncestorID_ByAreaID(areaID);
+                    _areaList = this.GetComponent<ModelManager>().GetAreaGameObjectList_BySpecialAncestorID(_specialNodeID);                  //Get all the area
+                    _areaIDList.Add(_specialNodeID);                    //Get all the areaIds
+                }
+
+                //Select an AREA in 3D scenario if it is allowed by the mode.
+
+                if (hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetActiveUIAutomaticSelection())
+                //if (hom3r.state.automaticSelection)
+                {
+                    //Deselect new area in 3D Scene     
+                    if (!multiple) { ExecuteDesconfirmationAll(_specialNodeID, _areaList); }
+                    //Confirm all the areas 
+                    foreach (var item in _areaList)
+                    {
+                        item.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Confirmation_Multiple_On);
+                    }
+
+                    //Update the list of component selected 
+                    if (hom3r.state.currentSelectionMode == THom3rSelectionMode.SPECIAL_NODE)
+                    {
+                        GetComponent<SelectionManager>().AddConfirmedSpecialNode(_specialNodeID);
+                    }
+                    else
+                    {
+                        _specialNodeID = this.GetComponent<ModelManager>().GetSpecialAncestorID_ByAreaID(areaID);
+                        if (hom3r.quickLinks.scriptsObject.GetComponent<SelectionManager>().AreAllAreaOfSpecialNodeSeleted(_specialNodeID))
+                        {
+                            this.GetComponent<SelectionManager>().AddConfirmedSpecialNode(_specialNodeID);
+                        }
+                    }
+                    //I emit an event warning that the confirmation has ended
+                    hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Selection_ConfirmationOnFinished, _areaIDList));
+                }
+                else
+                {
+                    //I emit an event warning that the confirmation has ended            
+                    hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Selection_ConfirmationOnFinished, _areaIDList));
+                }
+            }
+        }
+        else
+        {
+            string _message = "Cannot find " + obj.name + " area in product model ";
+            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Selection_ShowMessage, _message));
+        }
     }
 
 
+    /// <summary>
+    /// Execute the des-confirmation of one object
+    /// </summary>
+    /// <param name="obj"></param>
+    public void ExecuteDesconfirmation(GameObject obj)
+    {
+        List<string> _areaIDList = new List<string>();
+
+        // If the object is not confirmed we finish 
+        if (!hom3r.quickLinks.scriptsObject.GetComponent<SelectionManager>().IsConfirmedGameObject(obj)) { return; }
+
+        string areaID = obj.GetComponent<ObjectStateManager>().areaID;     //Get the areaIDs of the area selected
+        if (areaID != null)
+        {
+            string _specialNodeID = null;
+            List<GameObject> _areaList = new List<GameObject>();
+            _specialNodeID = this.GetComponent<ModelManager>().GetSpecialAncestorID_ByAreaID(areaID);
+            //Filled _areaList to be selected in a different way, depending of the selection mode
+            if (hom3r.state.currentSelectionMode == THom3rSelectionMode.AREA)
+            {
+                //Select only the area selected by the mouse
+                _areaList.Add(obj);
+                _areaIDList.Add(areaID);
+            }
+            else if (hom3r.state.currentSelectionMode == THom3rSelectionMode.SPECIAL_NODE)
+            {
+                //Select all the areas with the same special ancestor.                                    
+                _areaList = this.GetComponent<ModelManager>().GetAreaGameObjectList_BySpecialAncestorID(_specialNodeID);
+
+                if (hom3r.quickLinks.scriptsObject.GetComponent<SelectionManager>().AreAllAreaOfSpecialNodeSeleted(_specialNodeID))
+                {
+                    //Deselect the full specialNode
+                    _areaIDList.Add(_specialNodeID);
+                }
+                else
+                {
+                    //Deselect only the selected areas
+                    //Get all the areaIds
+                    _areaIDList = this.GetComponent<ModelManager>().GetAreaIDList_BySpecialAncestorID(_specialNodeID);
+                }
+            }
+            //Deselect an AREA in 3D scenario if it is allowed by the mode.
+            if (hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetActiveUIAutomaticSelection())
+            //if (hom3r.state.automaticSelection)
+            {
+                //Desconfirm in the 3D Scenario  
+                foreach (var item in _areaList)
+                {
+                    item.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Confirmation_Off);
+                }
+                this.GetComponent<SelectionManager>().RemoveConfirmedSpecialNode(_specialNodeID);
+            }
+            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Selection_ConfirmationOffFinished, _areaIDList));    //Emit an event warning that the desconfirmation has ended
+        }
+        else
+        {
+            ////Remove labels with the name of the GO
+            //if (hom3r.hom3rStatus.currentLabelMode == Hom3rLabelModes_Type.SHOWLABEL)
+            //{
+            //    //Remove the label of the desconfirmed object
+            //    hom3r.coreLink.Do(new CLabelCommand(TLabelCommands.RemoveAllLabelOfConfirmedObjects), Constants.undoNotAllowed);                
+            //}            
+            obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Confirmation_Off);        //Desconfirm every object
+
+            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Selection_ConfirmationOffFinished, _areaIDList));    //I emit an event warning that the desconfirmation has ended
+        }
+
+        //Update Smart Transparency
+        //if (hom3r.hom3rStatus.smartTransparencyModeActive) { this.GetComponent<Core>().Do(new COcclusionCommand(TOcclusionCommands.ResetSmartTransparency), Constants.undoNotAllowed); }        
+    }
+
+    /// <summary>
+    /// Des-confirm all the confirmed objects except the indicated in the list.
+    /// </summary>
+    /// <param name="exceptionSpecialNode">Special that is not going to be des-confirmed</param>
+    /// <param name="exceptionList">List of areas that are not going to be des-confirmed</param>
+    private void ExecuteDesconfirmationAll(string exceptionSpecialNode, List<GameObject> exceptionList)
+    {
+        List<GameObject> _areaList = new List<GameObject>();
+        List<string> listOfConfirmedSpecialNodeList = new List<string>();
+
+        listOfConfirmedSpecialNodeList = new List<string>(this.GetComponent<SelectionManager>().GetConfirmedSpecialNodeList());
+        if (hom3r.state.currentSelectionMode == THom3rSelectionMode.SPECIAL_NODE)
+        {
+            listOfConfirmedSpecialNodeList = new List<string>(this.GetComponent<SelectionManager>().GetConfirmedSpecialNodeList());
+            listOfConfirmedSpecialNodeList.Remove(exceptionSpecialNode);
+            if (listOfConfirmedSpecialNodeList.Count != 0)
+            {
+                //Get the list of areas to deselect                                    
+                foreach (var item in listOfConfirmedSpecialNodeList)
+                {
+                    _areaList.AddRange(this.GetComponent<ModelManager>().GetAreaGameObjectList_BySpecialAncestorID(item));
+                }
+                //Deselect into the 3D                                                                 
+                foreach (var item in _areaList)
+                {
+                    item.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Confirmation_Off);
+                }
+                this.GetComponent<SelectionManager>().RemoveAllConfirmedSpecialNode();      //Update the list of component selected 
+
+                //Send the areas ID to be deselected to WebApp                                      
+                //this.GetComponent<IO_Script>().ToWebApp_DeselectPart(listOfConfirmedSpecialNodeList);
+                //updateOthers = true;
+
+                hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Selection_ConfirmationOffFinished, listOfConfirmedSpecialNodeList));    //Emit an event warning that the desconfirmation has ended
+            }
+        }
+
+        this.GetComponent<SelectionManager>().RemoveAllConfirmedSpecialNode();  //Clean confirmed componet list        
+        List<GameObject> listOfConfirmedObjects = new List<GameObject>(this.GetComponent<SelectionManager>().GetListOfConfirmedObjects());  // Check if exist more areas and unconfirmed all        
+        listOfConfirmedObjects = listOfConfirmedObjects.FindAll(x => !exceptionList.Contains(x));                                           // If a object is not a exceptionList. 
+
+        if (listOfConfirmedObjects.Count != 0)
+        {
+            List<string> listOfConfirmedAreasID = new List<string>();
+            //Deselect into the 3D                                                                 
+            foreach (var item in listOfConfirmedObjects)
+            {
+                item.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Confirmation_Off);
+                listOfConfirmedAreasID.Add(item.GetComponent<ObjectStateManager>().areaID);
+            }
+
+            ////this.GetComponent<IO_Script>().ToWebApp_DeselectAllParts(); //Send the areas ID to be deselected to WebApp
+            //this.GetComponent<IO_Script>().ToWebApp_DeselectPart(listOfConfirmedAreasID);
+            //updateOthers = true;
+
+            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Selection_ConfirmationOffFinished, listOfConfirmedAreasID));    //Emit an event warning that the desconfirmation has ended                  
+        }
+        //if (updateOthers)
+        //{
+        //    //Update the rays for the smartTransparency multiple rayscast
+        //    if (hom3r.hom3rStatus.smartTransparencyModeActive) { this.GetComponent<Core>().Do(new COcclusionCommand(TOcclusionCommands.ResetSmartTransparency), Constants.undoNotAllowed); }
+        //}
+    }
 
     ///////////////////////
     /// RAYCAST METHODS ///
     ///////////////////////
-    
+
     public void IndicationByMousePosition(Vector3 mousePosition)
     {
+        // If is not activated we do nothing
+        if (!hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetActiveUISelection()) { return; }
+
         GameObject obj = Raycast(mousePosition);
         
         if (obj != null) {
@@ -452,10 +660,11 @@ public class SelectionManager : MonoBehaviour
 
     public void ConfirmByMouseLeftClickAndMousePosition(Vector3 mousePosition, GameObject obj, bool keyControlPressed)
     {
-        // GameObject obj = Raycast(mousePosition);
+        // If is not activated we do nothing
+        if (!hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetActiveUISelection()) { return; }
+        
         if (obj != null)
-        {
-            
+        {            
             if (IsConfirmedGameObject(obj))
             {
                 //"DESCONFIRM" the ray-cast object if the object is already confirmed                                
@@ -492,6 +701,7 @@ public class SelectionManager : MonoBehaviour
             }            
             else
             {
+                Debug.Log("hom3r: CONFIRM the ray-cast object: " + obj.name);
                 //CONFIRM the ray-cast object
                 //Multiple CONFIRMATION
                 if (keyControlPressed)

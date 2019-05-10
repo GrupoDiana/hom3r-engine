@@ -48,53 +48,52 @@ public class Core : MonoBehaviour {
 
     private void InitializeHom3rState()
     {
-         hom3r.state = new CHom3rState();                       //Initialize status object   
-         hom3r.state.selectionBlocked = false;                  //Initially selection is activated
-         hom3r.state.captureSinglePointBlocked = false;         //Initially single point capture is deactivated
-         hom3r.state.navigationBlocked = false;                 //Initially navigation using mouse is activated
-         hom3r.state.UIEnable = true;                           //Initially the UI is activated
-         hom3r.state.automaticSelection = true;                 //Initially direct selection is activated        
-         hom3r.state.generalState = false;                      //Initially we are not ready  
-         hom3r.state.productModel_Loaded = false;               //Initially there are not any model loaded
-         hom3r.state.isolateModeActive = false;                 //Initially the isolate mode is not activate
-         hom3r.state.smartTransparencyModeActive = false;       //Initially the smartTransparency mode is not activate
-         hom3r.state.singlePointLocationModeActive = false;     //Initially the point location mode is not activate
-         
-         hom3r.state.currentMode = THom3rMode.IDLE;                                 // Initially HOM3R is not in a specific mode
-         hom3r.state.currentExplosionMode = THom3rExplosionMode.IMPLODE;            // Initially HOM3R objects are imploded
-         //hom3r.state.currentSelectionMode = THom3rSelectionMode.SPECIAL_NODE;     // Initially HOM3R is selecting by component
-         hom3r.state.currentSelectionMode = THom3rSelectionMode.AREA;               // Initially HOM3R is selecting by area
-         hom3r.state.currentVisualizationMode = THom3rIsolationMode.IDLE;           // Initially HOM3R show every node of the product
-         hom3r.state.currentLabelMode = THom3rLabelMode.IDLE;                       // Initially HOM3R doesn't show any label
-
-
+        hom3r.state = new CHom3rState();                       //Initialize status object   
+        hom3r.state.selectionBlocked = false;                  //Initially selection is activated
+        hom3r.state.captureSinglePointBlocked = false;         //Initially single point capture is deactivated
+        hom3r.state.navigationBlocked = false;                 //Initially navigation using mouse is activated          
+        hom3r.state.generalState = false;                      //Initially we are not ready  
+        hom3r.state.productModel_Loaded = false;               //Initially there are not any model loaded
+        hom3r.state.isolateModeActive = false;                 //Initially the isolate mode is not activate
+        hom3r.state.smartTransparencyModeActive = false;       //Initially the smartTransparency mode is not activate
+        hom3r.state.singlePointLocationModeActive = false;     //Initially the point location mode is not activate        
+        hom3r.state.currentMode = THom3rMode.IDLE;                                 // Initially HOM3R is not in a specific mode
+        hom3r.state.currentExplosionMode = THom3rExplosionMode.IMPLODE;            // Initially HOM3R objects are imploded
+        //hom3r.state.currentSelectionMode = THom3rSelectionMode.SPECIAL_NODE;     // Initially HOM3R is selecting by component
+        hom3r.state.currentSelectionMode = THom3rSelectionMode.AREA;               // Initially HOM3R is selecting by area
+        hom3r.state.currentVisualizationMode = THom3rIsolationMode.IDLE;           // Initially HOM3R show every node of the product
+        hom3r.state.currentLabelMode = THom3rLabelMode.IDLE;                       // Initially HOM3R doesn't show any label         
         hom3r.state.labelsUILayer = "Default";    
-         hom3r.state.productRootLayer = "go_father_layer";
-                                                                         
+        hom3r.state.productRootLayer = "go_father_layer";
+        hom3r.state.platform = GetPlatform();
+    }
+
+    private THom3rPlatform GetPlatform()
+    {
         //Set the Hom3r environment
         if ((Application.platform == RuntimePlatform.WindowsEditor) || (Application.platform == RuntimePlatform.OSXEditor) || (Application.platform == RuntimePlatform.LinuxEditor))
-        {           
-            hom3r.state.platform = THom3rPlatform.Editor;
-        }
-        else if (Application.platform==RuntimePlatform.WebGLPlayer)
         {
-            hom3r.state.platform = THom3rPlatform.WebGL;
+            return THom3rPlatform.Editor;
+        }
+        else if (Application.platform == RuntimePlatform.WebGLPlayer)
+        {
+            return THom3rPlatform.WebGL;
         }
         else if (Application.platform == RuntimePlatform.Android)
         {
-            hom3r.state.platform = THom3rPlatform.Android;
+            return THom3rPlatform.Android;
         }
         else if (Application.platform == RuntimePlatform.IPhonePlayer)
         {
-            hom3r.state.platform = THom3rPlatform.IOS;
+            return THom3rPlatform.IOS;
         }
         else if (Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.OSXPlayer)
         {
-            hom3r.state.platform = THom3rPlatform.WindowsMac;
+            return THom3rPlatform.WindowsMac;
         }
         else
         {
-            hom3r.state.platform = THom3rPlatform.Other;
+            return THom3rPlatform.Other;
         }
     }
 

@@ -119,16 +119,16 @@ public class CLabel
         //Material poleMaterial = new Material(Shader.Find("Particles/Additive"));
         Material poleMaterial = new Material(Shader.Find("Legacy Shaders/Particles/Additive"));    
         Material anchorMaterial = new Material(Shader.Find("Diffuse"));
-        Material annotationMaterial = new Material(Shader.Find("Transparent/Diffuse"));
-        Material textMaterial = Resources.Load("3DTextMaterial", typeof(Material)) as Material;
+        //Material annotationMaterial = new Material(Shader.Find("Transparent/Diffuse"));
+        //Material textMaterial = Resources.Load("3DTextMaterial", typeof(Material)) as Material;
         Material uiMaterial = new Material(Shader.Find("Transparent/Diffuse"));
 
         // Set colors
         anchorMaterial.color = anchorColor;
-        annotationMaterial.color = new Color(annotationBrightness * annotationColor.r, annotationBrightness * annotationColor.g, annotationBrightness * annotationColor.b, annotationOpacity);
+        //annotationMaterial.color = new Color(annotationBrightness * annotationColor.r, annotationBrightness * annotationColor.g, annotationBrightness * annotationColor.b, annotationOpacity);
         uiMaterial.color = uiColor;
         uiMaterial.color = new Color(uiBrightness * uiColor.r, uiBrightness * uiColor.g, uiBrightness * uiColor.b, uiOpacity);
-        textMaterial.color = textColor;
+        //textMaterial.color = textColor;
         largeText = _largeText;
 
         // INIT GAME OBJECTS:

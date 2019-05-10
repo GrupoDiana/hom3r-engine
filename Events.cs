@@ -23,7 +23,7 @@ public enum TCoreEvent
     MouseManager_RightButtonUp, MouseManager_RightButtonDown,
     MouseManager_RightButtonDragMovement, MouseManager_WheelMovement,
 
-    TouchManager_DragMovemment, TouchManager_PinchZoom,
+    TouchManager_OneTouch ,TouchManager_DragMovemment, TouchManager_PinchZoom,
 
     Selection_ShowMessage,
     Selection_IndicationOnFinished, Selection_IndicationOffFinished,
