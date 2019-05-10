@@ -242,6 +242,9 @@ public class NavigationManager : MonoBehaviour {
         float pseudoLongitude;
         float pseudoRadio;
 
+        // Check if the navigation is activated or not        
+        if (!hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetActiveNavigation()) { return;  }
+
         if ((navigationInitialized) & ((mouseMovementX != 0) || (mouseMovementY != 0) || (mouseWhellMovement != 0.0f)))
         {
             ///////////////////////////////////////////////////
@@ -364,6 +367,9 @@ public class NavigationManager : MonoBehaviour {
     {
         float pseudoLatitude;
         float pseudoLongitude;
+        
+        // Check if the navigation is activated or not
+        if (!hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetActiveNavigation()) { return; }
 
         if ((navigationInitialized) & ((mouseMovementX != 0) || (mouseMovementY != 0)))
         {

@@ -12,13 +12,17 @@ public class ConfigurationManager : MonoBehaviour
     private bool touchInteractionEnabled;       // This control if the touch interaction is On or not
     private bool mouseInteractionEnabled;       // This control if the mouse interaction is On or not
 
+    private bool navigationEnabled;              // This control if the navigation is On or not
+
     private void Awake()
     {        
         UIEnabled = true;                        //Initially the UI is activated
-        uiSelectionEnabled = true;              
+        uiSelectionEnabled = true;               //Initially the selection from UI is activated
         uiAutomaticSelectionEnabled = true;      //Initially direct selection is activated  
+        navigationEnabled = true;
         touchInteractionEnabled = false;
-        mouseInteractionEnabled = false;
+        mouseInteractionEnabled = true;
+        Debug.Log("Configuration Manager Awake");     
     } 
 
     /////////////////////
@@ -116,5 +120,25 @@ public class ConfigurationManager : MonoBehaviour
     public bool GetActiveMouseInteration()
     {
         return mouseInteractionEnabled;
+    }
+
+    /////////////////////
+    // Navigation
+    /////////////////////
+    /// <summary>
+    /// Set if the mouse interaction is activated or not. 
+    /// </summary>
+    /// <param name="_enabled">true activate the mouse interaction</param>
+    public void SetActiveNavigation(bool _enabled)
+    {
+        navigationEnabled = _enabled;
+    }
+    /// <summary>
+    /// Get if mouse interaction is activated or not. 
+    /// </summary>
+    /// <returns>True if mouse interaction is activated</returns>
+    public bool GetActiveNavigation()
+    {
+        return navigationEnabled;
     }
 }
