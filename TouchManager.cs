@@ -24,11 +24,13 @@ public class TouchManager : MonoBehaviour
         this.movementCounter = 0;
         this.movementDetector = 5;         // TODO do this in a different way ?
         this.initTwoTouchesDistance = 0f;
-              
+
         ////////////////////////////////////////
         // Initialize Ray-casting variables
         ////////////////////////////////////////
-        gizmoCamera = GameObject.FindWithTag("GizmoCamera").GetComponent<Camera>();
+        GameObject gizmoGO = GameObject.FindWithTag("GizmoCamera");
+        if (gizmoGO !=null) { gizmoCamera = gizmoGO.GetComponent<Camera>(); }
+
         //Initialize the layer masks
         // NameToLayer() returns the layer index 
         //'1 << ...' converts that to a bit mask, turning on the bit associated with that layer
@@ -169,13 +171,14 @@ public class TouchManager : MonoBehaviour
     private void SelectionManager2(Vector3 currentTouchPosition)
     {        
         // 1. Check if user has clicked in gizmo object
-        GameObject gizmoRayCastedGO = Raycast(currentTouchPosition, gizmoCamera, gizmoLayer);
-        if (gizmoRayCastedGO != null)
-        {
-            Debug.Log("Click in gizmo");            
-            return;
-        }
-
+        if (gizmoCamera != null) {
+            GameObject gizmoRayCastedGO = Raycast(currentTouchPosition, gizmoCamera, gizmoLayer);
+            if (gizmoRayCastedGO != null)
+            {
+                Debug.Log("Click in gizmo");
+                return;
+            }
+        }        
         // 2. Check if user has clicked in a label object
         //TODO This should be in GetMouseButton
         /*GameObject labelRayCastedGO = Raycast(currentMousePosition, Camera.main, labelsUILayer);
