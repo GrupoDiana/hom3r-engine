@@ -124,7 +124,7 @@ public class NavigationHelper : MonoBehaviour {
         {
             // Move Camera
             helperCamera.transform.localPosition = cameraPosition;
-            Vector3 pointToLook_world = hom3r.quickLinks.orbitPlane.transform.TransformPoint(pointToLook);
+            Vector3 pointToLook_world = hom3r.quickLinks.navigationSystemObject.transform.TransformPoint(pointToLook);
             helperCamera.transform.LookAt(pointToLook_world);
 
             // Draw look direction line        

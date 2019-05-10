@@ -30,7 +30,7 @@ public class NavigationManager : MonoBehaviour {
     /// <summary>Initialize variables and structures</summary>
     private void Awake()
     {
-        hom3r.quickLinks.orbitPlane = GameObject.FindGameObjectWithTag("NavigationSystem_tag");       //Initialize the quick link to the orbit plane object
+        hom3r.quickLinks.navigationSystemObject = GameObject.FindGameObjectWithTag("NavigationSystem_tag");       //Initialize the quick link to the orbit plane object
         
         cameraInitialPosition = Vector3.zero;       // Initialize Scene parameters 
         cameraMinimumDistance = 0.0f;               // Initialize Scene parameters
@@ -216,7 +216,7 @@ public class NavigationManager : MonoBehaviour {
 
     private void InitHelpPlaneSize(Bounds boundingBox)
     {
-        Transform[] ts = hom3r.quickLinks.orbitPlane.GetComponentsInChildren<Transform>();
+        Transform[] ts = hom3r.quickLinks.navigationSystemObject.GetComponentsInChildren<Transform>();
         foreach (Transform child in ts)
         {
             if (child.name == "Plane")
@@ -474,7 +474,7 @@ public class NavigationManager : MonoBehaviour {
             else { orbitVector = new Vector3(1.0f, 0.0f, 0.0f); }
             
             //Rotates the transform about axis passing through point in world coordinates by angle degrees.
-            hom3r.quickLinks.orbitPlane.transform.RotateAround(targetCenter, orbitVector, planeRotation * Mathf.Rad2Deg );
+            hom3r.quickLinks.navigationSystemObject.transform.RotateAround(targetCenter, orbitVector, planeRotation * Mathf.Rad2Deg );
         }        
     }
 
@@ -484,7 +484,7 @@ public class NavigationManager : MonoBehaviour {
     {
         if (navigationInitialized)
         {                        
-            Vector3 pointToLook_world = hom3r.quickLinks.orbitPlane.transform.TransformPoint(pointToLook);      // Transform the coordinates of the point to global
+            Vector3 pointToLook_world = hom3r.quickLinks.navigationSystemObject.transform.TransformPoint(pointToLook);      // Transform the coordinates of the point to global
             Camera.main.transform.LookAt(pointToLook_world);            // Orientate the camera
 
             //Reorient the camera: fix the orientation of the camera to orientate it parallel to the orbit plane

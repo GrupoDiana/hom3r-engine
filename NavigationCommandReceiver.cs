@@ -86,10 +86,10 @@ public class CNavigationCommand : CCoreCommand
                 {
                     case TNavigationCommands.InitializeNavigation:
                         string navigation_axis = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetModelNavigationAxis();
-                        hom3r.quickLinks.orbitPlane.GetComponent<NavigationManager>().InitNavigation(navigation_axis);
+                        hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().InitNavigation(navigation_axis);
                         break;
                     case TNavigationCommands.MouseMovement:                        
-                        hom3r.quickLinks.orbitPlane.GetComponent<NavigationManager>().SetMouseMovement(data.mouseX, data.mouseY, data.mouseWheel);
+                        hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().SetMouseMovement(data.mouseX, data.mouseY, data.mouseWheel);
                         break;
                     default:
                         Debug.LogError("Error: This command " + data.commandEvent + " is not valid.");

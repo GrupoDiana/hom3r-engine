@@ -185,7 +185,7 @@ public class CSphericalCoordinatesManager : CCoordinateSystemManager
     {
         if (hom3r.state.platform == THom3rPlatform.Editor)
         {
-            hom3r.quickLinks.orbitPlane.GetComponentInChildren<NavigationHelper>().DrawTranslationEllipse(a, b);
+            hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawTranslationEllipse(a, b);
         }        
     }
 
@@ -676,11 +676,11 @@ public class CEllipticalCoordinatesManager : CCoordinateSystemManager
         {
             if (geometryType == TGeometryType.Long)
             {
-                hom3r.quickLinks.orbitPlane.GetComponentInChildren<NavigationHelper>().DrawTranslationEllipse(currentEllipse.a, currentEllipse.b);                
+                hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawTranslationEllipse(currentEllipse.a, currentEllipse.b);                
             }
             else
             {
-                hom3r.quickLinks.orbitPlane.GetComponentInChildren<NavigationHelper>().DrawTranslationEllipse(currentEllipse.b, currentEllipse.a);
+                hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawTranslationEllipse(currentEllipse.b, currentEllipse.a);
             }
         }
     }
@@ -691,7 +691,7 @@ public class CEllipticalCoordinatesManager : CCoordinateSystemManager
         if (hom3r.state.platform == THom3rPlatform.Editor)
         {
             float radio = _cameraPlanePosition.magnitude;
-            hom3r.quickLinks.orbitPlane.GetComponentInChildren<NavigationHelper>().DrawRotationEllipse(_cameraPlanePosition.z, _cameraPlanePosition.z, _cameraPlanePosition.x);
+            hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawRotationEllipse(_cameraPlanePosition.z, _cameraPlanePosition.z, _cameraPlanePosition.x);
             /*if (geometryType == TGeometryType.Long)
             {                
                 hom3r.quickLinks.orbitPlane.GetComponentInChildren<NavigationHelper>().DrawRotationEllipse(radio, radio);
@@ -706,7 +706,7 @@ public class CEllipticalCoordinatesManager : CCoordinateSystemManager
 
     private void DrawCameraPosition(Vector3 _cameraPlanePosition, Vector3 _pointToLook)
     {
-        hom3r.quickLinks.orbitPlane.GetComponentInChildren<NavigationHelper>().MoveCameraHelper(_cameraPlanePosition, _pointToLook);
+        hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().MoveCameraHelper(_cameraPlanePosition, _pointToLook);
     }
 
 

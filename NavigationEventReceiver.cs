@@ -29,21 +29,21 @@ public class NavigationEventReceiver : MonoBehaviour {
             switch (_event.data.commandEvent)
             {
                 case TCoreEvent.MouseManager_RightButtonDragMovement:
-                    hom3r.quickLinks.orbitPlane.GetComponent<NavigationManager>().SetMouseMovement(_event.data.mouseDragMovementX, _event.data.mouseDragMovementY, 0.0f);
+                    hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().SetMouseMovement(_event.data.mouseDragMovementX, _event.data.mouseDragMovementY, 0.0f);
                     break;
                 case TCoreEvent.MouseManager_WheelMovement:
-                    hom3r.quickLinks.orbitPlane.GetComponent<NavigationManager>().SetMouseMovement(0.0f, 0.0f, _event.data.mouseWhellMovement);
+                    hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().SetMouseMovement(0.0f, 0.0f, _event.data.mouseWhellMovement);
                     break;
                 case TCoreEvent.ModelManagement_3DLoadSuccess:                    
-                    hom3r.quickLinks.orbitPlane.GetComponent<NavigationManager>().InitNavigation(_event.data.text);
+                    hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().InitNavigation(_event.data.text);
                     break;                
                 case TCoreEvent.ModelManagement_ResetModel:                                        
                     break;
                 case TCoreEvent.TouchManager_DragMovemment:
-                    hom3r.quickLinks.orbitPlane.GetComponent<NavigationManager>().SetTouchMovement(_event.data.value1, _event.data.value2);
+                    hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().SetTouchMovement(_event.data.value1, _event.data.value2);
                     break;
                 case TCoreEvent.TouchManager_PinchZoom:
-                    hom3r.quickLinks.orbitPlane.GetComponent<NavigationManager>().SetTouchPithZoom(_event.data.value1);
+                    hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().SetTouchPithZoom(_event.data.value1);
                     break;
                 default:
                     break;
