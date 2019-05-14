@@ -60,7 +60,8 @@ public class LabelManager : MonoBehaviour
         approximationTimerActive = false;
         redrawTimer = 0.0f;
         redrawTimerActive = false;
-        referenceCameraDistance = Mathf.Sqrt(Camera.main.transform.position.y * Camera.main.transform.position.y + Camera.main.transform.position.z * Camera.main.transform.position.z);
+        //TODO: Move to a different place
+       // referenceCameraDistance = Mathf.Sqrt(Camera.main.transform.position.y * Camera.main.transform.position.y + Camera.main.transform.position.z * Camera.main.transform.position.z);
         movingLabelIndex = -1;
         autoLabelID = -1;
     }
