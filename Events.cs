@@ -41,6 +41,7 @@ public enum TCoreEvent
 
     UI_NewTransparencyAlphaLevel,
 
+    Navigation_NavigationInitiaded,
     Navigation_NavigationToFocusEnd, Navigation_ApproximationEnd, Navigation_PseudoLatitudeMovement, Navigation_PseudoLongitudeMovement,
     Navigation_PseudoRadioMovement,
 
