@@ -60,7 +60,7 @@ public class NavigationManager : MonoBehaviour {
         TMainAxis newMainAxis = ParseMainAxis(newMainAxis_text);    // Parse input main Axis
         SetNavigationAxis(newMainAxis);                             // Change main axis            
 
-        this.modelBoundingBox = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().Get3DModelBoundingBox(); //Get model bounding box        
+        this.modelBoundingBox = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().Get3DModelBoundingBox(true); //Get model bounding box        
         InitOrbitPlanePosition();                                   // Initialize Orbit Plane position
         InitCameraRotation();                                       // Initialize Camera rotation
         InitHelpPlaneSize(modelBoundingBox);
@@ -74,7 +74,9 @@ public class NavigationManager : MonoBehaviour {
             MoveCameraWithinThePlane(cameraInitialPosition);        // Move camera to the initial position
             InitPseudoRadioCorrection();
             OrientateCamera(pointToLook);
-        }else
+            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Navigation_NavigationInitiaded));
+        }
+        else
         {
             Debug.Log("Error camera initial position nor allowed");
         }                   
