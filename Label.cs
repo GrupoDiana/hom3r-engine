@@ -560,8 +560,8 @@ public class CLabel
             newSize = 0.005f;       //AR_APP Hard code
         }else if (hom3r.state.platform == THom3rPlatform.Editor)
         {
-            //newSize = 0.01f;       //AR_APP Hard code
-            newSize = 0.2f;       //hom3r web Hard code
+            newSize = 0.01f;       //AR_APP Hard code
+            //newSize = 0.2f;       //hom3r web Hard code
         }
 
         Debug.Log("distance : " + distance + " - initialCameraDistance: " + initialCameraDistance + " - newSize: " + newSize );
