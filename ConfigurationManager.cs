@@ -19,7 +19,7 @@ public class ConfigurationManager : MonoBehaviour
         UIEnabled = true;                        //Initially the UI is activated
         uiSelectionEnabled = true;               //Initially the selection from UI is activated
         uiAutomaticSelectionEnabled = true;      //Initially direct selection is activated  
-        navigationEnabled = true;
+        navigationEnabled = false;
         touchInteractionEnabled = false;
         mouseInteractionEnabled = true;
         Debug.Log("Configuration Manager Awake");     
