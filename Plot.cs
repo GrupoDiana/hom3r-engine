@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 
 [System.Serializable]
@@ -10,15 +10,26 @@ public class CPlotLabelPosition
 }
 
 [System.Serializable]
-public class CPlotAreaData
+public class CPlotSelectedAreaData
 {
     public string areaID;
     public string colour;
-    public CPlotAreaData() { }
-    public CPlotAreaData(string _areaID, string _colour)
+    public CPlotSelectedAreaData() { }
+    public CPlotSelectedAreaData(string _areaID, string _colour)
     {
         this.areaID = _areaID;
         this.colour = _colour;
+    }
+}
+
+[System.Serializable]
+public class CPlotHiddenAreaData
+{
+    public string id;
+    public CPlotHiddenAreaData() { }
+    public CPlotHiddenAreaData(string _areaID)
+    {
+        this.id = _areaID;
     }
 }
 
@@ -54,24 +65,26 @@ public class CPlotTextData
 public class CPlotPoint
 {    
     public string productModelUrl;
+    public string plotUrl;
     public List<CPlotTextData> textList;
-    public List<CPlotAreaData> areaList;
+    public List<CPlotSelectedAreaData> selectedAreaList;
+    public List<CPlotHiddenAreaData> hiddenAreaList;
     public List<CPlotLabelData> labelList;
 
-    public CPlotPoint()
+    /*public CPlotPoint()
     {
-        areaList = new List<CPlotAreaData>();
+        selectedAreaList = new List<CPlotSelectedAreaData>();
         labelList = new List<CPlotLabelData>();
         textList = new List<CPlotTextData>();
 
-    }
-    public CPlotPoint(string _modelURL, List<CPlotTextData> _textList , List<CPlotAreaData> _selectedAreas, List<CPlotLabelData> _label)
+    }*/
+    /*public CPlotPoint(string _modelURL, List<CPlotTextData> _textList , List<CPlotSelectedAreaData> _selectedAreaList, List<CPlotLabelData> _label)
     {
         this.productModelUrl = _modelURL;
-        this.areaList = _selectedAreas;
+        this.selectedAreaList = _selectedAreaList;
         this.labelList = _label;
         this.textList = _textList;
-    }
+    }*/
 }
 
 [System.Serializable]
