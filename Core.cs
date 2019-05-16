@@ -87,10 +87,10 @@ public class Core : MonoBehaviour {
         {
             return THom3rPlatform.IOS;
         }
-        else if (Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.OSXPlayer)
+        else if (Application.platform == RuntimePlatform.WindowsPlayer)
         {
-            return THom3rPlatform.WindowsMac;
-        }
+            return THom3rPlatform.Windows;
+        }        
         else
         {
             return THom3rPlatform.Other;

@@ -95,7 +95,7 @@ static class StringHom3r
 }
 
 /// <summary>Hom3rModes_Type will try to show the mode in which HOM3R is working every moment</summary>
-public enum THom3rPlatform { Editor, WebGL, Android, IOS, WindowsMac, Other };
+public enum THom3rPlatform { Editor, WebGL, Android, IOS, Windows, Other };
 public enum THom3rMode { IDLE, SMARTTRANSPARENCY, SINGLEPOINTLOCATION, REMOVE, LOCALEXPLOSION };
 public enum THom3rExplosionMode { EXPLODE, IMPLODE };
 public enum THom3rIsolationMode { IDLE, ISOLATE, WITH_REMOVEDNODES };
