@@ -201,8 +201,8 @@ public class SelectionManager : MonoBehaviour
             //Desconfirm all objects
             List<GameObject> temp = new List<GameObject>(gameObjectConfirmedList);
             foreach (GameObject go in temp)
-            {
-                if (go.GetComponent<ObjectStateManager>() != null)
+            {                
+                if (go!=null && go.GetComponent<ObjectStateManager>() != null)
                 {
                     go.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Confirmation_Off);
                 }
@@ -211,6 +211,7 @@ public class SelectionManager : MonoBehaviour
             gameObjectConfirmedList.Clear();
             nodeLeafID_ConfirmedList.Clear();
             specialNodeID_ConfirmedList.Clear();
+            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Selection_AllPartsDeselected));
         }
     }//ConfirmALLGameObjectOFF
 

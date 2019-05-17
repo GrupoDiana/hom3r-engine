@@ -470,8 +470,8 @@ public class CSelectionCommand : CCoreCommand
                     break;
 
                 case TSelectionCommands.DeselectAllParts:                    
-                    hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Selection_AllPartsDeselected));
-                    m.GetComponent<SelectionManager>().ConfirmALLGameObjectOFF(false);
+                    //hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Selection_AllPartsDeselected));fghfgh
+                    hom3r.quickLinks.scriptsObject.GetComponent<SelectionManager>().ConfirmALLGameObjectOFF(false);
                     break;
 
                 case TSelectionCommands.ClearSelectionColour:
