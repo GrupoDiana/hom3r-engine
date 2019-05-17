@@ -189,8 +189,10 @@ public class ModelManager : MonoBehaviour {
         if (list3DFiles[index].fileState == T3DFileState.loading)
         {
             list3DFiles[index].fileState = result;
-            Apply3DModelScale();
-            Calculate3DModelBoundingBox();
+            //Apply3DModelScale();
+            //Calculate3DModelBoundingBox();
+            ApplyDefault3DModelScale();
+
             //Invoke("DoAfterScaling", 4);
             hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.ModelManagement_3DLoadSuccess, productModel.GetNavigationAxis()));
             if (!IsAnyFileLoading())
@@ -637,9 +639,20 @@ public class ModelManager : MonoBehaviour {
         Vector3 currentScale = hom3r.quickLinks._3DModelRoot.transform.localScale;
         Vector3 newScale = modelScale * currentScale;
         hom3r.quickLinks._3DModelRoot.transform.localScale = newScale;
-        Calculate3DModelBoundingBox();
+        Invoke("Calculate3DModelBoundingBox", 0.2f);
     }
 
+    private void ApplyDefault3DModelScale()
+    {
+        modelBoundingBox = Get3DModelBoundingBox(true);
+
+        float max = Mathf.Max(modelBoundingBox.extents.x, modelBoundingBox.extents.y, modelBoundingBox.extents.z);
+        if (max > 100f)
+        {
+            float scale = 100f / max;
+            Set3DModelScale(scale);
+        }             
+    }
 
     /////////////////////////////
     // 3D Model Bounding Box   //
