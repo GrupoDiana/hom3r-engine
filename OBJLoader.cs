@@ -5,6 +5,7 @@ using System.IO;
 using System;
 using System.Text.RegularExpressions;
 using UnityEngine.Networking;
+using System.Globalization;
 
 public class OBJLoader : MonoBehaviour
 {
@@ -418,7 +419,7 @@ public class OBJLoader : MonoBehaviour
         }
         else if (row.StartsWith("Ns ")) //specular exponent that ponders the value of specular colour
         {
-            Ns = float.Parse(row.Replace("Ns ", "").Trim()); //converts the value read to float
+            Ns = float.Parse(row.Replace("Ns ", "").Trim(), CultureInfo.InvariantCulture); //converts the value read to float
             Ns = Ns / 1000; //possible values between 0 and 1000
 
             material.SetFloat("_Glossiness", Ns); //sets this value in the material
@@ -443,11 +444,11 @@ public class OBJLoader : MonoBehaviour
         {
             if (row.StartsWith("d ")) //Transparency factor, opaque(1) and transparent(0)
             {
-                visibility = float.Parse(row.Replace("d ", "").Trim()); //converts it to float
+                visibility = float.Parse(row.Replace("d ", "").Trim(), CultureInfo.InvariantCulture); //converts it to float
             }
             else if (row.StartsWith("Tr ")) //opposite to the transparency factor, transparent(1) and opaque(0)
             {
-                visibility = 1 - float.Parse(row.Replace("Tr ", "").Trim()); //transparency factor = 1 - value read
+                visibility = 1 - float.Parse(row.Replace("Tr ", "").Trim(), CultureInfo.InvariantCulture); //transparency factor = 1 - value read
             }
             else //should not enter here, but fail if removed
             {
@@ -1239,9 +1240,9 @@ public class OBJLoader : MonoBehaviour
     {
         string[] temp = str.Split(' '); //converts the string in array of string
 
-        float Kr = float.Parse(temp[0]) * scalar; //converts the string in float and scale it
-        float Kg = float.Parse(temp[1]) * scalar; //converts the string in float and scale it
-        float Kb = float.Parse(temp[2]) * scalar; //converts the string in float and scale it
+        float Kr = float.Parse(temp[0], CultureInfo.InvariantCulture) * scalar; //converts the string in float and scale it
+        float Kg = float.Parse(temp[1], CultureInfo.InvariantCulture) * scalar; //converts the string in float and scale it
+        float Kb = float.Parse(temp[2], CultureInfo.InvariantCulture) * scalar; //converts the string in float and scale it
 
         Color color = new Color(Kr, Kg, Kb); //sets the colour
 
@@ -1255,10 +1256,10 @@ public class OBJLoader : MonoBehaviour
     {
         string[] vect = str.Split(null); //converts the string in array of string
         Vector3 v = new Vector3(); //saves the coordinates
-
-        float.TryParse(vect[0], out v.x); //converts the string in float, coordinate x
-        float.TryParse(vect[1], out v.y); //converts the string in float, coordinate y
-        float.TryParse(vect[2], out v.z); //converts the string in float, coordinate z
+        
+        float.TryParse(vect[0], NumberStyles.Number, CultureInfo.InvariantCulture, out v.x); //converts the string in float, coordinate x
+        float.TryParse(vect[1], NumberStyles.Number, CultureInfo.InvariantCulture, out v.y); //converts the string in float, coordinate y
+        float.TryParse(vect[2], NumberStyles.Number, CultureInfo.InvariantCulture, out v.z); //converts the string in float, coordinate z
 
         return v; //returns the coordinates
     }
@@ -1271,8 +1272,8 @@ public class OBJLoader : MonoBehaviour
         string[] vect = str.Split(null); //converts the string in array of string
         Vector2 v = new Vector2(); //saves the coordinates
 
-        float.TryParse(vect[0], out v.x); //converts the string in float, coordinate x
-        float.TryParse(vect[1], out v.y); //converts the string in float, coordinate y
+        float.TryParse(vect[0], NumberStyles.Number, CultureInfo.InvariantCulture, out v.x); //converts the string in float, coordinate x
+        float.TryParse(vect[1], NumberStyles.Number, CultureInfo.InvariantCulture, out v.y); //converts the string in float, coordinate y
 
         return v; //returns the coordinates
     }
