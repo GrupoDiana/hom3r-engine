@@ -28,12 +28,20 @@ public class ModelManager : MonoBehaviour {
     
     void Awake()
     {
-        productModel        = new CProductModel();          // Initialize the product model var
-        productModelLoaded  = false;                        // Initialize to false, the model hasn't be loaded at this moment.             
-        list3DFiles       = new List<C3DFileData>();        // Initialize List of files to load        
+        InitVars();
+    }
+
+    /// <summary>
+    /// Initialize all the variables
+    /// </summary>
+    private void InitVars()
+    {
+        productModel = new CProductModel();          // Initialize the product model var
+        productModelLoaded = false;                        // Initialize to false, the model hasn't be loaded at this moment.             
+        list3DFiles = new List<C3DFileData>();        // Initialize List of files to load        
         listResourceFiles = new List<CResourceFileData>();
-        files3DID           = 0;                            // Store 3D files ID
-        _3DFilePath         = "";                           // Store the 3D file path when we are on the Editor   
+        files3DID = 0;                            // Store 3D files ID
+        _3DFilePath = "";                           // Store the 3D file path when we are on the Editor   
         modelBoundingBoxInit = false;                       //
         modelScale = 1.0f;                                  // Initialization of model scale
     }
@@ -71,24 +79,36 @@ public class ModelManager : MonoBehaviour {
     /// <param name="productModelUrl">Product model URL</param>    
     IEnumerator CoroutineLoadProductModel(string productModelUrl)
     {        
-        WWW request = new WWW(productModelUrl);        
+        //WWW request = new WWW(productModelUrl);
+        UnityWebRequest fileWWW = UnityWebRequest.Get(productModelUrl);
+        fileWWW.SendWebRequest();
+
         //Show downloaded progress
-        while (!request.isDone)
+        while (!fileWWW.isDone)
         {            
-            SendMessageToUI("Loading Model from DataBase: " + Mathf.Round(request.progress * 100.0f).ToString() + "%", 0.0f);
+            SendMessageToUI("Loading Model from DataBase: " + Mathf.Round(fileWWW.downloadProgress * 100.0f).ToString() + "%", 0.0f);
             yield return new WaitForSeconds(0.1f);
         }
+
+
         //Has been download correctly?
-        if (request.error == null || request.error == "")
-        {            
-            productModel = JsonUtility.FromJson<CProductModel>(request.text);   //Load product model from the json downloaded
+        if (fileWWW.isNetworkError || fileWWW.isHttpError)
+        {
+            string errorMessage = "Error: Product Model cannot be download from the URL specified." + fileWWW.error;
+            Debug.LogError("WWW error: " + productModelUrl + " : " + fileWWW.error);
+            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.ModelManagement_ModelLoadError, errorMessage));
+            SendMessageToUI(errorMessage);
+        }
+        else
+        {
+            productModel = JsonUtility.FromJson<CProductModel>(fileWWW.downloadHandler.text);   //Load product model from the JSON file downloaded
             if (productModel.isInit())
             {
                 productModelLoaded = productModel.SetupDictionaries();  //Initialize the class with the data uploaded
                 if (productModelLoaded)
-                {                 
-                    SendMessageToUI("hom3r: Product model loaded correctly!!!", 5.0f);                    
-                    hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.ModelManagement_ProductModelLoadOk));                    
+                {
+                    SendMessageToUI("hom3r: Product model loaded correctly!!!", 5.0f);
+                    hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.ModelManagement_ProductModelLoadOk));
                     Load3DFilesFromProductModel();      //Download the 3D files                    
                 }
                 else
@@ -102,16 +122,9 @@ public class ModelManager : MonoBehaviour {
             {
                 //Send error to Application and UI
                 string errorMessage = "Error: The product model has a bad format";
-                hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.ModelManagement_ModelLoadError, errorMessage));                
-                SendMessageToUI(errorMessage);                                
-            }              
-        }
-        else
-        {
-            string errorMessage = "Error: Product Model cannot be download from the URL specified." + request.error;
-            Debug.LogError("WWW error: " + productModelUrl + " : " + request.error);                                    
-            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.ModelManagement_ModelLoadError, errorMessage));
-            SendMessageToUI(errorMessage);
+                hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.ModelManagement_ModelLoadError, errorMessage));
+                SendMessageToUI(errorMessage);
+            }
         }
     }
        
@@ -467,7 +480,10 @@ public class ModelManager : MonoBehaviour {
             
             list3DFiles.Clear();
             productModelLoaded = false;
-            productModel.Clear();            
+            productModel.Clear();
+
+            InitVars();     // Initialize all the variables
+
             hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.ModelManagement_ResetModel));
             Resources.UnloadUnusedAssets();
                                   
