@@ -56,7 +56,9 @@ public enum TCoreEvent
     LabelManager_ShowMessage, LabelManager_LabelRemoved,
 
     UIAR_StartAuthoring, UIAR_StopAuthoring,
-    ExhibitionManager_ExhibitionPlotLoadError, ExhibitionManager_ExhibitionPlotLoadSuccess, ExhibitionManager_ExhibitionPointLoaded, ExhibitionManager_ExhibitionLanguageChanged
+    ExhibitionManager_ExhibitionPlotLoadError, ExhibitionManager_ExhibitionPlotLoadSuccess, ExhibitionManager_ExhibitionPointLoaded, ExhibitionManager_ExhibitionLanguageChanged,
+
+    AR_TapToPlaceScene_Success
 };
 
 /// <summary>Core events data</summary>
