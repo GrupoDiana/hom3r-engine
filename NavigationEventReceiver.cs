@@ -39,7 +39,7 @@ public class NavigationEventReceiver : MonoBehaviour {
                     break;                
                 case TCoreEvent.ModelManagement_ResetModel:                                        
                     break;
-                case TCoreEvent.TouchManager_DragMovemment:
+                case TCoreEvent.TouchManager_DragMovement:
                     hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().SetTouchMovement(_event.data.value1, _event.data.value2);
                     break;
                 case TCoreEvent.TouchManager_PinchZoom:

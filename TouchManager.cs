@@ -5,7 +5,8 @@ using UnityEngine;
 public class TouchManager : MonoBehaviour
 {
     private int     selectionTouchId;
-    private bool    isMovement;
+    private bool    isDragMovement;
+    private bool    isPitchMovement;
     private float   currentCountdownValue;
     private int     movementCounter;
     private int     movementDetector;
@@ -20,7 +21,8 @@ public class TouchManager : MonoBehaviour
     void Awake()
     {        
         this.selectionTouchId = -1;
-        this.isMovement = false;
+        this.isDragMovement = false;
+        this.isPitchMovement = false;
         this.movementCounter = 0;
         this.movementDetector = 5;         // TODO do this in a different way ?
         this.initTwoTouchesDistance = 0f;
@@ -62,19 +64,33 @@ public class TouchManager : MonoBehaviour
             if (Input.GetTouch(0).phase == TouchPhase.Began)
             {
                 this.selectionTouchId = Input.GetTouch(0).fingerId;
-                this.isMovement = false;
+                if (this.isDragMovement)
+                {
+                    hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.TouchManager_DragMovementEnd));
+                    this.isDragMovement = false;
+                }
+                if (this.isPitchMovement)
+                {
+                    hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.TouchManager_PinchZoomEnd));
+                    this.isPitchMovement = false;
+                }
+
             }  
             else if (Input.GetTouch(0).phase == TouchPhase.Ended)
             {
-                if (!isMovement  && (Input.GetTouch(0).fingerId == this.selectionTouchId))
+                if (!isDragMovement  && (Input.GetTouch(0).fingerId == this.selectionTouchId))
                 {
                     //SelectionManager(Input.GetTouch(0).position);
                     Debug.Log("hom3r - selection");
-                    SelectionManager2(Input.GetTouch(0).position);
+                    SelectionManager(Input.GetTouch(0).position);
                 }
                 this.selectionTouchId = -1;
                 this.movementCounter = 0;
-                this.isMovement = false;
+                if (this.isDragMovement) {
+                    hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.TouchManager_DragMovementEnd));
+                    this.isDragMovement = false;
+                }
+                
             }
             else if (Input.GetTouch(0).phase == TouchPhase.Moved)
             {
@@ -89,86 +105,12 @@ public class TouchManager : MonoBehaviour
             {
                 this.selectionTouchId = -1;
                 this.movementCounter = 0;
-                this.isMovement = false;
+                this.isDragMovement = false;
             }
         }
     }
 
-
-
-    
-    /// <summary>
-    ///When we touch on an object we confirm it
-    ///When we touch on a confirmed object we unselect it
-    ///When we press the **** and the key "Control" we make multiple confirmation
-    /// </summary>
-    /// <param name="position"></param>
-    //private void SelectionManager(Vector2 position)
-    //{        
-    //    GameObject rayCastedGameObject;         //Object ray-casted
-
-
-    //    Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-    //    int productLayer = 1 << LayerMask.NameToLayer(hom3r.state.productRootLayer);
-    //    RaycastHit hit;
-    //    if (Physics.Raycast(ray, out hit, Mathf.Infinity, productLayer))
-    //    {
-    //        rayCastedGameObject = hit.collider.gameObject;
-
-    //        //"DESCONFIRM" the ray-casted object if the object is already confirmed                                
-    //        if (this.GetComponent<SelectionManager>().IsConfirmedGameObject(rayCastedGameObject))
-    //        {
-    //            //Check if we have only one component or area selected
-    //            bool onlyOneComponentOrArea = false;
-    //            if (hom3r.state.currentSelectionMode == THom3rSelectionMode.AREA)
-    //            {
-    //                onlyOneComponentOrArea = (this.GetComponent<SelectionManager>().GetNumberOfConfirmedGameObjects() == 1);
-    //            }
-    //            else if (hom3r.state.currentSelectionMode == THom3rSelectionMode.SPECIAL_NODE)
-    //            {
-    //                onlyOneComponentOrArea = (this.GetComponent<SelectionManager>().GetNumberOfConfirmedSpecialNode() == 1);
-    //            }
-
-    //            //If is only one we deselect this one                    )
-    //            if (onlyOneComponentOrArea)
-    //            {
-    //                this.GetComponent<Core>().Do((new CSelectionCommand(TSelectionCommands.ConfirmationOff, rayCastedGameObject)), Constants.undoNotAllowed);
-    //            }
-    //            else 
-    //            {
-    //                if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl) /*|| keyControlPressed*/)
-    //                {
-    //                    //Multiple Confirmation, descorfirn one by one
-    //                    this.GetComponent<Core>().Do((new CSelectionCommand(TSelectionCommands.ConfirmationOff, rayCastedGameObject)), Constants.undoNotAllowed);
-    //                }
-    //                else
-    //                {
-    //                    //Multiple Desconfirmation, descorfirm all except the selected one
-    //                    this.GetComponent<Core>().Do((new CSelectionCommand(TSelectionCommands.Multiple_Confirmation_Desconfirmation, rayCastedGameObject)), Constants.undoNotAllowed);
-    //                }
-    //            }
-    //        }
-    //        //CONFIRM the ray-casted object
-    //        else
-    //        {
-    //            //Multiple CONFIRMATION
-    //            if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl) /*|| keyControlPressed*/)
-    //            {
-    //                //Debug.Log("MULTIPLE Selection Active");                        
-    //                this.GetComponent<Core>().Do((new CSelectionCommand(TSelectionCommands.MultipleConfirmation, rayCastedGameObject)), Constants.undoNotAllowed);
-    //            }
-    //            //Single CONFIRMATION
-    //            else
-    //            {
-    //                //Debug.Log("SINGLE Selection Active");                 
-    //                this.GetComponent<Core>().Do((new CSelectionCommand(TSelectionCommands.SingleConfirmationByMouse, rayCastedGameObject)), Constants.undoNotAllowed);
-    //            }
-    //        }
-    //    }
-    //}
-
-    
-    private void SelectionManager2(Vector3 currentTouchPosition)
+    private void SelectionManager(Vector3 currentTouchPosition)
     {        
         // 1. Check if user has clicked in gizmo object
         if (gizmoCamera != null) {
@@ -193,7 +135,7 @@ public class TouchManager : MonoBehaviour
         GameObject rayCastedGO = Raycast(currentTouchPosition, Camera.main, productRootLayer);
         Debug.Log("hom3r: " + currentTouchPosition.ToString());
         Debug.Log("hom3r: " + rayCastedGO.name);       
-        hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.TouchManager_OneTouch, currentTouchPosition, rayCastedGO, false));
+        hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.TouchManager_OneSelectionTouch, currentTouchPosition, rayCastedGO, false));
     }
 
     /// <summary>Method that use Ray Casting technique</summary>
@@ -220,9 +162,10 @@ public class TouchManager : MonoBehaviour
     {
         if (movementCounter > movementDetector)
         {
-            isMovement = true;
+            isDragMovement = true;
+            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.TouchManager_DragMovementBegin));
         }
-        if (isMovement)
+        if (isDragMovement)
         {
             movementCounter = 0;
             Debug.Log("hom3r - Movement");
@@ -234,7 +177,7 @@ public class TouchManager : MonoBehaviour
 
             float touchMovementX = xMovement / Screen.width;     // Get touch x movement in screen %
             float touchMovementY = yMovement / Screen.height;    // Get mouse y movement in screen %   
-            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.TouchManager_DragMovemment, touchMovementX, touchMovementY));
+            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.TouchManager_DragMovement, touchMovementX, touchMovementY));
         }
     }
 
@@ -243,7 +186,12 @@ public class TouchManager : MonoBehaviour
         // If there are two touches on the device...
         if (Input.touchCount == 2)
         {
-            isMovement = true;
+            if (!isPitchMovement)
+            {
+                isPitchMovement = true;
+                hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.TouchManager_PinchZoomBegin));
+            }
+            
             // Store both touches.
             Touch touchZero = Input.GetTouch(0);
             Touch touchOne = Input.GetTouch(1);

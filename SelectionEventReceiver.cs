@@ -40,7 +40,7 @@ public class SelectionEventReceiver : MonoBehaviour {
                         hom3r.quickLinks.scriptsObject.GetComponent<SelectionManager>().ConfirmByMouseLeftClickAndMousePosition(_event.data.mousePosition, _event.data.obj, _event.data.control);
                     }                        
                     break;
-                case TCoreEvent.TouchManager_OneTouch:
+                case TCoreEvent.TouchManager_OneSelectionTouch:
                     if (hom3r.state.currentMode == THom3rMode.IDLE || hom3r.state.currentMode == THom3rMode.SMARTTRANSPARENCY)
                     {
                         hom3r.quickLinks.scriptsObject.GetComponent<SelectionManager>().ConfirmByMouseLeftClickAndMousePosition(_event.data.mousePosition, _event.data.obj, _event.data.control);
