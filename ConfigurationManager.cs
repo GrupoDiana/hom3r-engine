@@ -12,16 +12,20 @@ public class ConfigurationManager : MonoBehaviour
     private bool touchInteractionEnabled;       // This control if the touch interaction is On or not
     private bool mouseInteractionEnabled;       // This control if the mouse interaction is On or not
 
-    private bool navigationEnabled;              // This control if the navigation is On or not
+    private bool navigationEnabled;             // This control if the navigation is On or not
+    private bool navigationZoomEnabled;         // This control if the navigation Zoom is On or not
+
 
     private void Awake()
-    {        
-        UIEnabled = true;                        //Initially the UI is activated
-        uiSelectionEnabled = true;               //Initially the selection from UI is activated
-        uiAutomaticSelectionEnabled = true;      //Initially direct selection is activated  
-        navigationEnabled = false;
-        touchInteractionEnabled = false;
-        mouseInteractionEnabled = true;
+    {
+        UIEnabled                   = true;     // Initially the UI is activated
+        uiSelectionEnabled          = true;     // Initially the selection from UI is activated
+        uiAutomaticSelectionEnabled = true;     // Initially direct selection is activated  
+        navigationEnabled           = false;
+        touchInteractionEnabled     = false;
+        mouseInteractionEnabled     = true;
+        navigationZoomEnabled       = true;
+
         Debug.Log("Configuration Manager Awake");     
     } 
 
@@ -126,7 +130,7 @@ public class ConfigurationManager : MonoBehaviour
     // Navigation
     /////////////////////
     /// <summary>
-    /// Set if the mouse interaction is activated or not. 
+    /// Set if the navigation is activated or not. 
     /// </summary>
     /// <param name="_enabled">true activate the mouse interaction</param>
     public void SetActiveNavigation(bool _enabled)
@@ -134,11 +138,28 @@ public class ConfigurationManager : MonoBehaviour
         navigationEnabled = _enabled;
     }
     /// <summary>
-    /// Get if mouse interaction is activated or not. 
+    /// Get if the navigation is activated or not. 
     /// </summary>
     /// <returns>True if mouse interaction is activated</returns>
     public bool GetActiveNavigation()
     {
         return navigationEnabled;
+    }
+
+    /// <summary>
+    /// Set if the Zoom is activated or not. 
+    /// </summary>
+    /// <param name="_enabled">true activate Zoom interaction</param>
+    public void SetActiveNavigationZoom(bool _enabled)
+    {
+        navigationZoomEnabled = _enabled;
+    }
+    /// <summary>
+    /// Get if the zoom is activated or not. 
+    /// </summary>
+    /// <returns>True if Zoom interaction is activated</returns>
+    public bool GetActiveNavigationZoom()
+    {
+        return navigationZoomEnabled;
     }
 }

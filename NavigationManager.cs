@@ -268,7 +268,12 @@ public class NavigationManager : MonoBehaviour {
             //////////////////////////
             //  Calculate pseudoRadio
             //////////////////////////
-            pseudoRadio = -1.0f * CalculatePseudoRadioVariation(mouseWhellMovement);    //Calculate pseudo Radio
+            pseudoRadio = 0.0f;
+            if (hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetActiveNavigationZoom())
+            {
+                pseudoRadio = -1.0f * CalculatePseudoRadioVariation(mouseWhellMovement);    //Calculate pseudo Radio
+            }
+            
 
             /////////////////////////////////////////////////
             // Emit pseudoData just in case someone need it
@@ -293,61 +298,7 @@ public class NavigationManager : MonoBehaviour {
             OrientateCamera(pointToLook);                        
         }
     }
-    
-    /*  
-    private float Calculate_Vertical_ScaleMapping_Mouse_To_Pseudo_Coordinate(string pseudoCoordinate)
-    {
-        float scale = 0.0f;
-        if (mainAxis == TMainAxis.Vertical)
-        {
-            if (pseudoCoordinate == "Latitude")
-            {
-                float distanceToCenter = Camera.main.transform.position.magnitude;      // Distance to centre
-                float a = distanceToCenter * Mathf.Tan(verticalFieldOfView_rad);        // Vertical camera projection
-                scale = a / modelBoundingBox.extents.y;                                 // Percentage of bounding box outside of the projection                
-            }
-            else if (pseudoCoordinate == "Longitude")
-            {
-                float distanceToCenter = Camera.main.transform.position.magnitude;      // Distance to centre
-                float a = distanceToCenter * Mathf.Tan(horizontalFieldOfView_rad);      // Horizontal camera projection
-
-                float b = Mathf.Sqrt((MathHom3r.Pow2(modelBoundingBox.extents.x) + MathHom3r.Pow2(modelBoundingBox.extents.z))); //     
-                scale = a / b;                                                          // Percentage of bounding box outside of the projection                            
-            }
-        }
-        
-        // Bounded to 1. The maximum value that can return is 1.0f
-        if (scale < 1.0f) { return scale; }
-        else return 1.0f;        
-    }
-
-    private float Calculate_Horizontal_ScaleMapping_Mouse_To_Pseudo_Coordinate(string pseudoCoordinate)
-    {
-        float scale = 0.0f;
-        if (mainAxis == TMainAxis.Horizontal)
-        {
-            if (pseudoCoordinate == "Latitude")
-            {
-                float distanceToCenter = Camera.main.transform.position.magnitude;      // Distance to centre
-                float a = distanceToCenter * Mathf.Tan(horizontalFieldOfView_rad);        // Vertical camera projection
-                scale = a / modelBoundingBox.extents.x;                                 // Percentage of bounding box outside of the projection                            
-            }
-            else if (pseudoCoordinate == "Longitude")
-            {                
-                float distanceToCenter = Camera.main.transform.position.magnitude;      // Distance to centre
-                float a = distanceToCenter * Mathf.Tan(verticalFieldOfView_rad);      // Horizontal camera projection
-
-                float b = Mathf.Sqrt((MathHom3r.Pow2(modelBoundingBox.extents.y) + MathHom3r.Pow2(modelBoundingBox.extents.z))); //     
-                scale = a / b;                                                          // Percentage of bounding box outside of the projection                            
-            }
-        }
-
-        // Bounded to 1. The maximum value that can return is 1.0f
-        if (scale < 1.0f) { return scale; }
-        else return 1.0f;
-    }
-    */
-
+   
     private float CalculatePseudoRadioVariation(float mouseWheelMovement)
     {       
         return mouseWheelMovement * pseudoRadioCorrection;
@@ -416,6 +367,9 @@ public class NavigationManager : MonoBehaviour {
 
     public void SetTouchPithZoom(float percentageOfSize)
     {
+        // Check if the zoom is activated
+        if (!hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetActiveNavigationZoom()) { return; }
+        
         //float pseudoRadio = cameraInitialPosition.magnitude * percentageOfSize;
         float pseudoRadio = GetCurrentCameraPositionWithinPlane().magnitude * percentageOfSize;
 

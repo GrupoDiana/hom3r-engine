@@ -34,7 +34,7 @@ public enum TConfigurationCommands
     ActiveUI,
     ActiveUISelection, ActiveUIAutomaticSelection,
     ActiveTouchInteration, ActiveMouseInteration,
-    ActiveNavigation
+    ActiveNavigation, ActiveNavigationZoom
 }
 
 /// <summary>Model data</summary>
@@ -95,6 +95,9 @@ public class CConfigurationCommand : CCoreCommand
                     break;
                 case TConfigurationCommands.ActiveNavigation:
                     hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetActiveNavigation(data.activate);
+                    break;
+                case TConfigurationCommands.ActiveNavigationZoom:
+                    hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetActiveNavigationZoom(data.activate);
                     break;
                 default:
                     Debug.LogError("Error: This command " + data.command + " is not valid.");
