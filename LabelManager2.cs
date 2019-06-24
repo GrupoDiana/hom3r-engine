@@ -78,11 +78,18 @@ public class LabelManager2 : MonoBehaviour
 
 
     /////////////////
-    //  SET/GETL //
+    //  SET/ GET //
     /////////////////
     public void SetColor(Color32 _labelColor)
     {
 
     }
     
+
+
+    public void RemoveLabel(string _labelId)
+    {
+        GameObject labelToRemove = this.labelList.Find(r => r.GetComponent<Label2>().GetLabelId() == _labelId);        
+        Destroy(labelToRemove);
+    }
 }

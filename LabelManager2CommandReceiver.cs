@@ -31,7 +31,8 @@ public class LabelManager2CommandReceiver : MonoBehaviour
 /// <summary>Navigation Commands</summary>
 public enum TLabelManager2Commands
 {
-    AddLabel, RemoveLabel
+    AddBillboardLabel, RemoveLabel,
+    AddAnchoredLabel, 
 }
 
 
@@ -40,6 +41,8 @@ public class CLabelManager2CommandData
 {
     public TLabelManager2Commands commandEvent;
 
+    public string labelId { get; set; }
+    public string text { get; set; }
     public string areaId { get; set; }
     public Vector3 labelPosition { get; set; }
 
@@ -58,6 +61,21 @@ public class CLabelMananager2Command : CCoreCommand
         data = new CLabelManager2CommandData(_command);
     }
 
+    public CLabelMananager2Command(TLabelManager2Commands _command, string _labelId, string _text)
+    {
+        data = new CLabelManager2CommandData(_command);
+        this.data.labelId = _labelId;
+        this.data.text = _text;
+    }
+
+    public CLabelMananager2Command(TLabelManager2Commands _command, string _labelId, string _areaId, string _text)
+    {
+        data = new CLabelManager2CommandData(_command);
+        this.data.labelId = _labelId;
+        this.data.text = _text;
+        this.data.areaId = _areaId;
+    }
+
     //////////////////
     //   Execute    //
     //////////////////
@@ -69,12 +87,14 @@ public class CLabelMananager2Command : CCoreCommand
             {
                 switch (data.commandEvent)
                 {
-                    case TLabelManager2Commands.AddLabel:
-
+                    case TLabelManager2Commands.AddBillboardLabel:
+                        hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().AddBillboard(data.areaId, data.text);
                         break;
-
+                    case TLabelManager2Commands.AddAnchoredLabel:
+                        hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().AddAnchoredLabel(data.areaId, data.areaId, data.text);
+                        break;
                     case TLabelManager2Commands.RemoveLabel:
-
+                        hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().RemoveLabel(data.areaId);
                         break;
                     default:
                         Debug.LogError("Error: This command " + data.commandEvent + " is not valid.");
