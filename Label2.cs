@@ -42,9 +42,9 @@ public class Label2 : MonoBehaviour
         this.position = _labelPosition;
 
 
-        if (type == TLabelType.billboard)
+        if (type == TLabelType.board)
         {
-            this.CreateBillboard();
+            this.CreateBoard();
         } else if (type == TLabelType.anchoredLabel)
         {
             // Whatever
@@ -55,7 +55,7 @@ public class Label2 : MonoBehaviour
 
     }
 
-    private void CreateBillboard()
+    private void CreateBoard()
     {
         this.gameObject.transform.position = this.position.panelPosition;
         this.gameObject.transform.Find("TextMeshPro").GetComponent<TextMeshPro>().text = this.text;

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum TLabelType { billboard, anchoredLabel}
+public enum TLabelType { board, anchoredLabel}
 
 public class CLabelPosition
 {
@@ -24,10 +24,10 @@ public class LabelManager2 : MonoBehaviour
     //  ADD LABEL //
     /////////////////
 
-    public void AddBillboard(string _labelId, string _text)
+    public void AddBoard(string _labelId, string _text)
     {
-        CLabelPosition labelPosition = this.GetDefaultPosition(TLabelType.billboard);
-        this.AddLabel(_labelId, null, TLabelType.billboard, _text, labelPosition);
+        CLabelPosition labelPosition = this.GetDefaultPosition(TLabelType.board);
+        this.AddLabel(_labelId, null, TLabelType.board, _text, labelPosition);
     }
     
     public void AddAnchoredLabel(string _labelId, string _areaId, string _text)
@@ -39,9 +39,9 @@ public class LabelManager2 : MonoBehaviour
     private void AddLabel(string _labelId, string _areaId, TLabelType _labelType, string _text, CLabelPosition _labelPosition)
     {
         GameObject newLabel = null;
-        if (_labelType == TLabelType.billboard)
+        if (_labelType == TLabelType.board)
         {
-            newLabel = (GameObject)Resources.Load("prefabs/Label/BillboardPrefab", typeof(GameObject));
+            newLabel = (GameObject)Resources.Load("prefabs/Label/BoardPrefab", typeof(GameObject));
         } else if (_labelType == TLabelType.anchoredLabel) {
             newLabel = (GameObject)Resources.Load("prefabs/Label/AnchoredLabelPrefab", typeof(GameObject));
         }        
@@ -55,9 +55,9 @@ public class LabelManager2 : MonoBehaviour
 
     private CLabelPosition GetDefaultPosition(TLabelType _labelType, string _areadId = null)
     {
-        if (_labelType == TLabelType.billboard)
+        if (_labelType == TLabelType.board)
         {
-            return GetDefaultPositionBillboard();
+            return GetDefaultPositionBoard();
         }
         else if (_labelType == TLabelType.anchoredLabel)
         {
@@ -66,8 +66,12 @@ public class LabelManager2 : MonoBehaviour
         return null;
     }
 
-    private CLabelPosition GetDefaultPositionBillboard()
+    private CLabelPosition GetDefaultPositionBoard()
     {
+        //Recolocate panel over the AR plane
+        //Bounds panelBounds = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().CalculateExtern3DModelBoundingBox(current_descriptionPanelGO);
+        //float yPos = panel3D_canvas.transform.localPosition.y + panelBounds.extents.y;
+        //current_descriptionPanelGO.transform.localPosition = new Vector3(current_descriptionPanelGO.transform.localPosition.x, yPos, current_descriptionPanelGO.transform.localPosition.z);
         return null;
     }
 

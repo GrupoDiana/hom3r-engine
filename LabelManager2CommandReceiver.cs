@@ -31,7 +31,7 @@ public class LabelManager2CommandReceiver : MonoBehaviour
 /// <summary>Navigation Commands</summary>
 public enum TLabelManager2Commands
 {
-    AddBillboardLabel, RemoveLabel,
+    AddBoardLabel, RemoveLabel,
     AddAnchoredLabel, 
 }
 
@@ -87,8 +87,8 @@ public class CLabelMananager2Command : CCoreCommand
             {
                 switch (data.commandEvent)
                 {
-                    case TLabelManager2Commands.AddBillboardLabel:
-                        hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().AddBillboard(data.areaId, data.text);
+                    case TLabelManager2Commands.AddBoardLabel:
+                        hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().AddBoard(data.areaId, data.text);
                         break;
                     case TLabelManager2Commands.AddAnchoredLabel:
                         hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().AddAnchoredLabel(data.areaId, data.areaId, data.text);
