@@ -68,5 +68,4 @@ public class Label2 : MonoBehaviour
 
     public string GetLabelId() { return this.id; }
     
-
 }
