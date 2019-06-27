@@ -31,8 +31,9 @@ public class LabelManager2CommandReceiver : MonoBehaviour
 /// <summary>Navigation Commands</summary>
 public enum TLabelManager2Commands
 {
-    AddBoardLabel, RemoveLabel,
-    AddAnchoredLabel, 
+    AddBoardLabel, 
+    AddAnchoredLabel,
+    RemoveLabel, RemoveAllLabel
 }
 
 
@@ -95,6 +96,9 @@ public class CLabelMananager2Command : CCoreCommand
                         break;
                     case TLabelManager2Commands.RemoveLabel:
                         hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().RemoveLabel(data.areaId);
+                        break;
+                    case TLabelManager2Commands.RemoveAllLabel:
+                        hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().RemoveAllLabel();
                         break;
                     default:
                         Debug.LogError("Error: This command " + data.commandEvent + " is not valid.");

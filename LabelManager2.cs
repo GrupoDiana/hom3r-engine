@@ -102,7 +102,20 @@ public class LabelManager2 : MonoBehaviour
 
     public void RemoveLabel(string _labelId)
     {
-        GameObject labelToRemove = this.labelList.Find(r => r.GetComponent<Label2>().GetLabelId() == _labelId);        
-        Destroy(labelToRemove);
+        GameObject labelToRemove = this.labelList.Find(r => r.GetComponent<Label2>().GetLabelId() == _labelId);
+        if (labelToRemove != null)
+        {
+            Destroy(labelToRemove);
+            this.labelList.Remove(labelToRemove);
+        }                
+    }
+
+    public void RemoveAllLabel()
+    {
+        foreach (GameObject label in this.labelList)
+        {
+            Destroy(label);
+        }
+        this.labelList.Clear();
     }
 }
