@@ -47,9 +47,11 @@ public class LabelManager2 : MonoBehaviour
             newLabel = (GameObject)Resources.Load("prefabs/Label/AnchoredLabelPrefab", typeof(GameObject));
         }        
         GameObject newLabelGO = Instantiate(newLabel, new Vector3(0f, 0f, 0f), new Quaternion(0f, 0f, 0f, 0f));
+       //newLabelGO.SetActive(false);                                                                         //Hide label while is being configures
 
-        newLabelGO.transform.parent = hom3r.quickLinks.labelsObject.transform;                  // Change parent
-        newLabelGO.GetComponent<Label2>().Create(_labelId, _areaId, _labelType, _text, _labelPosition);   // Create the label
+        newLabelGO.transform.parent = hom3r.quickLinks.labelsObject.transform;                              // Change parent
+        newLabelGO.GetComponent<Label2>().Create(_labelId, _areaId, _labelType, _text, _labelPosition);     // Create the label
+
         labelList.Add(newLabelGO);
     }
 
@@ -74,13 +76,10 @@ public class LabelManager2 : MonoBehaviour
 
         Vector3 local_position = Vector3.zero;
         float pos = Mathf.Sqrt(plugyObjectBounds.extents.z * plugyObjectBounds.extents.z + plugyObjectBounds.extents.x * plugyObjectBounds.extents.x);
-        local_position.z = (-1.0f) * pos;// (plugyObjectBounds.extents.z);// + Mathf.Abs(plugyObjectBounds.center.z));// * pluggy3DModelScale;
-        local_position.x = (+1.0f) * pos;// (plugyObjectBounds.extents.x);// + Mathf.Abs(plugyObjectBounds.center.x));// * pluggy3DModelScale;
-        Quaternion local_rotation = Camera.main.transform.localRotation;
+        local_position.z = (-1.0f) * pos;
+        local_position.x = (+1.0f) * pos;
 
         labelPos.panelPosition = local_position;
-        labelPos.panelRotation = local_rotation;
-               
         return labelPos;
     }
 

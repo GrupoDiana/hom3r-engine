@@ -61,6 +61,7 @@ public class Label2 : MonoBehaviour
 
     private void CreateBoard()
     {
+
         this.transform.position = this.position.panelPosition;
         this.transform.localRotation = position.panelRotation;
 
@@ -83,7 +84,8 @@ public class Label2 : MonoBehaviour
         float yPos = panelGO.transform.localPosition.y + boardBounds.extents.y;
         this.transform.localPosition = new Vector3(this.transform.localPosition.x, yPos, this.transform.localPosition.z);
 
-        //current_descriptionPanelGO.SetActive(true);
+        //show boadrs once is ready
+        //this.gameObject.SetActive(true);
     }
 
 
