@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum TLabelType { billboard, anchoredLabel}
+public enum TLabelType { board, anchoredLabel}
 
 public class CLabelPosition
 {
     public Vector3 panelPosition;
+    public Quaternion panelRotation;
     public Vector3 anchorPosition;
 }
 
@@ -24,10 +25,10 @@ public class LabelManager2 : MonoBehaviour
     //  ADD LABEL //
     /////////////////
 
-    public void AddBillboard(string _labelId, string _text)
+    public void AddBoard(string _labelId, string _text)
     {
-        CLabelPosition labelPosition = this.GetDefaultPosition(TLabelType.billboard);
-        this.AddLabel(_labelId, null, TLabelType.billboard, _text, labelPosition);
+        CLabelPosition labelPosition = this.GetDefaultPosition(TLabelType.board);
+        this.AddLabel(_labelId, null, TLabelType.board, _text, labelPosition);
     }
     
     public void AddAnchoredLabel(string _labelId, string _areaId, string _text)
@@ -39,9 +40,9 @@ public class LabelManager2 : MonoBehaviour
     private void AddLabel(string _labelId, string _areaId, TLabelType _labelType, string _text, CLabelPosition _labelPosition)
     {
         GameObject newLabel = null;
-        if (_labelType == TLabelType.billboard)
+        if (_labelType == TLabelType.board)
         {
-            newLabel = (GameObject)Resources.Load("prefabs/Label/BillboardPrefab", typeof(GameObject));
+            newLabel = (GameObject)Resources.Load("prefabs/Label/BoardPrefab", typeof(GameObject));
         } else if (_labelType == TLabelType.anchoredLabel) {
             newLabel = (GameObject)Resources.Load("prefabs/Label/AnchoredLabelPrefab", typeof(GameObject));
         }        
@@ -55,9 +56,9 @@ public class LabelManager2 : MonoBehaviour
 
     private CLabelPosition GetDefaultPosition(TLabelType _labelType, string _areadId = null)
     {
-        if (_labelType == TLabelType.billboard)
+        if (_labelType == TLabelType.board)
         {
-            return GetDefaultPositionBillboard();
+            return GetDefaultPositionBoard();
         }
         else if (_labelType == TLabelType.anchoredLabel)
         {
@@ -66,9 +67,21 @@ public class LabelManager2 : MonoBehaviour
         return null;
     }
 
-    private CLabelPosition GetDefaultPositionBillboard()
+    private CLabelPosition GetDefaultPositionBoard()
     {
-        return null;
+        CLabelPosition labelPos = new CLabelPosition();
+        Bounds plugyObjectBounds = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().Get3DModelBoundingBox(true);
+
+        Vector3 local_position = Vector3.zero;
+        float pos = Mathf.Sqrt(plugyObjectBounds.extents.z * plugyObjectBounds.extents.z + plugyObjectBounds.extents.x * plugyObjectBounds.extents.x);
+        local_position.z = (-1.0f) * pos;// (plugyObjectBounds.extents.z);// + Mathf.Abs(plugyObjectBounds.center.z));// * pluggy3DModelScale;
+        local_position.x = (+1.0f) * pos;// (plugyObjectBounds.extents.x);// + Mathf.Abs(plugyObjectBounds.center.x));// * pluggy3DModelScale;
+        Quaternion local_rotation = Camera.main.transform.localRotation;
+
+        labelPos.panelPosition = local_position;
+        labelPos.panelRotation = local_rotation;
+               
+        return labelPos;
     }
 
     private CLabelPosition GetDefaultPositionAnchoredLabel(string _areadId)

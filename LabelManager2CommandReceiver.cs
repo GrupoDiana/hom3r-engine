@@ -16,13 +16,13 @@ public class LabelManager2CommandReceiver : MonoBehaviour
 
     private void DoLabelManager2Command(CCoreCommand command)
     {
-        if (command.GetType() == typeof(CNavigationCommand)) { command.Do(this); }
+        if (command.GetType() == typeof(CLabelMananager2Command)) { command.Do(this); }
         else { /* Do nothing */ }
     }
 
     private void UndoLabelManager2Command(CCoreCommand command)
     {
-        if (command.GetType() == typeof(CNavigationCommand)) { command.Undo(this); }
+        if (command.GetType() == typeof(CLabelMananager2Command)) { command.Undo(this); }
         else { /* Do nothing */ }
     }
 }
@@ -31,7 +31,7 @@ public class LabelManager2CommandReceiver : MonoBehaviour
 /// <summary>Navigation Commands</summary>
 public enum TLabelManager2Commands
 {
-    AddBillboardLabel, RemoveLabel,
+    AddBoardLabel, RemoveLabel,
     AddAnchoredLabel, 
 }
 
@@ -87,8 +87,8 @@ public class CLabelMananager2Command : CCoreCommand
             {
                 switch (data.commandEvent)
                 {
-                    case TLabelManager2Commands.AddBillboardLabel:
-                        hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().AddBillboard(data.areaId, data.text);
+                    case TLabelManager2Commands.AddBoardLabel:
+                        hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().AddBoard(data.labelId, data.text);
                         break;
                     case TLabelManager2Commands.AddAnchoredLabel:
                         hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().AddAnchoredLabel(data.areaId, data.areaId, data.text);
