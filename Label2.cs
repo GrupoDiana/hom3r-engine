@@ -14,15 +14,20 @@ public class Label2 : MonoBehaviour
     string text;
     CLabelPosition position;
 
+    GameObject textGO;
+    GameObject panelGO;
+
+
     private void Awake()
     {
-        
+        textGO = this.transform.Find("TextMeshPro").gameObject;
+        panelGO = this.transform.Find("Panel3D").gameObject;
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
@@ -30,8 +35,7 @@ public class Label2 : MonoBehaviour
     {
         
     }
-
-
+    
 
     public void Create(string _labelId, string _areaID, TLabelType _labelType, string _text, CLabelPosition _labelPosition)
     {
@@ -57,14 +61,35 @@ public class Label2 : MonoBehaviour
 
     private void CreateBoard()
     {
-        this.gameObject.transform.position = this.position.panelPosition;
-        this.gameObject.transform.Find("TextMeshPro").GetComponent<TextMeshPro>().text = this.text;
-        // resize        
+        this.transform.position = this.position.panelPosition;
+        this.transform.localRotation = position.panelRotation;
+
+        textGO.GetComponent<TextMeshPro>().GetComponent<TMP_Text>().text = this.text;
+        
+        // resize   
+        float upDownPadding = 0.1f;
+        panelGO.transform.localScale = new Vector3(panelGO.transform.localScale.x, textGO.GetComponent<TextMeshPro>().GetPreferredValues().y + upDownPadding, panelGO.transform.localScale.z);
+
+        Invoke("Invoke_RelocateBoard", 0.05f);
+    }
+
+    private void Invoke_RelocateBoard() { RelocateBoard(); }
+
+    public void RelocateBoard()
+    {
+        //Recolocate board over the AR plane
+        Bounds boardBounds = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().CalculateExtern3DModelBoundingBox(this.gameObject);
+
+        float yPos = panelGO.transform.localPosition.y + boardBounds.extents.y;
+        this.transform.localPosition = new Vector3(this.transform.localPosition.x, yPos, this.transform.localPosition.z);
+
+        //current_descriptionPanelGO.SetActive(true);
     }
 
 
-
-
+    /////////////////
+    //  SET/ GET   //
+    /////////////////
 
     public string GetLabelId() { return this.id; }
     

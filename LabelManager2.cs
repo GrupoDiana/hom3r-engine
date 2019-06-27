@@ -7,6 +7,7 @@ public enum TLabelType { board, anchoredLabel}
 public class CLabelPosition
 {
     public Vector3 panelPosition;
+    public Quaternion panelRotation;
     public Vector3 anchorPosition;
 }
 
@@ -68,11 +69,19 @@ public class LabelManager2 : MonoBehaviour
 
     private CLabelPosition GetDefaultPositionBoard()
     {
-        //Recolocate panel over the AR plane
-        //Bounds panelBounds = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().CalculateExtern3DModelBoundingBox(current_descriptionPanelGO);
-        //float yPos = panel3D_canvas.transform.localPosition.y + panelBounds.extents.y;
-        //current_descriptionPanelGO.transform.localPosition = new Vector3(current_descriptionPanelGO.transform.localPosition.x, yPos, current_descriptionPanelGO.transform.localPosition.z);
-        return null;
+        CLabelPosition labelPos = new CLabelPosition();
+        Bounds plugyObjectBounds = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().Get3DModelBoundingBox(true);
+
+        Vector3 local_position = Vector3.zero;
+        float pos = Mathf.Sqrt(plugyObjectBounds.extents.z * plugyObjectBounds.extents.z + plugyObjectBounds.extents.x * plugyObjectBounds.extents.x);
+        local_position.z = (-1.0f) * pos;// (plugyObjectBounds.extents.z);// + Mathf.Abs(plugyObjectBounds.center.z));// * pluggy3DModelScale;
+        local_position.x = (+1.0f) * pos;// (plugyObjectBounds.extents.x);// + Mathf.Abs(plugyObjectBounds.center.x));// * pluggy3DModelScale;
+        Quaternion local_rotation = Camera.main.transform.localRotation;
+
+        labelPos.panelPosition = local_position;
+        labelPos.panelRotation = local_rotation;
+               
+        return labelPos;
     }
 
     private CLabelPosition GetDefaultPositionAnchoredLabel(string _areadId)
