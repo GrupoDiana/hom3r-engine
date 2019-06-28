@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PointCaptureEventReceiver : MonoBehaviour
+public class PointOnSurfaceEventReceiver : MonoBehaviour
 {
     private void OnEnable()
     {
@@ -28,7 +28,9 @@ public class PointCaptureEventReceiver : MonoBehaviour
         {
             switch (_event.data.commandEvent)
             {
-               
+                case TCoreEvent.MouseManager_LeftButtonUp:
+                    hom3r.quickLinks.scriptsObject.GetComponent<PointOnSurfaceManager>().CapturePointOnSurface(_event.data.mousePosition, _event.data.obj);
+                    break;
                 default:
                     break;
             }

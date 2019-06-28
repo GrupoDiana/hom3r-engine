@@ -2,58 +2,58 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PointCaptureCommandReceiver : MonoBehaviour
+public class PointOnSurfaceCommandReceiver : MonoBehaviour
 {
     private void OnEnable()
     {
-        hom3r.coreLink.SubscribeCommandObserver(DoPointCaptureCommand, UndoPointCaptureCommand);    //Subscribe a method to the event delegate
+        hom3r.coreLink.SubscribeCommandObserver(DoPointOnSurfaceCommand, UndoPointOnSurfaceCommand);    //Subscribe a method to the event delegate
     }
 
     private void OnDisable()
     {
-        hom3r.coreLink.UnsubscribeCommandObserver(DoPointCaptureCommand, UndoPointCaptureCommand);  //Unsubscribe a method to the event delegate        
+        hom3r.coreLink.UnsubscribeCommandObserver(DoPointOnSurfaceCommand, UndoPointOnSurfaceCommand);  //Unsubscribe a method to the event delegate        
     }
 
-    private void DoPointCaptureCommand(CCoreCommand command)
+    private void DoPointOnSurfaceCommand(CCoreCommand command)
     {
-        if (command.GetType() == typeof(CNavigationCommand)) { command.Do(this); }
+        if (command.GetType() == typeof(CPointOnSurfaceCommand)) { command.Do(this); }
         else { /* Do nothing */ }
     }
 
-    private void UndoPointCaptureCommand(CCoreCommand command)
+    private void UndoPointOnSurfaceCommand(CCoreCommand command)
     {
-        if (command.GetType() == typeof(CNavigationCommand)) { command.Undo(this); }
+        if (command.GetType() == typeof(CPointOnSurfaceCommand)) { command.Undo(this); }
         else { /* Do nothing */ }
     }
 }
 
 /// <summary>Navigation Commands</summary>
-public enum TPointCaptureCommands
+public enum TPointOnSurfaceCommands
 {
     StartPointCapture, DrawAnchorPoint
 }
 
 /// <summary>Navigation data</summary>
-public class CPointCaptureCommandData
+public class CPointOnSurfaceCommandData
 {
-    public TPointCaptureCommands commandEvent;
+    public TPointOnSurfaceCommands commandEvent;
 
     public string areaId { get; set; }
     public Vector3 pointPosition { get; set; }
 
-    public CPointCaptureCommandData(TPointCaptureCommands _commandEvent) { this.commandEvent = _commandEvent; }
+    public CPointOnSurfaceCommandData(TPointOnSurfaceCommands _commandEvent) { this.commandEvent = _commandEvent; }
 }
 
 /// <summary>A 'ConcreteCommand' class</summary>
-public class CTPointCaptureCommand : CCoreCommand
+public class CPointOnSurfaceCommand : CCoreCommand
 {
-    public CPointCaptureCommandData data;
+    public CPointOnSurfaceCommandData data;
     //////////////////
     // Constructors //
     //////////////////
-    public CTPointCaptureCommand(TPointCaptureCommands _command)
+    public CPointOnSurfaceCommand(TPointOnSurfaceCommands _command)
     {
-        data = new CPointCaptureCommandData(_command);
+        data = new CPointOnSurfaceCommandData(_command);
     }
     
     //////////////////
@@ -67,8 +67,8 @@ public class CTPointCaptureCommand : CCoreCommand
             {
                 switch (data.commandEvent)
                 {
-                    case TPointCaptureCommands.StartPointCapture:
-                        
+                    case TPointOnSurfaceCommands.StartPointCapture:
+                        hom3r.quickLinks.scriptsObject.GetComponent<PointOnSurfaceManager>().StartPointCapture();
                         break;
                     
                     default:

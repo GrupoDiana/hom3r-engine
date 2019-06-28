@@ -663,7 +663,7 @@ public class SelectionManager : MonoBehaviour
     {
         // If is not activated we do nothing
         if (!hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetActiveUISelection()) { return; }
-        
+        if (hom3r.state.selectionBlocked) { return; }
         if (obj != null)
         {            
             if (IsConfirmedGameObject(obj))
