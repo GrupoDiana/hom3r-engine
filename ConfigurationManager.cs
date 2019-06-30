@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum TNavigationSystem { Spherical, LimitedSpherical, Elliptical }
+public enum TMouseMapping { standard, inverse }
 public class ConfigurationManager : MonoBehaviour
 {    
     private bool UIEnabled;                     // UI enable or not    
@@ -11,20 +13,26 @@ public class ConfigurationManager : MonoBehaviour
 
     private bool touchInteractionEnabled;       // This control if the touch interaction is On or not
     private bool mouseInteractionEnabled;       // This control if the mouse interaction is On or not
+    private TMouseMapping mouseMapping;         // This control which action is done by left mouse button and which by the right
 
     private bool navigationEnabled;             // This control if the navigation is On or not
     private bool navigationZoomEnabled;         // This control if the navigation Zoom is On or not
-
+    private TNavigationSystem navigationSystem; // This control the navigation system that is going to be used
 
     private void Awake()
     {
         UIEnabled                   = true;     // Initially the UI is activated
         uiSelectionEnabled          = true;     // Initially the selection from UI is activated
         uiAutomaticSelectionEnabled = true;     // Initially direct selection is activated  
-        navigationEnabled           = false;
+        
+
         touchInteractionEnabled     = false;
         mouseInteractionEnabled     = true;
+        mouseMapping                = TMouseMapping.standard;
+
+        navigationEnabled           = false;
         navigationZoomEnabled       = true;
+        navigationSystem            = TNavigationSystem.Spherical;
 
         Debug.Log("Configuration Manager Awake");     
     } 
@@ -126,6 +134,59 @@ public class ConfigurationManager : MonoBehaviour
         return mouseInteractionEnabled;
     }
 
+    /// <summary>
+    /// Set the mouse that is going to be used
+    /// </summary>
+    /// <param name="_mouseMapping"></param>
+    public void SetMouseMapping(TMouseMapping _mouseMapping)
+    {
+        mouseMapping = _mouseMapping;
+    }
+
+    /// <summary>
+    /// Get which is the current mouse mapping 
+    /// </summary>
+    /// <returns></returns>
+    public TMouseMapping GetMouseMapping()
+    {
+        return mouseMapping;
+    }
+
+    /// <summary>
+    /// Get the ID of the mouse button used to selection
+    /// </summary>
+    /// <returns></returns>
+    public int GetMouseSelectionButton()
+    {
+        if (mouseMapping == TMouseMapping.standard) {
+            return 0;
+        } else if (mouseMapping == TMouseMapping.inverse) {
+            return 1;
+        } else
+        {
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Get the ID of the mouse which is used to navigation
+    /// </summary>
+    /// <returns></returns>
+    public int GetMouseNavigationButton()
+    {
+        if (mouseMapping == TMouseMapping.standard)
+        {
+            return 1;
+        }
+        else if (mouseMapping == TMouseMapping.inverse)
+        {
+            return 0;
+        }
+        else
+        {
+            return 1;
+        }
+    }
     /////////////////////
     // Navigation
     /////////////////////
