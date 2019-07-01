@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 
 
-
+public enum TLabelState { iddle, creating, editing }
 
 public class Label2 : MonoBehaviour
 {
@@ -13,6 +13,8 @@ public class Label2 : MonoBehaviour
     string areaId;
     string text;
     CLabelPosition position;
+    TLabelState state;
+
 
     GameObject textGO;
     GameObject panelGO;
@@ -22,6 +24,7 @@ public class Label2 : MonoBehaviour
     {
         textGO = this.transform.Find("TextMeshPro").gameObject;
         panelGO = this.transform.Find("Panel3D").gameObject;
+        state = TLabelState.creating;
     }
 
     // Start is called before the first frame update
@@ -57,6 +60,7 @@ public class Label2 : MonoBehaviour
             //Error
         }
 
+        state = TLabelState.iddle;
     }
 
     private void CreateBoard()
@@ -78,21 +82,45 @@ public class Label2 : MonoBehaviour
 
     public void RelocateBoard()
     {
-        //Recolocate board over the AR plane
+        //Reallocate board over the AR plane
         Bounds boardBounds = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().CalculateExtern3DModelBoundingBox(this.gameObject);
 
         float yPos = panelGO.transform.localPosition.y + boardBounds.extents.y;
         this.transform.localPosition = new Vector3(this.transform.localPosition.x, yPos, this.transform.localPosition.z);
 
-        //show boadrs once is ready
+        //show boards once is ready
         //this.gameObject.SetActive(true);
     }
 
 
+    ////////////
+    //  EDIT  //
+    ////////////
+
+    /// <summary>
+    /// Set if the edit mode is activated or not. 
+    /// </summary>
+    /// <param name="_enabled">true means activated</param>
+    public void SetActivateEditMode(bool _enabled) {   
+        if (state != TLabelState.iddle) { return; }
+        if (_enabled)
+        {
+            state = TLabelState.editing;
+        } else
+        {
+            state = TLabelState.iddle;
+        }
+        
+    }
+
+    
     /////////////////
     //  SET/ GET   //
     /////////////////
 
     public string GetLabelId() { return this.id; }
     
+
+
+
 }

@@ -28,7 +28,9 @@ public class LabelManager2EventReceiver : MonoBehaviour
         {
             switch (_event.data.commandEvent)
             {
-
+                case TCoreEvent.MouseManager_LabelSelectionDown:
+                    hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().StartEditLabel(_event.data.obj);
+                    break;
                 default:
                     break;
             }

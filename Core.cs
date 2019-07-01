@@ -63,6 +63,7 @@ public class Core : MonoBehaviour {
         hom3r.state.currentSelectionMode = THom3rSelectionMode.AREA;               // Initially HOM3R is selecting by area
         hom3r.state.currentVisualizationMode = THom3rIsolationMode.IDLE;           // Initially HOM3R show every node of the product
         hom3r.state.currentLabelMode = THom3rLabelMode.IDLE;                       // Initially HOM3R doesn't show any label         
+        hom3r.state.currentLabel2Mode = THom3rLabel2Mode.idle;                       // Initially HOM3R doesn't show any label         
         hom3r.state.labelsUILayer = "Default";    
         hom3r.state.productRootLayer = "go_father_layer";
         hom3r.state.platform = GetPlatform();

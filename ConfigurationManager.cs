@@ -152,41 +152,7 @@ public class ConfigurationManager : MonoBehaviour
         return mouseMapping;
     }
 
-    /// <summary>
-    /// Get the ID of the mouse button used to selection
-    /// </summary>
-    /// <returns></returns>
-    public int GetMouseSelectionButton()
-    {
-        if (mouseMapping == TMouseMapping.standard) {
-            return 0;
-        } else if (mouseMapping == TMouseMapping.inverse) {
-            return 1;
-        } else
-        {
-            return 0;
-        }
-    }
-
-    /// <summary>
-    /// Get the ID of the mouse which is used to navigation
-    /// </summary>
-    /// <returns></returns>
-    public int GetMouseNavigationButton()
-    {
-        if (mouseMapping == TMouseMapping.standard)
-        {
-            return 1;
-        }
-        else if (mouseMapping == TMouseMapping.inverse)
-        {
-            return 0;
-        }
-        else
-        {
-            return 1;
-        }
-    }
+      
     /////////////////////
     // Navigation
     /////////////////////

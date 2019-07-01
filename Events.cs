@@ -19,9 +19,10 @@ public enum TCoreEvent
     _3DFileManager_ShowMessage, _3DFileManager_ShowMessageConsole,
 
     MouseManager_MousePosition,
-    MouseManager_LeftButtonUp, MouseManager_LeftButtonDown,    
+    MouseManager_LeftButtonUp, MouseManager_LeftButtonDown,
     MouseManager_RightButtonUp, MouseManager_RightButtonDown,
     MouseManager_RightButtonDragMovement, MouseManager_WheelMovement,
+    MouseManager_LabelSelectionUp, MouseManager_LabelSelectionDown,
 
     TouchManager_OneSelectionTouch,
     TouchManager_DragMovementBegin,TouchManager_DragMovement, TouchManager_DragMovementEnd,
@@ -58,7 +59,8 @@ public enum TCoreEvent
     LabelManager_ShowMessage, LabelManager_LabelRemoved,
 
     UIAR_StartAuthoring, UIAR_StopAuthoring,
-    ExhibitionManager_ExhibitionPlotLoadError, ExhibitionManager_ExhibitionPlotLoadSuccess, ExhibitionManager_ExhibitionPointLoaded, ExhibitionManager_ExhibitionLanguageChanged,
+    ExhibitionManager_ExhibitionPlotLoadError, ExhibitionManager_ExhibitionPlotLoadSuccess,
+    ExhibitionManager_ExhibitionPointLoaded, ExhibitionManager_ExhibitionLanguageChanged,
 
     AR_TapToPlaceScene_Success
 };
@@ -149,6 +151,13 @@ public class CCoreEvent
     {
         data = new CCoreEventData(_command);
         data.mousePosition = _mousePosition;
+    }
+
+    public CCoreEvent(TCoreEvent _command, Vector3 _mousePosition, GameObject _gameObject)
+    {
+        data = new CCoreEventData(_command);
+        data.mousePosition  = _mousePosition;
+        data.obj            = _gameObject;        
     }
 
     public CCoreEvent(TCoreEvent _command, Vector3 _mousePosition, GameObject _gameObject, bool _control)

@@ -101,6 +101,7 @@ public enum THom3rExplosionMode { EXPLODE, IMPLODE };
 public enum THom3rIsolationMode { IDLE, ISOLATE, WITH_REMOVEDNODES };
 public enum THom3rSelectionMode { AREA, SPECIAL_NODE };
 public enum THom3rLabelMode { IDLE, SHOWLABEL };
+public enum THom3rLabel2Mode { idle, showinglabel, editinglabel };
 
 /// <summary> Class to store the state of the app in every moment.</summary>
 public class CHom3rState
@@ -129,6 +130,7 @@ public class CHom3rState
     public THom3rSelectionMode currentSelectionMode { get; set; }       //Store the current mode of selection 
     public THom3rIsolationMode currentVisualizationMode { get; set; }   //Store the current visualization mode (if there are removed nodes ot not)
     public THom3rLabelMode currentLabelMode { get; set; }               //Store the current labeling mode                 
+    public THom3rLabel2Mode currentLabel2Mode { get; set; }             //Store the current labeling mode  
 
     //Layers
     public string labelsUILayer;                // Store camera layer for Labels
