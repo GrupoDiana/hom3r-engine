@@ -34,7 +34,8 @@ public enum TConfigurationCommands
     ActiveUI,
     ActiveUISelection, ActiveUIAutomaticSelection,
     ActiveTouchInteration, ActiveMouseInteration,
-    ActiveNavigation, ActiveNavigationZoom
+    ActiveNavigation, ActiveNavigationZoom,
+    SetMouseMapping
 }
 
 /// <summary>Model data</summary>
@@ -42,7 +43,9 @@ public class CConfigurationCommandData
 {
     public TConfigurationCommands command;
     public bool activate;
-    
+    public TMouseMapping mouseMapping;
+
+
     public CConfigurationCommandData(TConfigurationCommands _command)
     {
         this.command = _command;
@@ -69,6 +72,11 @@ public class CConfigurationCommand : CCoreCommand
         data.activate = _activate;
     }
 
+    public CConfigurationCommand(TConfigurationCommands _command, TMouseMapping _mouseMapping)
+    {
+        data = new CConfigurationCommandData(_command);
+        data.mouseMapping = _mouseMapping;
+    }
     //////////////////
     //   Execute    //
     //////////////////
@@ -98,6 +106,9 @@ public class CConfigurationCommand : CCoreCommand
                     break;
                 case TConfigurationCommands.ActiveNavigationZoom:
                     hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetActiveNavigationZoom(data.activate);
+                    break;
+                case TConfigurationCommands.SetMouseMapping:
+                    hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetMouseMapping(data.mouseMapping);
                     break;
                 default:
                     Debug.LogError("Error: This command " + data.command + " is not valid.");
