@@ -33,6 +33,7 @@ public enum TLabelManager2Commands
 {
     AddBoardLabel, 
     AddAnchoredLabel,
+    EditLabel,
     RemoveLabel, RemoveAllLabel
 }
 
@@ -60,6 +61,12 @@ public class CLabelMananager2Command : CCoreCommand
     public CLabelMananager2Command(TLabelManager2Commands _command)
     {
         data = new CLabelManager2CommandData(_command);
+    }
+
+    public CLabelMananager2Command(TLabelManager2Commands _command, string _labelId)
+    {
+        data = new CLabelManager2CommandData(_command);
+        this.data.labelId = _labelId;        
     }
 
     public CLabelMananager2Command(TLabelManager2Commands _command, string _labelId, string _text)
@@ -94,6 +101,10 @@ public class CLabelMananager2Command : CCoreCommand
                     case TLabelManager2Commands.AddAnchoredLabel:
                         hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().AddAnchoredLabel(data.areaId, data.areaId, data.text);
                         break;
+                    case TLabelManager2Commands.EditLabel:
+                        hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().StartEditLabel(data.labelId);
+                        break;
+
                     case TLabelManager2Commands.RemoveLabel:
                         hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().RemoveLabel(data.areaId);
                         break;

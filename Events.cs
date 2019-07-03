@@ -22,7 +22,9 @@ public enum TCoreEvent
     MouseManager_LeftButtonUp, MouseManager_LeftButtonDown,
     MouseManager_RightButtonUp, MouseManager_RightButtonDown,
     MouseManager_RightButtonDragMovement, MouseManager_WheelMovement,
-    MouseManager_LabelSelectionUp, MouseManager_LabelSelectionDown,
+
+    MouseManager_MouseDragGestureEnd, MouseManager_MouseDragGestureBegin,
+    MouseManager_MouseDragGesture,
 
     TouchManager_OneSelectionTouch,
     TouchManager_DragMovementBegin,TouchManager_DragMovement, TouchManager_DragMovementEnd,
@@ -58,6 +60,8 @@ public enum TCoreEvent
 
     LabelManager_ShowMessage, LabelManager_LabelRemoved,
 
+    PointOnSurface_PointCaptureSuccess,
+
     UIAR_StartAuthoring, UIAR_StopAuthoring,
     ExhibitionManager_ExhibitionPlotLoadError, ExhibitionManager_ExhibitionPlotLoadSuccess,
     ExhibitionManager_ExhibitionPointLoaded, ExhibitionManager_ExhibitionLanguageChanged,
@@ -74,10 +78,12 @@ public class CCoreEventData
     public GameObject obj { get; set; }    
     public string text { get; set; }
     public string text2 { get; set; }
+    public string areaId { get; set; }
     public float value1 { get; set; }
     public float value2 { get; set; }
     public bool control { get; set; }
-    public Vector3 mousePosition { get; set; }    
+    public Vector3 mousePosition { get; set; }
+    public Vector3 anchorPosition { get; set; }
     public float mouseDragMovementX { get; set; }
     public float mouseDragMovementY { get; set; }
     public float mouseWhellMovement { get; set; }
@@ -151,6 +157,13 @@ public class CCoreEvent
     {
         data = new CCoreEventData(_command);
         data.mousePosition = _mousePosition;
+    }
+
+    public CCoreEvent(TCoreEvent _command, Vector3 _anchorPosition, string _areaID)
+    {
+        data = new CCoreEventData(_command);
+        data.anchorPosition = _anchorPosition;
+        data.areaId = _areaID;
     }
 
     public CCoreEvent(TCoreEvent _command, Vector3 _mousePosition, GameObject _gameObject)

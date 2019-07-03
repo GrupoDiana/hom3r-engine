@@ -71,7 +71,7 @@ public class LabelEventReceiver : MonoBehaviour {
                     this.AddLabelToConfirmedArea(_event.data.obj);
                     break;
                 case TCoreEvent.ObjectState_AreaConfirmationOff:
-                    if (hom3r.state.currentLabelMode == THom3rLabelMode.SHOWLABEL)
+                    if (hom3r.state.currentLabelMode == THom3rLabelMode.show)
                     {
                         //Every time an area is "deselected" we have to check if it has a label and remove it in case.                        
                         //foreach (string area in _event.data.obj.GetComponent<ObjectStateManager>().areaID)
@@ -105,7 +105,7 @@ public class LabelEventReceiver : MonoBehaviour {
 
     private void AddLabelToConfirmedArea(GameObject obj)
     {
-        if (hom3r.state.currentLabelMode == THom3rLabelMode.SHOWLABEL)
+        if (hom3r.state.currentLabelMode == THom3rLabelMode.show)
         {
             if (hom3r.state.currentSelectionMode == THom3rSelectionMode.AREA)
             {                

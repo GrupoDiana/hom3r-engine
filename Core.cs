@@ -62,8 +62,7 @@ public class Core : MonoBehaviour {
         //hom3r.state.currentSelectionMode = THom3rSelectionMode.SPECIAL_NODE;     // Initially HOM3R is selecting by component
         hom3r.state.currentSelectionMode = THom3rSelectionMode.AREA;               // Initially HOM3R is selecting by area
         hom3r.state.currentVisualizationMode = THom3rIsolationMode.IDLE;           // Initially HOM3R show every node of the product
-        hom3r.state.currentLabelMode = THom3rLabelMode.IDLE;                       // Initially HOM3R doesn't show any label         
-        hom3r.state.currentLabel2Mode = THom3rLabel2Mode.idle;                       // Initially HOM3R doesn't show any label         
+        hom3r.state.currentLabelMode = THom3rLabelMode.idle;                       // Initially HOM3R doesn't show any label                 
         hom3r.state.labelsUILayer = "Default";    
         hom3r.state.productRootLayer = "go_father_layer";
         hom3r.state.platform = GetPlatform();
@@ -208,5 +207,24 @@ public class Core : MonoBehaviour {
     public void UnsubscribeEventObserver(Action<CCoreEvent> _InternalEvent)
     {
         OnCoreEvent -= _InternalEvent;   //Unsubscribe a method to the event delegate
+    }
+
+    //////////////////////////////////////////
+    // Instantiate Prefab
+    ////////////////////////////////////////// 
+
+    public GameObject InstantiatePrefab(string _prefabPath, GameObject _parent)
+    {
+        GameObject newPrefab = (GameObject)Resources.Load(_prefabPath, typeof(GameObject));
+        GameObject newPrefabGO = Instantiate(newPrefab, new Vector3(0f, 0f, 0f), new Quaternion(0f, 0f, 0f, 0f));
+        if (newPrefabGO != null)
+        {
+            newPrefabGO.transform.parent = _parent.transform;
+            Debug.Log("InstantiatePrefab: " + newPrefabGO.name);
+        } else
+        {
+            Debug.Log("InstantiatePrefab ERROR - GO null: " + _prefabPath);
+        }        
+        return newPrefabGO;
     }
 }

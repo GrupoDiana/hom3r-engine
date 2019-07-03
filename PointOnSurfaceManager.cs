@@ -33,18 +33,17 @@ public class PointOnSurfaceManager : MonoBehaviour
     /// </summary>
     /// <param name="clickPosition"></param>
     /// <param name="rayCastedArea"></param>
-    public void CapturePointOnSurface(Vector3 clickPosition, GameObject rayCastedArea)
+    public void CapturePointOnSurface(Vector3 mousePosition, GameObject rayCastedArea)
     {
         if ((pointCaptureManagerState == TPointOnSurfaceManagerState.capturing) && (rayCastedArea != null))
         {
-            Debug.Log(clickPosition);
-
-            Vector3 pointlocal = rayCastedArea.transform.InverseTransformPoint(clickPosition);
-            Debug.Log(clickPosition);
-
+            int productRootLayer = 1 << LayerMask.NameToLayer(hom3r.state.productRootLayer);
+            Vector3 clickPosition = Raycast(mousePosition, Camera.main, productRootLayer);          
+            Vector3 pointLocal = rayCastedArea.transform.InverseTransformPoint(clickPosition);
+                                               
             string areaId = rayCastedArea.GetComponent<ObjectStateManager>().areaID;
             //Emit event
-
+            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.PointOnSurface_PointCaptureSuccess, pointLocal, areaId));
         }        
     }
 
@@ -56,4 +55,23 @@ public class PointOnSurfaceManager : MonoBehaviour
     }
 
     
+    /// <summary>Method that use Ray Casting technique</summary>
+    private Vector3 Raycast(Vector3 mouseCurrentPosition, Camera _camera, int _layer)
+    {
+        
+        // Convert mouse position from screen space to three-dimensional space
+        // Build ray, directed from mouse position to “camera forward” way
+        Ray ray = _camera.ScreenPointToRay(mouseCurrentPosition);
+
+        RaycastHit hit;
+        if (Physics.Raycast(ray, out hit, Mathf.Infinity, _layer))
+        {            
+            return hit.point;   // Now, let’s determine intersected GameObject
+        }
+        else
+        {
+            return Vector3.zero;
+        }
+    }
+
 }

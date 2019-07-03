@@ -331,18 +331,18 @@ public class CLabelCommand : CCoreCommand
                 case TLabelCommands.LabelModeManager:                    
                     if (data.status)
                     {
-                        if (hom3r.state.currentLabelMode == THom3rLabelMode.IDLE)
+                        if (hom3r.state.currentLabelMode == THom3rLabelMode.idle)
                         {
-                            hom3r.state.currentLabelMode = THom3rLabelMode.SHOWLABEL;
+                            hom3r.state.currentLabelMode = THom3rLabelMode.show;
                             //Execute show area name labels
                             _m.GetComponent<LabelCommandReceiver>().ExecuteAddLabel_ToAllConfirmedGameObject();
                         }
                     }
                     else
                     {
-                        if (hom3r.state.currentLabelMode == THom3rLabelMode.SHOWLABEL)
+                        if (hom3r.state.currentLabelMode == THom3rLabelMode.show)
                         {
-                            hom3r.state.currentLabelMode = THom3rLabelMode.IDLE;
+                            hom3r.state.currentLabelMode = THom3rLabelMode.idle;
                             //this.GetComponent<Labels_Script>().RemoveAllLabels();
                             _m.GetComponent<LabelCommandReceiver>().ExecuteRemoveAllLabelOfConfirmedGOList();
                         }
@@ -351,15 +351,15 @@ public class CLabelCommand : CCoreCommand
 
                 //case to manage the mode SHOWLABEL (when this mode is activated, every selected part or component will show a label with the part name)
                 case TLabelCommands.ShowPartNameLabel:                    
-                    if (hom3r.state.currentLabelMode == THom3rLabelMode.IDLE)
+                    if (hom3r.state.currentLabelMode == THom3rLabelMode.idle)
                     {
-                        hom3r.state.currentLabelMode = THom3rLabelMode.SHOWLABEL;
+                        hom3r.state.currentLabelMode = THom3rLabelMode.show;
                         //Execute show area name labels
                         _m.GetComponent<LabelCommandReceiver>().ExecuteAddLabel_ToAllConfirmedGameObject();
                     }
                     else
                     {
-                        hom3r.state.currentLabelMode = THom3rLabelMode.IDLE;                        
+                        hom3r.state.currentLabelMode = THom3rLabelMode.idle;                        
                         _m.GetComponent<LabelCommandReceiver>().ExecuteRemoveAllLabelOfConfirmedGOList();
                     }                    
                     break;
