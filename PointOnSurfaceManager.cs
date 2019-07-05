@@ -42,16 +42,22 @@ public class PointOnSurfaceManager : MonoBehaviour
             Vector3 pointLocal = rayCastedArea.transform.InverseTransformPoint(clickPosition);
                                                
             string areaId = rayCastedArea.GetComponent<ObjectStateManager>().areaID;
-            //Emit event
+            //Emit event            
             hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.PointOnSurface_PointCaptureSuccess, pointLocal, areaId));
+            hom3r.state.selectionBlocked = false;
+            pointCaptureManagerState = TPointOnSurfaceManagerState.iddle;
         }        
     }
 
-    public void DrawPointOnSurface(Vector3 clickPosition, string areaID) {
+    public void DrawPointOnSurface(Vector3 pointLocalPosition, string areaID) {
 
         GameObject areaObj = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetAreaGameObject_ByAreaID(areaID);
 
         //Draw point on surface
+        GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        //sphere.transform.parent = areaObj.transform;
+        sphere.transform.position = areaObj.transform.TransformPoint(pointLocalPosition);
+
     }
 
     

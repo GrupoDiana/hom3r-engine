@@ -295,7 +295,10 @@ public class NavigationManager : MonoBehaviour {
             //Apply movement
             RotateCameraPlane(planeRotation);
             MoveCameraWithinThePlane(newCameraPosition);
-            OrientateCamera(pointToLook);                        
+            OrientateCamera(pointToLook);
+
+            //Emit event
+            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Navigation_CameraMoved));                 
         }
     }
    

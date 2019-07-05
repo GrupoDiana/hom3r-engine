@@ -47,8 +47,9 @@ public enum TCoreEvent
     UI_NewTransparencyAlphaLevel,
 
     Navigation_NavigationInitiaded,
-    Navigation_NavigationToFocusEnd, Navigation_ApproximationEnd, Navigation_PseudoLatitudeMovement, Navigation_PseudoLongitudeMovement,
-    Navigation_PseudoRadioMovement,
+    Navigation_NavigationToFocusEnd, Navigation_ApproximationEnd,
+    Navigation_PseudoLatitudeMovement, Navigation_PseudoLongitudeMovement, Navigation_PseudoRadioMovement,
+    Navigation_CameraMoved,
 
     Occlusion_ExplosionBegin, Occlusion_ExplosionEnd, Occlusion_ExplodingAreas, Occlusion_ImplodingAreas,
     Occlusion_ExplosionGlobalON, Occlusion_ExplosionGlobalOFF,
@@ -59,6 +60,7 @@ public enum TCoreEvent
     ObjectState_AreaRemoved,
 
     LabelManager_ShowMessage, LabelManager_LabelRemoved,
+    LabelManager_LabelTransform,
 
     PointOnSurface_PointCaptureSuccess,
 
@@ -84,6 +86,8 @@ public class CCoreEventData
     public bool control { get; set; }
     public Vector3 mousePosition { get; set; }
     public Vector3 anchorPosition { get; set; }
+    public Vector3 boardPosition { get; set; }
+    public Quaternion boardRotation { get; set; }
     public float mouseDragMovementX { get; set; }
     public float mouseDragMovementY { get; set; }
     public float mouseWhellMovement { get; set; }
@@ -192,6 +196,14 @@ public class CCoreEvent
     {
         data = new CCoreEventData(_command);
         data.textList = _texlist;
+    }
+
+    public CCoreEvent(TCoreEvent _command, string _areaID, Vector3 _boardPosition, Quaternion _boardRotation )
+    {
+        data = new CCoreEventData(_command);
+        data.areaId = _areaID;
+        data.boardPosition = _boardPosition;       
+        data.boardRotation = _boardRotation;
     }
 }
 

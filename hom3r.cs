@@ -7,7 +7,7 @@ static class Constants
     public const float Pi = 3.14159265359f;
     public const bool undoAllowed = true;             //Const to store the valueo to allow undo 
     public const bool undoNotAllowed = false;         //Const to store the valueo to not allow undo 
-    public const int largeText = 25;                  //Const to indicate when a text is considered long
+    public const int largeText = 25;                  //Const to indicate when a text is considered long    
 }
 
 static class MathHom3r
@@ -100,7 +100,7 @@ public enum THom3rMode { IDLE, SMARTTRANSPARENCY, SINGLEPOINTLOCATION, REMOVE, L
 public enum THom3rExplosionMode { EXPLODE, IMPLODE };
 public enum THom3rIsolationMode { IDLE, ISOLATE, WITH_REMOVEDNODES };
 public enum THom3rSelectionMode { AREA, SPECIAL_NODE };
-public enum THom3rLabelMode { idle, show, edit };
+public enum THom3rLabelMode { idle, show, edit, add };
 
 /// <summary> Class to store the state of the app in every moment.</summary>
 public class CHom3rState

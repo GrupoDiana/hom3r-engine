@@ -19,6 +19,8 @@ public class ConfigurationManager : MonoBehaviour
     private bool navigationZoomEnabled;         // This control if the navigation Zoom is On or not
     private TNavigationSystem navigationSystem; // This control the navigation system that is going to be used
 
+    private bool LabelEditionEnabled;            // This control if the labels can be edit or not
+
     private void Awake()
     {
         UIEnabled                   = true;     // Initially the UI is activated
@@ -33,6 +35,8 @@ public class ConfigurationManager : MonoBehaviour
         navigationEnabled           = false;
         navigationZoomEnabled       = true;
         navigationSystem            = TNavigationSystem.Spherical;
+
+        LabelEditionEnabled         = true;
 
         Debug.Log("Configuration Manager Awake");     
     } 
@@ -188,5 +192,26 @@ public class ConfigurationManager : MonoBehaviour
     public bool GetActiveNavigationZoom()
     {
         return navigationZoomEnabled;
+    }
+
+
+    /////////////////////
+    // Label Edition
+    /////////////////////
+    /// <summary>
+    /// Set if the edition is activated or not. 
+    /// </summary>
+    /// <param name="_enabled">true activate the mouse interaction</param>
+    public void SetActiveLabelEdition(bool _enabled)
+    {
+        LabelEditionEnabled = _enabled;
+    }
+    /// <summary>
+    /// Get if the navigation is activated or not. 
+    /// </summary>
+    /// <returns>True if mouse interaction is activated</returns>
+    public bool GetActiveLabelEdition()
+    {
+        return LabelEditionEnabled;
     }
 }

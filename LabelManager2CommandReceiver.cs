@@ -101,9 +101,6 @@ public class CLabelMananager2Command : CCoreCommand
                     case TLabelManager2Commands.AddAnchoredLabel:
                         hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().AddAnchoredLabel(data.areaId, data.areaId, data.text);
                         break;
-                    case TLabelManager2Commands.EditLabel:
-                        hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().StartEditLabel(data.labelId);
-                        break;
 
                     case TLabelManager2Commands.RemoveLabel:
                         hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().RemoveLabel(data.areaId);
