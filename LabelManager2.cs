@@ -119,22 +119,24 @@ public class LabelManager2 : MonoBehaviour
         // Check if this labelID already exist
         if (this.labelList.Find(r => r.GetComponent<Label2>().GetLabelId() == _labelId) != null) { return; }        
 
-        // If not exit we create a new one
-        GameObject newLabel = null;
-        if (_labelType == TLabelType.board)
+        // If not this label ID doesn't exit we'll create a new one        
+        GameObject newLabelGO = null;
+        if (_labelType == TLabelType.board) {        
+            newLabelGO = hom3r.coreLink.InstantiatePrefab("prefabs/Label/BoardPrefab", hom3r.quickLinks.labelsObject);
+            newLabelGO.transform.name = "Board_" + _labelId;
+        } else if (_labelType == TLabelType.anchoredLabel) {            
+            newLabelGO = hom3r.coreLink.InstantiatePrefab("prefabs/Label/AnchoredLabelPrefab", hom3r.quickLinks.labelsObject);
+            newLabelGO.transform.name = "AnchoredLabel_" + _labelId;
+        } else
         {
-            newLabel = (GameObject)Resources.Load("prefabs/Label/BoardPrefab", typeof(GameObject));
-        } else if (_labelType == TLabelType.anchoredLabel) {
-            newLabel = (GameObject)Resources.Load("prefabs/Label/AnchoredLabelPrefab", typeof(GameObject));
+            return;
         }        
-        GameObject newLabelGO = Instantiate(newLabel, new Vector3(0f, 0f, 0f), new Quaternion(0f, 0f, 0f, 0f));       
-        //newLabelGO.SetActive(false);                                                                         //Hide label while is being configures        
-
-        newLabelGO.transform.parent = hom3r.quickLinks.labelsObject.transform;                              // Change parent
-        newLabelGO.transform.name = "BoardPrefab_" + _labelId;
-        newLabelGO.GetComponent<Label2>().Create(_labelId, _areaId, _labelType, _text, _labelPosition);     // Create the label
-
-        labelList.Add(newLabelGO);        
+        // Initialize the new label
+        newLabelGO.GetComponent<Label2>().Create(_labelId, _areaId, _labelType, _text, _labelPosition);
+        
+        labelList.Add(newLabelGO);        //Add to label list
+        
+        //Update core and emit events
         hom3r.state.currentLabelMode = THom3rLabelMode.idle;
         this.EmitLabelTransform(newLabelGO);
     }
@@ -314,13 +316,20 @@ public class LabelManager2 : MonoBehaviour
     //  EDIT LABEL //
     /////////////////
 
+    /// <summary>
+    /// Start to edit a new label
+    /// </summary>
+    /// <param name="_newPanelToEdit">Pointer to the label object to edit</param>
     public void StartEditLabel(GameObject _newPanelToEdit)
     {
+        // Get pointer to selected label
         GameObject _newSelectedLabel = _newPanelToEdit.transform.parent.parent.gameObject;
+        // Check that everything is OK
         if (!hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetActiveLabelEdition()) { return; }
         if (_newSelectedLabel == null) { return; }
         if (_newPanelToEdit.transform.parent.gameObject.name != "Board") { return; }
-                
+        
+        //Start selection process
         if (hom3r.state.currentLabelMode == THom3rLabelMode.idle)
         {
             // Currently we are no editing any label            
@@ -328,33 +337,37 @@ public class LabelManager2 : MonoBehaviour
             labelCanvasGO = InstantiateLabelEditorCanvas();         // Show canvas
             this.selectedLabel = _newSelectedLabel;                 // Save selected label           
         }
-            else if ((hom3r.state.currentLabelMode == THom3rLabelMode.edit) && this.selectedLabel != _newSelectedLabel)
+        else if ((hom3r.state.currentLabelMode == THom3rLabelMode.edit) && this.selectedLabel != _newSelectedLabel)
         {
             // We have change the selected label
             this.selectedLabel.GetComponent<Label2>().SelectLabel(false);   // Change label state to NO-selected state
             this.selectedLabel = _newSelectedLabel;                         // Save NEW selected label            
         }
-        this.updateCanvasRotationSlider();
+        this.updateCanvasRotationSlider(this.selectedLabel.GetComponent<Label2>().GetLabelType());
         this.selectedLabel.GetComponent<Label2>().SelectLabel(true);    // Change label state to selected state
         this.selectedLabel.GetComponent<Label2>().StartMovingLabel();   // Change label state to moving
     }
 
-    public void StopEditLabel()
+    /// <summary>
+    /// Finish label drag gesture
+    /// </summary>
+    public void StopDragLabelLabel()
     {        
+        if (this.selectedLabel == null) { return; }
         this.selectedLabel.GetComponent<Label2>().StopMovingLabel();   // Change label state to idle
-        this.SendLabelTransform();
+        this.EmitLabelTransform();
     }
 
+    /// <summary>
+    /// Execute label drag movements based. The real movement of the label will depend of 
+    /// camera position and object size on the screen
+    /// </summary>
+    /// <param name="dragMovementX">Label movement in X axis </param>
+    /// <param name="dragMovementY">Label movement in Y axis</param>
     public void DragLabel(float dragMovementX, float dragMovementY)
     {
         if (hom3r.state.currentLabelMode != THom3rLabelMode.edit) { return; }        
         this.selectedLabel.GetComponent<Label2>().UpdateBoardPosition(dragMovementX, dragMovementY);
-    }
-
-    public void SendLabelTransform()
-    {
-        if (this.selectedLabel == null) { return; }
-        this.EmitLabelTransform(this.selectedLabel);
     }
 
     public void UpdateAnchoredLabelsOrientation()
@@ -377,18 +390,14 @@ public class LabelManager2 : MonoBehaviour
     /// <returns></returns>
     private GameObject InstantiateLabelEditorCanvas()
     {
-        GameObject tempGO = hom3r.coreLink.InstantiatePrefab("prefabs/Label/LabelEditorCanvasPrefab", hom3r.quickLinks.uiObject);
-        
+        GameObject tempGO = hom3r.coreLink.InstantiatePrefab("prefabs/Label/LabelEditorCanvasPrefab", hom3r.quickLinks.uiObject);        
         tempGO.transform.Find("Panel_LabelEditor").gameObject.transform.Find("Slider").gameObject.GetComponent<Slider>().onValueChanged.AddListener(OnLabelEditorSliderChange);
         tempGO.transform.Find("Panel_LabelEditor").gameObject.transform.Find("ImageClose").gameObject.GetComponent<Button>().onClick.AddListener(OnClickLabelCloseButton);
-
-
         return tempGO;
     }
 
     private void OnLabelEditorSliderChange(float value)
-    {
-        Debug.Log(value);
+    {       
         selectedLabel.GetComponent<Label2>().UpdateBoardOrientation(value);        
     } 
 
@@ -400,10 +409,18 @@ public class LabelManager2 : MonoBehaviour
         hom3r.state.currentLabelMode = THom3rLabelMode.idle;
     }
 
-    private void updateCanvasRotationSlider()
-    {        
-        labelCanvasGO.transform.Find("Panel_LabelEditor").gameObject.transform.Find("Slider").gameObject.GetComponent<Slider>().value = this.selectedLabel.GetComponent<Label2>().GetLabelTransform().boardRotation.eulerAngles.y;
-    }
+    private void updateCanvasRotationSlider(TLabelType _labelType)
+    {
+        if (_labelType == TLabelType.board)
+        {
+            labelCanvasGO.transform.Find("Panel_LabelEditor").gameObject.transform.Find("Slider").gameObject.SetActive(true);
+            labelCanvasGO.transform.Find("Panel_LabelEditor").gameObject.transform.Find("Slider").gameObject.GetComponent<Slider>().value = this.selectedLabel.GetComponent<Label2>().GetLabelTransform().boardRotation.eulerAngles.y;
+        } else
+        {
+            labelCanvasGO.transform.Find("Panel_LabelEditor").gameObject.transform.Find("Slider").gameObject.SetActive(false);
+        }
+        
+    }   
 
     ///////////////////
     //  REMOVE LABEL //
@@ -444,11 +461,28 @@ public class LabelManager2 : MonoBehaviour
     //  OTHERS //
     /////////////////
 
+    /// <summary>
+    /// Emit label transform after to rest of the hom3r
+    /// </summary>
+    private void EmitLabelTransform()
+    {
+        if (this.selectedLabel == null) { return; }
+        this.EmitLabelTransform(this.selectedLabel);
+    }
+
     private void EmitLabelTransform(GameObject labelGO)
     {
         CLabelTransform labelTransform = labelGO.GetComponent<Label2>().GetLabelTransform();
         string labelId = labelGO.GetComponent<Label2>().GetLabelId();
-        hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.LabelManager_LabelTransform, labelId, labelTransform.boardPosition, labelTransform.boardRotation));
+        TLabelType labelType = labelGO.GetComponent<Label2>().GetLabelType();
 
+        if (labelType == TLabelType.board)
+        {
+            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.LabelManager_LabelTransform, labelId, labelTransform.boardPosition, labelTransform.boardRotation));
+        } else if (labelType == TLabelType.anchoredLabel)
+        {
+
+        }
+        
     }
 }

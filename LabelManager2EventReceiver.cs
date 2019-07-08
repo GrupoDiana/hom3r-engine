@@ -38,7 +38,7 @@ public class LabelManager2EventReceiver : MonoBehaviour
                     hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().StartEditLabel(_event.data.obj);
                     break;
                 case TCoreEvent.MouseManager_MouseDragGestureEnd:
-                    hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().StopEditLabel();
+                    hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().StopDragLabelLabel();
                     break;
                 case TCoreEvent.MouseManager_MouseDragGesture:
                     hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().DragLabel(_event.data.mouseDragMovementX, _event.data.mouseDragMovementY);                   

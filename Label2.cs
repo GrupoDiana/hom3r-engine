@@ -95,8 +95,9 @@ public class Label2 : MonoBehaviour
         boardGO.transform.localScale = this.GetLabeScaleFactor() * boardGO.transform.localScale;    // Size
 
         textGO.GetComponent<TextMeshPro>().GetComponent<TMP_Text>().text = this.text;   // Update Text
-        
+
         // resize according to the text        
+        Debug.Log(this.transform.name + ": " + textGO.GetComponent<TextMeshPro>().GetPreferredValues().y + " - " + panelGOPadding);
         panelGO.transform.localScale = new Vector3(panelGO.transform.localScale.x, textGO.GetComponent<TextMeshPro>().GetPreferredValues().y + panelGOPadding, panelGO.transform.localScale.z);
 
         //Invoke("Invoke_RelocateBoard", 0.05f);
@@ -135,8 +136,25 @@ public class Label2 : MonoBehaviour
 
         // Add Text to PANEL
         textGO.GetComponent<TextMeshPro>().GetComponent<TMP_Text>().text = this.text;
+        textGO.GetComponent<TextMeshPro>().ForceMeshUpdate();
+        Bounds textBound = textGO.GetComponent<TextMeshPro>().bounds;
+        Debug.Log(textBound.size.x);
+        Debug.Log(textBound.size.y);
+        //float yCorrection = textGO.GetComponent<TextMeshPro>().GetPreferredValues().y; // DOESN'T WORK
+        //float xCorrection = textBound.size.x;
+        //float xCorrection = textGO.GetComponent<TextMeshPro>().GetPreferredValues().x;
+        float yCorrection = textBound.size.y;
+        //if (xCorrection > 0.8f ) { xCorrection = 1.0f; }
 
-        // Resize PANEL according text
+        // Resize PANEL according text          
+        //Debug.Log(this.transform.name + ": " + textGO.GetComponent<TextMeshPro>().GetPreferredValues().y + " - " + panelGOPadding);
+        panelGO.transform.localScale = new Vector3(panelGO.transform.localScale.x, yCorrection + panelGOPadding, panelGO.transform.localScale.z);
+        //panelGO.transform.localScale = new Vector3(xCorrection, yCorrection + panelGOPadding, panelGO.transform.localScale.z);
+
+        //textGO.transform.localScale = new Vector3(xCorrection - 0.1f, textGO.transform.localScale.y, textGO.transform.localScale.z);
+        //textGO.GetComponent<TextMeshPro>().margin = new Vector4((1 - xCorrection) *0.5f, textGO.GetComponent<TextMeshPro>().margin.y, textGO.GetComponent<TextMeshPro>().margin.z, textGO.GetComponent<TextMeshPro>().margin.w);
+
+
     }
 
 
