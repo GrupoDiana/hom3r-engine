@@ -46,7 +46,12 @@ public class LabelManager2 : MonoBehaviour
     /// <param name="_text">Text to show into the board</param>
     public void AddBoard(string _labelId, string _text)
     {
+        if (hom3r.state.currentLabelMode == THom3rLabelMode.edit)
+        {
+            this.OnClickLabelCloseButton();
+        }
         hom3r.state.currentLabelMode = THom3rLabelMode.add;
+
         CLabelTransform labelPosition = this.GetDefaultBoardTransform();
         this.AddLabel(_labelId, null, TLabelType.boardLabel, _text, labelPosition);
     }
