@@ -161,7 +161,8 @@ public class OBJLoader : MonoBehaviour
     List<Material> listOfReadMaterials;     //list of materials loaded of the mtl file
     Texture2D webTexture;                   //Texture to download from the web
     bool firstmat = true;                   //control if the same object use various materials
-    
+    bool mapKsTextureExist;                 // Control if the KS texture exist or not
+
     public CMeshData mymesh;                    //Store vertices, normals and UVS from the read file
     COBJFileObject newReadObject;               //One object
     //List<COBJFileObject> listOfReadObjects;     //List of objects read from the file
@@ -414,15 +415,22 @@ public class OBJLoader : MonoBehaviour
             }
 
             material = new Material(Shader.Find("Standard")); //creates a new standard material by default
-
             material.name = row.Replace("newmtl ", "").Trim(); //name of the new material
+            mapKsTextureExist = false;
         }
         else if (row.StartsWith("Ns ")) //specular exponent that ponders the value of specular colour
         {
             Ns = float.Parse(row.Replace("Ns ", "").Trim(), CultureInfo.InvariantCulture); //converts the value read to float
             Ns = Ns / 1000; //possible values between 0 and 1000
+            if (!mapKsTextureExist)
+            {
+                //Map into the _Glossiness parameter because there are not KS texture                                
+                material.SetFloat("_Glossiness", Ns); //sets this value in the material
+            } else {
+                //Map into the _GlossMapScale parameter because there are KS texture                                
+                material.SetFloat("_GlossMapScale", Ns); //sets this value in the material   
+            }
 
-            material.SetFloat("_Glossiness", Ns); //sets this value in the material
         }
         else if (row.StartsWith("Ka ")) //ambient colour
         {
@@ -590,41 +598,46 @@ public class OBJLoader : MonoBehaviour
                     if (lineRead.StartsWith("map_Kd "))
                     {
                         //loads texture from URL
-                        string pictureFileName = lineRead.Replace("map_Kd ", "").Trim(); //image direction   
-                        string pictureExtension = Path.GetExtension(pictureFileName).ToLower(); //gets the image extension and converts in lower-case                                                                       
+                        string cleanedLine = lineRead.Replace("map_Kd ", "").Trim(); //image direction   
+
+                        //Get Parameters and filename
+                        string pictureFileName;
+                        string[] parameters;    // TODO use parameters 
+                        ExtractDataFrom(cleanedLine, out pictureFileName, out parameters);
+
+                        //Image file extension
+                        string pictureExtension = Path.GetExtension(pictureFileName).ToLower(); //gets the image extension and converts in lower-case                                                                                               
                         if ((pictureExtension == ".png") || (pictureExtension == ".jpg")) //image format, png or jpg
                         {
                             string pictureUrl = GetResourcesFileURL(pictureFileName);
                             //Texture webTexture = null; // new Texture();                     //Texture to download from the web
                             yield return StartCoroutine(CoroutineLoadTextureFromWebFile(pictureFileName, pictureUrl));        //Download the texture and wait until it finish
                             material.SetTexture("_MainTex", webTexture);                    //sets the material with the loaded texture
+
+                            //Check Colour - If the colour is black we change it to white
+                            if (material.GetColor("_Color") == Color.black) { material.SetColor("_Color", Color.white); }                            
                         }
                         else //other types, not identified
                         {
                             Debug.Log("Texture not support: " + pictureExtension); //shows it the error
+                            this.SendMessageToUI("Texture not support: " + pictureExtension);
                         }
                     }
                     else if (lineRead.StartsWith("map_bump ") || lineRead.StartsWith("bump ")) //bump mapping
                     {
                         //loads bump texture from URL
                         string cleanedLine;
-                        //Image path
-                        /*if (lineRead.StartsWith("map_bump ")){
-                          pictureFileName = lineRead.Replace("map_bump ", "").Trim();
-                        } else { pictureFileName = lineRead.Replace("bump ", "").Trim(); }*/
+                        //Image path                       
                         cleanedLine = lineRead.Replace("bump ", "").Trim();
                         cleanedLine = lineRead.Replace("map_", "").Trim();
 
-                        //Get Parameters
+                        //Get Parameters and filename
                         string pictureFileName;
-                        GetMapParameters(cleanedLine, out pictureFileName);
-
-                        // TODO do something with parameters
-
+                        string[] parameters;    // TODO use parameters 
+                        ExtractDataFrom(cleanedLine, out pictureFileName, out parameters);
+                        
                         //Image file extension
-                        string pictureExtension = Path.GetExtension(pictureFileName).ToLower(); //gets the image extension and converts in lower-case
-                        
-                        
+                        string pictureExtension = Path.GetExtension(pictureFileName).ToLower(); //gets the image extension and converts in lower-case                                                
                         if ((pictureExtension == ".png") || (pictureExtension == ".jpg")) 
                         {
                             string pictureUrl = GetResourcesFileURL(pictureFileName);
@@ -643,12 +656,41 @@ public class OBJLoader : MonoBehaviour
                             webTexture.SetPixels(pixels); //sets the texture with the new pixels
                             material.SetTexture("_BumpMap", webTexture); //sets the material with the loaded texture
                             material.EnableKeyword("_NORMALMAP"); //sets a shader keyword
-                            material.SetFloat("_BumpScale", (float)0.5); //sets the intensity of the normal map
+                            material.SetFloat("_BumpScale", (float)1f); //sets the intensity of the normal map
                                                      
                         }
                         else //other types, not identified
                         {
                             Debug.Log("Texture not support: " + pictureExtension); //shows it the error
+                            this.SendMessageToUI("Texture not support: " + pictureExtension);
+                        }
+                    }
+                    else if (lineRead.StartsWith("map_Ks "))
+                    {
+                        //loads texture from URL
+                        string cleanedLine = lineRead.Replace("map_Ks ", "").Trim(); //image direction   
+
+                        //Get Parameters and filename
+                        string pictureFileName;
+                        string[] parameters;    // TODO use parameters 
+                        ExtractDataFrom(cleanedLine, out pictureFileName, out parameters);
+
+                        //Image file extension
+                        string pictureExtension = Path.GetExtension(pictureFileName).ToLower(); //gets the image extension and converts in lower-case                                                                                               
+                        if ((pictureExtension == ".png") || (pictureExtension == ".jpg")) //image format, png or jpg
+                        {
+                            string pictureUrl = GetResourcesFileURL(pictureFileName);                            
+                            yield return StartCoroutine(CoroutineLoadTextureFromWebFile(pictureFileName, pictureUrl));        //Download the texture and wait until it finish                            
+                            material.SetTexture("_MetallicGlossMap", webTexture);                    //sets the material with the loaded texture                           
+                            material.EnableKeyword("_METALLICGLOSSMAP");
+                            //float temp = Mathf.Exp(-3.0f / 18f);
+                            //material.SetFloat("_GlossMapScale", temp); //sets this value in the material   
+                            mapKsTextureExist = true;                           
+                        }
+                        else //other types, not identified
+                        {
+                            Debug.Log("Texture not support: " + pictureExtension); //shows it the error
+                            this.SendMessageToUI("Texture not support: " + pictureExtension);
                         }
                     }
                     else
@@ -677,18 +719,19 @@ public class OBJLoader : MonoBehaviour
         hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.ModelManagement_3DLoadError, error_message));
     }
     
-    //TODO Exports parameters
-    private void GetMapParameters(string input, out string fileName)
+    /// <summary>
+    /// Get parameters and filename 
+    /// </summary>
+    /// <param name="input"></param>
+    /// <param name="fileName"></param>
+    /// <param name="parameters"></param>
+    private void ExtractDataFrom(string input, out string fileName, out string[] parameters)
     {
-        string[] parasm = input.Split(' ');
+        parameters = input.Split(' ');
 
-        fileName = parasm[parasm.Length - 1];
+        fileName = parameters[parameters.Length - 1];
 
-        //Removes last elements of params
-        // return params
-
-        // Debug.Log(parasm[parasm.Length-1]);
-
+        Array.Resize<string>(ref parameters, parameters.Length - 1);        
     }
 
     /// <summary>Loads the material file from local path</summary>
