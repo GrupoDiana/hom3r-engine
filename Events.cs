@@ -60,8 +60,9 @@ public enum TCoreEvent
     ObjectState_AreaRemoved,
 
     LabelManager_ShowMessage, LabelManager_LabelRemoved,
-    LabelManager_LabelTransform,
+    LabelManager_LabelDataUpdated,
 
+    PointOnSurface_PointCaptureBegin, PointOnSurface_PointCaptureEnd,
     PointOnSurface_PointCaptureSuccess,
 
     UIAR_StartAuthoring, UIAR_StopAuthoring,
@@ -84,10 +85,13 @@ public class CCoreEventData
     public float value1 { get; set; }
     public float value2 { get; set; }
     public bool control { get; set; }
+    public string labelId { get; set; }
+    public TLabelType labelType { get; set; }
     public Vector3 mousePosition { get; set; }
     public Vector3 anchorPosition { get; set; }
     public Vector3 boardPosition { get; set; }
     public Quaternion boardRotation { get; set; }
+    public float scaleFactor { get; set; }
     public float mouseDragMovementX { get; set; }
     public float mouseDragMovementY { get; set; }
     public float mouseWhellMovement { get; set; }
@@ -198,12 +202,24 @@ public class CCoreEvent
         data.textList = _texlist;
     }
 
-    public CCoreEvent(TCoreEvent _command, string _areaID, Vector3 _boardPosition, Quaternion _boardRotation )
+    public CCoreEvent(TCoreEvent _command, string _labelId, TLabelType _labelType, Vector3 _boardPosition, Quaternion _boardRotation, float _scaleFactor )
     {
         data = new CCoreEventData(_command);
-        data.areaId = _areaID;
+        data.labelId = _labelId;
+        data.labelType = _labelType;
         data.boardPosition = _boardPosition;       
         data.boardRotation = _boardRotation;
+        data.scaleFactor = _scaleFactor;
+    }
+    public CCoreEvent(TCoreEvent _command, string _labelId, string _areaId, TLabelType _labelType, Vector3 _boardPosition, Vector3 _anchorPosition, float _scaleFactor)
+    {
+        data = new CCoreEventData(_command);
+        data.labelId = _labelId;
+        data.areaId = _areaId;
+        data.labelType = _labelType;
+        data.boardPosition = _boardPosition;
+        data.anchorPosition = _anchorPosition;
+        data.scaleFactor = _scaleFactor;
     }
 }
 

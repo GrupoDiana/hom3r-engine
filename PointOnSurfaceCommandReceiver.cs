@@ -30,7 +30,8 @@ public class PointOnSurfaceCommandReceiver : MonoBehaviour
 /// <summary>Navigation Commands</summary>
 public enum TPointOnSurfaceCommands
 {
-    StartPointCapture, DrawAnchorPoint
+    StartPointCapture, StartPointCaptureSpecificArea,
+    DrawAnchorPoint
 }
 
 /// <summary>Navigation data</summary>
@@ -55,7 +56,11 @@ public class CPointOnSurfaceCommand : CCoreCommand
     {
         data = new CPointOnSurfaceCommandData(_command);
     }
-    
+    public CPointOnSurfaceCommand(TPointOnSurfaceCommands _command, string _areaId)
+    {
+        data = new CPointOnSurfaceCommandData(_command);
+        data.areaId = _areaId;
+    }
     //////////////////
     //   Execute    //
     //////////////////
@@ -70,7 +75,9 @@ public class CPointOnSurfaceCommand : CCoreCommand
                     case TPointOnSurfaceCommands.StartPointCapture:
                         hom3r.quickLinks.scriptsObject.GetComponent<PointOnSurfaceManager>().StartPointCapture();
                         break;
-                    
+                    case TPointOnSurfaceCommands.StartPointCaptureSpecificArea:
+                        hom3r.quickLinks.scriptsObject.GetComponent<PointOnSurfaceManager>().StartPointCapture(data.areaId);
+                        break;
                     default:
                         Debug.LogError("Error: This command " + data.commandEvent + " is not valid.");
                         break;

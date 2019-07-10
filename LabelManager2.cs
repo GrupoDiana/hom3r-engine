@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public enum TLabelType { board, anchoredLabel}
+public enum TLabelType { boardLabel, anchoredLabel}
 
 public class CLabelTransform
 {
@@ -16,7 +16,9 @@ public class CLabelTransform
 public class CLabelData
 {
     public string id;
-    public string text;
+    public string areaId;
+    public string text;    
+    public string colour;
 }
 
 public class LabelManager2 : MonoBehaviour
@@ -45,8 +47,8 @@ public class LabelManager2 : MonoBehaviour
     public void AddBoard(string _labelId, string _text)
     {
         hom3r.state.currentLabelMode = THom3rLabelMode.add;
-        CLabelTransform labelPosition = this.GetDefaultPositionBoard();
-        this.AddLabel(_labelId, null, TLabelType.board, _text, labelPosition);
+        CLabelTransform labelPosition = this.GetDefaultBoardTransform();
+        this.AddLabel(_labelId, null, TLabelType.boardLabel, _text, labelPosition);
     }
 
     /// <summary>
@@ -56,13 +58,13 @@ public class LabelManager2 : MonoBehaviour
     /// <param name="_text">Text to show into the board</param>
     /// <param name="_boardPosition">Position in which the label will be draw</param>
     /// <param name="_boardRotation">Orientation in which the label will be draw</param>
-    public void AddBoard(string _labelId, string _text, Vector3 _boardPosition, Quaternion _boardRotation)
+    public void AddBoard(string _labelId, string _text, Vector3 _boardPosition, Quaternion _boardRotation, float _scaleFactor)
     {
         CLabelTransform labelPosition = new CLabelTransform();
         labelPosition.boardPosition = _boardPosition;
         labelPosition.boardRotation = _boardRotation;
         
-        this.AddLabel(_labelId, null, TLabelType.board, _text, labelPosition);
+        this.AddLabel(_labelId, null, TLabelType.boardLabel, _text, labelPosition, _scaleFactor);
     }
 
 
@@ -72,7 +74,7 @@ public class LabelManager2 : MonoBehaviour
     /// <param name="_labelId"></param>
     /// <param name="_areaId"></param>
     /// <param name="_text"></param>
-    public void AddAnchoredLabel(string _labelId, string _areaId, string _text)
+    public void AddAnchoredLabel(string _labelId, string _areaId, string _text, string _colour)
     {
         if (hom3r.state.currentLabelMode == THom3rLabelMode.add) { return; }
 
@@ -83,18 +85,20 @@ public class LabelManager2 : MonoBehaviour
 
         hom3r.state.currentLabelMode = THom3rLabelMode.add;
         currentLabel.id = _labelId;     // Save to use later
-        currentLabel.text = _text;      // Save to use later
-        hom3r.coreLink.Do(new CPointOnSurfaceCommand(TPointOnSurfaceCommands.StartPointCapture));
+        currentLabel.areaId = _areaId;  // Save to use later
+        currentLabel.text = _text;      // Save to use later        
+        currentLabel.colour = _colour;  // Save to use later // TODO Not implemented yet
+        hom3r.coreLink.Do(new CPointOnSurfaceCommand(TPointOnSurfaceCommands.StartPointCaptureSpecificArea, _areaId));
     }
 
 
-    public void AddAnchoredLabel(string _labelId, string _areaId, string _text, Vector3 _labelPosition, Vector3 _anchorPosition)
+    public void AddAnchoredLabel(string _labelId, string _areaId, string _text, Vector3 _labelPosition, Vector3 _anchorPosition, float _scaleFactor)
     {        
-        CLabelTransform labelPosition = new CLabelTransform();
-        labelPosition.boardPosition = _labelPosition;
-        labelPosition.anchorPosition = _anchorPosition;
+        CLabelTransform labelTransform = new CLabelTransform();
+        labelTransform.boardPosition = _labelPosition;
+        labelTransform.anchorPosition = _anchorPosition;        
 
-        this.AddLabel(_labelId, _areaId, TLabelType.anchoredLabel, _text, labelPosition);
+        this.AddLabel(_labelId, _areaId, TLabelType.anchoredLabel, _text, labelTransform, _scaleFactor);
     }
 
 
@@ -114,14 +118,14 @@ public class LabelManager2 : MonoBehaviour
     /// <param name="_labelType"></param>
     /// <param name="_text"></param>
     /// <param name="_labelPosition"></param>
-    private void AddLabel(string _labelId, string _areaId, TLabelType _labelType, string _text, CLabelTransform _labelPosition)
+    private void AddLabel(string _labelId, string _areaId, TLabelType _labelType, string _text, CLabelTransform _labelPosition, float _scaleFactor = 1.0f)
     {
         // Check if this labelID already exist
         if (this.labelList.Find(r => r.GetComponent<Label2>().GetLabelId() == _labelId) != null) { return; }        
 
         // If not this label ID doesn't exit we'll create a new one        
         GameObject newLabelGO = null;
-        if (_labelType == TLabelType.board) {        
+        if (_labelType == TLabelType.boardLabel) {        
             newLabelGO = hom3r.coreLink.InstantiatePrefab("prefabs/Label/BoardPrefab", hom3r.quickLinks.labelsObject);
             newLabelGO.transform.name = "Board_" + _labelId;
         } else if (_labelType == TLabelType.anchoredLabel) {            
@@ -132,13 +136,13 @@ public class LabelManager2 : MonoBehaviour
             return;
         }        
         // Initialize the new label
-        newLabelGO.GetComponent<Label2>().Create(_labelId, _areaId, _labelType, _text, _labelPosition);
+        newLabelGO.GetComponent<Label2>().Create(_labelId, _areaId, _labelType, _text, _labelPosition, _scaleFactor);
         
         labelList.Add(newLabelGO);        //Add to label list
         
         //Update core and emit events
         hom3r.state.currentLabelMode = THom3rLabelMode.idle;
-        this.EmitLabelTransform(newLabelGO);
+        this.EmitLabelData(newLabelGO);
     }
 
     
@@ -147,42 +151,62 @@ public class LabelManager2 : MonoBehaviour
     /// Calculate a default position/rotation to emplace a board label on the scene
     /// </summary>
     /// <returns></returns>
-    private CLabelTransform GetDefaultPositionBoard()
+    private CLabelTransform GetDefaultBoardTransform()
     {
-        CLabelTransform labelPos = new CLabelTransform();
-        Bounds plugyObjectBounds = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().Get3DModelBoundingBox(true);
+        CLabelTransform labelTransform = new CLabelTransform();
 
+        // Calculate Default Position
+        Bounds _3DObjectBounds = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().Get3DModelBoundingBox();
         Vector3 local_position = Vector3.zero;        
-        float pos = Mathf.Sqrt(MathHom3r.Pow2(plugyObjectBounds.extents.z) + MathHom3r.Pow2(plugyObjectBounds.extents.x));
-
+        float pos = Mathf.Sqrt(MathHom3r.Pow2(_3DObjectBounds.extents.z) + MathHom3r.Pow2(_3DObjectBounds.extents.x));
         local_position.z = (-1.0f) * pos;
         local_position.x = (+1.0f) * pos;
 
-        labelPos.boardPosition = local_position;
-        return labelPos;
+        // Normalize default position
+        Vector3 boardPositionRelativeTo3DCentre = local_position - _3DObjectBounds.center;
+        float nomalizeFactor = Mathf.Sqrt(MathHom3r.Pow2(_3DObjectBounds.size.x) + MathHom3r.Pow2(_3DObjectBounds.size.y) + MathHom3r.Pow2(_3DObjectBounds.size.z));
+        labelTransform.boardPosition = boardPositionRelativeTo3DCentre / nomalizeFactor;
+
+        //labelTransform.boardPosition = local_position;
+
+        // Calculate Default Rotation
+        Vector3 direction = labelTransform.boardPosition - Camera.main.transform.position;
+        direction = direction.normalized;   //Desired direction, looking to the camera
+        Quaternion _quatRotation = Quaternion.LookRotation(direction, Vector3.up);       
+        labelTransform.boardRotation = _quatRotation;
+        
+        return labelTransform;
     }
 
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="_areadId"></param>
+    /// <param name="_areaId"></param>
     /// <returns></returns>
-    private CLabelTransform GetDefaultPositionAnchoredLabel(Vector3 _localAnchorPosition, string _areadId)
+    private CLabelTransform GetDefaultPositionAnchoredLabel(Vector3 _anchorLocalPosition, string _areaId)
     {
         CLabelTransform labelTransform = new CLabelTransform();
 
-        // Calculate ANCHOR position world coordinates based on data received
-        GameObject areaGO = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetAreaGameObject_ByAreaID(_areadId);
-        labelTransform.anchorPosition = areaGO.transform.TransformPoint(_localAnchorPosition);
+        // Save ANCHOR Local Position
+        labelTransform.anchorPosition = _anchorLocalPosition;
 
-        Debug.Log(labelTransform.anchorPosition);
+        // Calculate ANCHOR Global position (world coordinates based on the areaID received)
+        GameObject areaGO = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetAreaGameObject_ByAreaID(_areaId);
+        Vector3 anchorGlobalPosition = areaGO.transform.TransformPoint(_anchorLocalPosition);        
+        
         // Calculate POLE origin
-        Vector3 poleOrigin = CalculatePoleOriginPosition(labelTransform.anchorPosition);
+        Vector3 poleOrigin = CalculatePoleOriginPosition(anchorGlobalPosition);
 
         // Calculate POLE end        
-        Vector3 poleEnd = CalculatePoleEndPosition(labelTransform.anchorPosition, poleOrigin);
+        Vector3 poleEnd = CalculatePoleEndPosition(anchorGlobalPosition, poleOrigin);
 
-        labelTransform.boardPosition = poleEnd;
+        // Normalize Board Position       
+        Bounds _3DObjectBounds = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().Get3DModelBoundingBox();
+        Vector3 boardPositionRelativeTo3DCentre = poleEnd - _3DObjectBounds.center;
+        float nomalizeFactor = Mathf.Sqrt(MathHom3r.Pow2(_3DObjectBounds.size.x) + MathHom3r.Pow2(_3DObjectBounds.size.y) + MathHom3r.Pow2(_3DObjectBounds.size.z));
+        labelTransform.boardPosition = boardPositionRelativeTo3DCentre / nomalizeFactor;
+
+        //labelTransform.boardPosition = poleEnd;
 
         return labelTransform;
     }
@@ -343,7 +367,7 @@ public class LabelManager2 : MonoBehaviour
             this.selectedLabel.GetComponent<Label2>().SelectLabel(false);   // Change label state to NO-selected state
             this.selectedLabel = _newSelectedLabel;                         // Save NEW selected label            
         }
-        this.updateCanvasRotationSlider(this.selectedLabel.GetComponent<Label2>().GetLabelType());
+        this.UpdateCanvasSliders(this.selectedLabel.GetComponent<Label2>().GetLabelType());
         this.selectedLabel.GetComponent<Label2>().SelectLabel(true);    // Change label state to selected state
         this.selectedLabel.GetComponent<Label2>().StartMovingLabel();   // Change label state to moving
     }
@@ -355,7 +379,7 @@ public class LabelManager2 : MonoBehaviour
     {        
         if (this.selectedLabel == null) { return; }
         this.selectedLabel.GetComponent<Label2>().StopMovingLabel();   // Change label state to idle
-        this.EmitLabelTransform();
+        this.EmitLabelData();
     }
 
     /// <summary>
@@ -391,15 +415,23 @@ public class LabelManager2 : MonoBehaviour
     private GameObject InstantiateLabelEditorCanvas()
     {
         GameObject tempGO = hom3r.coreLink.InstantiatePrefab("prefabs/Label/LabelEditorCanvasPrefab", hom3r.quickLinks.uiObject);        
-        tempGO.transform.Find("Panel_LabelEditor").gameObject.transform.Find("Slider").gameObject.GetComponent<Slider>().onValueChanged.AddListener(OnLabelEditorSliderChange);
+        tempGO.transform.Find("Panel_LabelEditor").gameObject.transform.Find("SliderRotation").gameObject.GetComponent<Slider>().onValueChanged.AddListener(OnChangeLabelEditorSliderRotation);
+        tempGO.transform.Find("Panel_LabelEditor").gameObject.transform.Find("SliderScale").gameObject.GetComponent<Slider>().onValueChanged.AddListener(OnChangeLabelEditorSliderScale);
         tempGO.transform.Find("Panel_LabelEditor").gameObject.transform.Find("ImageClose").gameObject.GetComponent<Button>().onClick.AddListener(OnClickLabelCloseButton);
+
         return tempGO;
     }
 
-    private void OnLabelEditorSliderChange(float value)
+    private void OnChangeLabelEditorSliderRotation(float value)
     {       
-        selectedLabel.GetComponent<Label2>().UpdateBoardOrientation(value);        
-    } 
+        selectedLabel.GetComponent<Label2>().UpdateBoardOrientation(value);
+        this.EmitLabelData();
+    }
+    private void OnChangeLabelEditorSliderScale(float value)
+    {
+        selectedLabel.GetComponent<Label2>().UpdateBoardScale(value);
+        this.EmitLabelData();
+    }
 
     private void OnClickLabelCloseButton()
     {
@@ -409,18 +441,30 @@ public class LabelManager2 : MonoBehaviour
         hom3r.state.currentLabelMode = THom3rLabelMode.idle;
     }
 
-    private void updateCanvasRotationSlider(TLabelType _labelType)
+    private void UpdateCanvasSliders(TLabelType _labelType)
     {
-        if (_labelType == TLabelType.board)
+        this.UpdateCanvasRotationSlider(_labelType);
+        this.UpdateCanvasScaleSlider();
+    }
+
+    private void UpdateCanvasRotationSlider(TLabelType _labelType)
+    {
+        GameObject canvasRotationSlider = labelCanvasGO.transform.Find("Panel_LabelEditor").gameObject.transform.Find("SliderRotation").gameObject;
+        if (_labelType == TLabelType.boardLabel)
         {
-            labelCanvasGO.transform.Find("Panel_LabelEditor").gameObject.transform.Find("Slider").gameObject.SetActive(true);
-            labelCanvasGO.transform.Find("Panel_LabelEditor").gameObject.transform.Find("Slider").gameObject.GetComponent<Slider>().value = this.selectedLabel.GetComponent<Label2>().GetLabelTransform().boardRotation.eulerAngles.y;
+            canvasRotationSlider.SetActive(true);
+            canvasRotationSlider.GetComponent<Slider>().value = this.selectedLabel.GetComponent<Label2>().GetLabelTransform().boardRotation.eulerAngles.y;            
         } else
         {
-            labelCanvasGO.transform.Find("Panel_LabelEditor").gameObject.transform.Find("Slider").gameObject.SetActive(false);
-        }
-        
+            canvasRotationSlider.SetActive(false);
+        }        
     }   
+
+    private void UpdateCanvasScaleSlider()
+    {
+        GameObject canvasScaleSlider = labelCanvasGO.transform.Find("Panel_LabelEditor").gameObject.transform.Find("SliderScale").gameObject;
+        canvasScaleSlider.GetComponent<Slider>().value = this.selectedLabel.GetComponent<Label2>().GetScaleFactor();                
+    }
 
     ///////////////////
     //  REMOVE LABEL //
@@ -464,25 +508,33 @@ public class LabelManager2 : MonoBehaviour
     /// <summary>
     /// Emit label transform after to rest of the hom3r
     /// </summary>
-    private void EmitLabelTransform()
+    private void EmitLabelData()
     {
         if (this.selectedLabel == null) { return; }
-        this.EmitLabelTransform(this.selectedLabel);
+        this.EmitLabelData(this.selectedLabel);
     }
 
-    private void EmitLabelTransform(GameObject labelGO)
+    /// <summary>
+    /// Emit an event when a label is created or edited
+    /// </summary>
+    /// <param name="labelGO"></param>
+    private void EmitLabelData(GameObject labelGO)
     {
-        CLabelTransform labelTransform = labelGO.GetComponent<Label2>().GetLabelTransform();
         string labelId = labelGO.GetComponent<Label2>().GetLabelId();
         TLabelType labelType = labelGO.GetComponent<Label2>().GetLabelType();
+        CLabelTransform labelTransform = labelGO.GetComponent<Label2>().GetLabelLocalTransform();
+        float scaleFactor = labelGO.GetComponent<Label2>().GetScaleFactor();
+        string areaId = labelGO.GetComponent<Label2>().GetAreaId();
 
-        if (labelType == TLabelType.board)
+        if (labelType == TLabelType.boardLabel)
         {
-            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.LabelManager_LabelTransform, labelId, labelTransform.boardPosition, labelTransform.boardRotation));
+            // labelID, boardPosition, boardRotation, scaleFactor
+            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.LabelManager_LabelDataUpdated, labelId, labelType, labelTransform.boardPosition, labelTransform.boardRotation, scaleFactor));
         } else if (labelType == TLabelType.anchoredLabel)
         {
-
+            // labelID, boardPosition, anchorPosition, scaleFactor
+            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.LabelManager_LabelDataUpdated, labelId, areaId, labelType, labelTransform.boardPosition, labelTransform.anchorPosition, scaleFactor));
         }
-        
+
     }
 }

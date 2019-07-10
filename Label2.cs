@@ -27,7 +27,10 @@ public class Label2 : MonoBehaviour
     float horizontalFieldOfView_rad;    // Camera parameters. We use it to calculate correction parameters/factors
 
 
-    float scaleFactor = 0.1f;       // TODO: Think better idea. Constant to calculate the scaleFactor of the label/panel
+    float defaultScaleFactor;               // To save the board default scale
+    Vector3 defaultBoardGOScale;            // To save the original board GameObject scale
+    float scaleFactor;                      // Factor to modify the board default scale
+
     float panelGOPadding = 0.1f;    // Top/Bottom margin between panel and text
     Color32 idleColor = Color.white;
     Color32 selectedColor = Color.red;
@@ -47,6 +50,12 @@ public class Label2 : MonoBehaviour
 
         state = TLabelState.creating;
         selectedState = TLabelSelectedState.idle;
+
+        // Scale Variables
+        defaultScaleFactor = 0.1f;                              // By default we want 10% of the main axis of the bounding box as Scale Factor
+        defaultBoardGOScale = boardGO.transform.localScale;     // Get the initial GO scale
+        scaleFactor = 1.0f;                                     // Initially the slider will start with 1
+        
     }
 
     // Start is called before the first frame update
@@ -54,9 +63,7 @@ public class Label2 : MonoBehaviour
     {
         CalculateFielOfView();
     }
-
-    
-    
+        
     /// <summary>
     /// Create/Initialize a new label
     /// </summary>
@@ -65,21 +72,23 @@ public class Label2 : MonoBehaviour
     /// <param name="_labelType"></param>
     /// <param name="_text"></param>
     /// <param name="_labelTransform"></param>
-    public void Create(string _labelId, string _areaID, TLabelType _labelType, string _text, CLabelTransform _labelTransform)
+    public void Create(string _labelId, string _areaID, TLabelType _labelType, string _text, CLabelTransform _labelTransform, float _scaleFactor)
     {
         this.id = _labelId;
         this.areaId = _areaID;
         this.type = _labelType;
         this.text = _text;
         this.labelTransform = _labelTransform;
+        this.scaleFactor = _scaleFactor;
 
         state = TLabelState.creating;
 
-        if (type == TLabelType.board) { this.CreateBoard();
-        } else if (type == TLabelType.anchoredLabel) { this.CreateAnchoredLabel(); }
+        if (type == TLabelType.boardLabel) {
+            this.CreateBoard();
+        } else if (type == TLabelType.anchoredLabel) {
+            this.CreateAnchoredLabel(); }
         else { //Error 
         }
-
         state = TLabelState.idle;      // Change class state
     }
 
@@ -88,11 +97,15 @@ public class Label2 : MonoBehaviour
     /// </summary>
     private void CreateBoard()
     {
+        // Des-normalized board position        
+        this.labelTransform.boardPosition = DesnormalizeBoardPosition(this.labelTransform.boardPosition);
+
+        // Create Board
         boardGO.transform.position = this.labelTransform.boardPosition;     // Emplace position
-        this.UpdateOrientation();                                           // Change orientation        
+        boardGO.transform.rotation = this.labelTransform.boardRotation;     // Apply orientation        
         boardGO.transform.Rotate(-1.0f * boardGO.transform.rotation.eulerAngles.x, 0f, 0f); // Force just vertical board
 
-        boardGO.transform.localScale = this.GetLabeScaleFactor() * boardGO.transform.localScale;    // Size
+        boardGO.transform.localScale = this.scaleFactor * this.GetDefaultScaleLabelFactor() * defaultBoardGOScale;    // Size
 
         textGO.GetComponent<TextMeshPro>().GetComponent<TMP_Text>().text = this.text;   // Update Text
 
@@ -119,14 +132,22 @@ public class Label2 : MonoBehaviour
 
     private void CreateAnchoredLabel()
     {
+        // Des-normalized board position        
+        this.labelTransform.boardPosition = DesnormalizeBoardPosition(this.labelTransform.boardPosition);
+
         // PANEL                
         boardGO.transform.position = this.labelTransform.boardPosition;             // Emplace
         this.UpdateOrientation();                                                   // Orientation        
-        boardGO.transform.localScale = this.GetLabeScaleFactor() * boardGO.transform.localScale;    // Size
-        
+        boardGO.transform.localScale = this.scaleFactor * this.GetDefaultScaleLabelFactor() * defaultBoardGOScale;    // Size
+
         // ANCHOR
+        // Calculate ANCHOR position world coordinates based on data received
+        GameObject areaGO = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetAreaGameObject_ByAreaID(this.areaId);
+        Vector3 globalAnchorPosition = areaGO.transform.TransformPoint(this.labelTransform.anchorPosition);
+        labelTransform.anchorPosition = globalAnchorPosition;
+
         anchorGO.transform.position = this.labelTransform.anchorPosition;           // Emplace
-        
+        anchorGO.transform.localScale = this.GetDefaultScaleLabelFactor() * anchorGO.transform.localScale;
         // POLE
         LineRenderer pole = poleGO.GetComponent<LineRenderer>();        
         pole.material = new Material(Shader.Find("Legacy Shaders/Particles/Additive"));
@@ -141,15 +162,15 @@ public class Label2 : MonoBehaviour
         Debug.Log(textBound.size.x);
         Debug.Log(textBound.size.y);
         //float yCorrection = textGO.GetComponent<TextMeshPro>().GetPreferredValues().y; // DOESN'T WORK
-        //float xCorrection = textBound.size.x;
+        float xCorrection = textBound.size.x;
         //float xCorrection = textGO.GetComponent<TextMeshPro>().GetPreferredValues().x;
         float yCorrection = textBound.size.y;
         //if (xCorrection > 0.8f ) { xCorrection = 1.0f; }
 
         // Resize PANEL according text          
         //Debug.Log(this.transform.name + ": " + textGO.GetComponent<TextMeshPro>().GetPreferredValues().y + " - " + panelGOPadding);
-        panelGO.transform.localScale = new Vector3(panelGO.transform.localScale.x, yCorrection + panelGOPadding, panelGO.transform.localScale.z);
-        //panelGO.transform.localScale = new Vector3(xCorrection, yCorrection + panelGOPadding, panelGO.transform.localScale.z);
+        //panelGO.transform.localScale = new Vector3(panelGO.transform.localScale.x, yCorrection + panelGOPadding, panelGO.transform.localScale.z);
+        panelGO.transform.localScale = new Vector3(xCorrection + panelGOPadding, yCorrection + panelGOPadding, panelGO.transform.localScale.z);
 
         //textGO.transform.localScale = new Vector3(xCorrection - 0.1f, textGO.transform.localScale.y, textGO.transform.localScale.z);
         //textGO.GetComponent<TextMeshPro>().margin = new Vector4((1 - xCorrection) *0.5f, textGO.GetComponent<TextMeshPro>().margin.y, textGO.GetComponent<TextMeshPro>().margin.z, textGO.GetComponent<TextMeshPro>().margin.w);
@@ -157,34 +178,45 @@ public class Label2 : MonoBehaviour
 
     }
 
+    private Vector3 DesnormalizeBoardPosition(Vector3 position)
+    {
+        Bounds _3DObjectBounds = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().Get3DModelBoundingBox();
+        float nomalizeFactor = Mathf.Sqrt(MathHom3r.Pow2(_3DObjectBounds.size.x) + MathHom3r.Pow2(_3DObjectBounds.size.y) + MathHom3r.Pow2(_3DObjectBounds.size.z));
+        Vector3 boardGlobalPosition = (position * nomalizeFactor) + _3DObjectBounds.center;        
+
+        return boardGlobalPosition;
+    }
 
     private void UpdatePoleVisualAspect(LineRenderer pole)
     {
         // Change Pole Colour
-        Color temp = Color.white;
-        temp.a = 0.8f;
-        pole.startColor = temp;        
-        temp = Color.grey;
-        temp.a = 0.2f;
-        pole.endColor = temp;
+        Color tempColor = Color.white;
+        tempColor.a = 0.8f;
+        pole.startColor = tempColor;        
+        tempColor = Color.grey;
+        tempColor.a = 0.2f;
+        pole.endColor = tempColor;
 
         // Change Pole Width 
-        Debug.Log(pole.startWidth);
-        pole.startWidth = 0.2f;
-        pole.endWidth = 0.2f;
+        float poleDefaultWidth = 0.02f;
+        pole.startWidth = poleDefaultWidth * this.GetDefaultScaleLabelFactor();
+        pole.endWidth   = poleDefaultWidth * this.GetDefaultScaleLabelFactor();
     }
 
-    private float GetLabeScaleFactor()
+    /// <summary>
+    /// Calculate a scale factor in terms of 3D bounding box. 
+    /// It is calculated as the x% of the size of the main axis of the bounding box
+    /// </summary>
+    /// <returns>Scale factor to be applied</returns>
+    private float GetDefaultScaleLabelFactor()
     {
         Bounds _3DModelBoundingBox = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().Get3DModelBoundingBox();
         
         if (_3DModelBoundingBox.size.y > _3DModelBoundingBox.size.x)
-        {
-            
-            return (scaleFactor * _3DModelBoundingBox.size.y);
+        {            
+            return (defaultScaleFactor  * _3DModelBoundingBox.size.y);
         } else {
-
-            return (scaleFactor * _3DModelBoundingBox.size.x);
+            return (defaultScaleFactor * _3DModelBoundingBox.size.x);
         }
     }
 
@@ -256,7 +288,7 @@ public class Label2 : MonoBehaviour
 
     public void UpdateBoardOrientation(float yAxisRotationAngle)
     {
-        if (this.type != TLabelType.board) { return; }
+        if (this.type != TLabelType.boardLabel) { return; }
         if (this.state == TLabelState.selected) 
         {
             Vector3 boardRotation = boardGO.transform.rotation.eulerAngles;
@@ -264,24 +296,69 @@ public class Label2 : MonoBehaviour
             boardGO.transform.localEulerAngles = boardRotation;
         }        
     }
+
+    /// <summary>
+    /// Update the board scale as the default x a factor that modified it
+    /// </summary>
+    /// <param name="_scaleFactor"></param>
+    public void UpdateBoardScale(float _scaleFactor)
+    {        
+        if (this.state == TLabelState.selected)
+        {
+            this.scaleFactor = _scaleFactor;            
+            boardGO.transform.localScale = this.scaleFactor * this.GetDefaultScaleLabelFactor() * defaultBoardGOScale;            
+        }
+    }
+    
     /////////////////
     //  SET/ GET   //
     /////////////////
 
     public string GetLabelId() { return this.id; }
 
+    public string GetAreaId() { return areaId; }
+
     public TLabelType GetLabelType() { return this.type; }
 
+    public float GetScaleFactor() { return this.scaleFactor; }
 
     public CLabelTransform GetLabelTransform()
     {
         CLabelTransform labelTransform = new CLabelTransform();
         labelTransform.boardPosition = boardGO.transform.position;
         labelTransform.boardRotation = boardGO.transform.rotation;
-        //labelTransform.anchorPosition = asdas ;
-
+        if (this.type == TLabelType.anchoredLabel) {
+            labelTransform.anchorPosition = anchorGO.transform.localPosition;
+        }
+        
         return labelTransform;
     }
+
+    public CLabelTransform GetLabelLocalTransform()
+    {
+        CLabelTransform labelLocalTransform = new CLabelTransform();
+
+        //Position Board
+        Bounds _3DObjectBounds = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().Get3DModelBoundingBox();
+        Vector3 boardPositionRelativeTo3DCentre = boardGO.transform.position - _3DObjectBounds.center;
+        float nomalizeFactor = Mathf.Sqrt(MathHom3r.Pow2(_3DObjectBounds.size.x) + MathHom3r.Pow2(_3DObjectBounds.size.y) + MathHom3r.Pow2(_3DObjectBounds.size.z));
+        Vector3 boardPositionRelativeTo3DCentreNormalized = boardPositionRelativeTo3DCentre / nomalizeFactor;
+
+        labelLocalTransform.boardPosition = boardPositionRelativeTo3DCentreNormalized;
+
+        // Rotation
+        labelLocalTransform.boardRotation = boardGO.transform.rotation;
+        // Anchor
+        if (this.type == TLabelType.anchoredLabel)
+        {
+            GameObject areaGO = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetAreaGameObject_ByAreaID(this.areaId);
+            labelLocalTransform.anchorPosition = areaGO.transform.InverseTransformPoint(anchorGO.transform.position);
+        }
+        
+        return labelLocalTransform;
+    }
+
+
 
     public void StartMovingLabel()
     {

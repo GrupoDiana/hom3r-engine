@@ -607,17 +607,28 @@ public class OBJLoader : MonoBehaviour
                     else if (lineRead.StartsWith("map_bump ") || lineRead.StartsWith("bump ")) //bump mapping
                     {
                         //loads bump texture from URL
-                        string pictureFileName;
+                        string cleanedLine;
                         //Image path
-                        if (lineRead.StartsWith("map_bump ")){
-                            pictureFileName = lineRead.Replace("map_bump ", "").Trim();
-                        }
-                        else{pictureFileName = lineRead.Replace("bump ", "").Trim();}
+                        /*if (lineRead.StartsWith("map_bump ")){
+                          pictureFileName = lineRead.Replace("map_bump ", "").Trim();
+                        } else { pictureFileName = lineRead.Replace("bump ", "").Trim(); }*/
+                        cleanedLine = lineRead.Replace("bump ", "").Trim();
+                        cleanedLine = lineRead.Replace("map_", "").Trim();
+
+                        //Get Parameters
+                        string pictureFileName;
+                        GetMapParameters(cleanedLine, out pictureFileName);
+
+                        // TODO do something with parameters
+
                         //Image file extension
                         string pictureExtension = Path.GetExtension(pictureFileName).ToLower(); //gets the image extension and converts in lower-case
-                        if((pictureExtension == ".png") || (pictureExtension == ".jpg")) 
+                        
+                        
+                        if ((pictureExtension == ".png") || (pictureExtension == ".jpg")) 
                         {
                             string pictureUrl = GetResourcesFileURL(pictureFileName);
+                            Debug.Log(pictureUrl);                        
                             //Texture2D webTexture = new Texture2D(1, 1);                         //Texture to download from the web
                             yield return StartCoroutine(CoroutineLoadTextureFromWebFile(pictureFileName, pictureUrl));     //Download the texture and wait until it finish
                                                      
@@ -665,10 +676,19 @@ public class OBJLoader : MonoBehaviour
         //hom3r.coreLink.Do(new CIOCommand(TIOCommands.ReportError, error_message), Constants.undoNotAllowed);
         hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.ModelManagement_3DLoadError, error_message));
     }
-
-    private void GetMapParameters(string input, string parameter, string fileName)
+    
+    //TODO Exports parameters
+    private void GetMapParameters(string input, out string fileName)
     {
-        string[] parasm = input.Split(' ');        
+        string[] parasm = input.Split(' ');
+
+        fileName = parasm[parasm.Length - 1];
+
+        //Removes last elements of params
+        // return params
+
+        // Debug.Log(parasm[parasm.Length-1]);
+
     }
 
     /// <summary>Loads the material file from local path</summary>

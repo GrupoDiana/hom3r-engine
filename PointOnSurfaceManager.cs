@@ -8,10 +8,13 @@ public enum TPointOnSurfaceManagerState { iddle, capturing, editing };
 public class PointOnSurfaceManager : MonoBehaviour
 {
     TPointOnSurfaceManagerState pointCaptureManagerState;
+    string specificAreaId;
+    GameObject specificAreaGO;
 
     void Awake()
     {
         pointCaptureManagerState = TPointOnSurfaceManagerState.iddle;
+        specificAreaGO = null;
     }
 
 
@@ -23,9 +26,16 @@ public class PointOnSurfaceManager : MonoBehaviour
     {
         hom3r.state.selectionBlocked = true;
         pointCaptureManagerState = TPointOnSurfaceManagerState.capturing;
+        hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.PointOnSurface_PointCaptureBegin));
     }
 
-    
+    public void StartPointCapture(string _areaId)
+    {
+        specificAreaId = _areaId;
+        specificAreaGO = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetAreaGameObject_ByAreaID(specificAreaId);
+        this.StartPointCapture();
+    }
+
     public bool GetPointCapturingActivated() { return this.pointCaptureManagerState == TPointOnSurfaceManagerState.capturing; }
 
     /// <summary>
@@ -35,18 +45,20 @@ public class PointOnSurfaceManager : MonoBehaviour
     /// <param name="rayCastedArea"></param>
     public void CapturePointOnSurface(Vector3 mousePosition, GameObject rayCastedArea)
     {
-        if ((pointCaptureManagerState == TPointOnSurfaceManagerState.capturing) && (rayCastedArea != null))
-        {
-            int productRootLayer = 1 << LayerMask.NameToLayer(hom3r.state.productRootLayer);
-            Vector3 clickPosition = Raycast(mousePosition, Camera.main, productRootLayer);          
-            Vector3 pointLocal = rayCastedArea.transform.InverseTransformPoint(clickPosition);
+        if (rayCastedArea == null) { return; }
+        if (pointCaptureManagerState != TPointOnSurfaceManagerState.capturing) { return; }
+        if ((specificAreaGO != null) && (specificAreaGO != rayCastedArea)) { return; }
+                        
+        int productRootLayer = 1 << LayerMask.NameToLayer(hom3r.state.productRootLayer);
+        Vector3 clickPosition = Raycast(mousePosition, Camera.main, productRootLayer);          
+        Vector3 pointLocal = rayCastedArea.transform.InverseTransformPoint(clickPosition);
                                                
-            string areaId = rayCastedArea.GetComponent<ObjectStateManager>().areaID;
-            //Emit event            
-            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.PointOnSurface_PointCaptureSuccess, pointLocal, areaId));
-            hom3r.state.selectionBlocked = false;
-            pointCaptureManagerState = TPointOnSurfaceManagerState.iddle;
-        }        
+        string areaId = rayCastedArea.GetComponent<ObjectStateManager>().areaID;
+        //Emit event            
+        hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.PointOnSurface_PointCaptureSuccess, pointLocal, areaId));
+        hom3r.state.selectionBlocked = false;
+        pointCaptureManagerState = TPointOnSurfaceManagerState.iddle;
+        hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.PointOnSurface_PointCaptureEnd));
     }
 
     public void DrawPointOnSurface(Vector3 pointLocalPosition, string areaID) {
