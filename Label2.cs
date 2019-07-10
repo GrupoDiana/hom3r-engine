@@ -32,8 +32,8 @@ public class Label2 : MonoBehaviour
     float scaleFactor;                      // Factor to modify the board default scale
 
     float panelGOPadding = 0.1f;    // Top/Bottom margin between panel and text
-    Color32 idleColor = Color.white;
-    Color32 selectedColor = Color.red;
+    Color32 idleColor;
+    Color32 selectedColor;
 
     private void Awake()
     {
@@ -55,7 +55,11 @@ public class Label2 : MonoBehaviour
         defaultScaleFactor = 0.1f;                              // By default we want 10% of the main axis of the bounding box as Scale Factor
         defaultBoardGOScale = boardGO.transform.localScale;     // Get the initial GO scale
         scaleFactor = 1.0f;                                     // Initially the slider will start with 1
-        
+
+        //Color variable
+        idleColor = Color.white;
+        selectedColor = new Color32(31,90,228,0);
+
     }
 
     // Start is called before the first frame update
