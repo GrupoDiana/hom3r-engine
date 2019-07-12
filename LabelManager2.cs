@@ -146,7 +146,7 @@ public class LabelManager2 : MonoBehaviour
         labelList.Add(newLabelGO);        //Add to label list
         
         //Update core and emit events
-        hom3r.state.currentLabelMode = THom3rLabelMode.idle;
+        hom3r.state.currentLabelMode = THom3rLabelMode.show;
         this.EmitLabelData(newLabelGO);
     }
 
@@ -359,7 +359,7 @@ public class LabelManager2 : MonoBehaviour
         if (_newPanelToEdit.transform.parent.gameObject.name != "Board") { return; }
         
         //Start selection process
-        if (hom3r.state.currentLabelMode == THom3rLabelMode.idle)
+        if (hom3r.state.currentLabelMode == THom3rLabelMode.show)
         {
             // Currently we are no editing any label            
             hom3r.state.currentLabelMode = THom3rLabelMode.edit;
@@ -383,7 +383,7 @@ public class LabelManager2 : MonoBehaviour
     public void StopDragLabelLabel()
     {        
         if (this.selectedLabel == null) { return; }
-        this.selectedLabel.GetComponent<Label2>().StopMovingLabel();   // Change label state to idle
+        this.selectedLabel.GetComponent<Label2>().StopMovingLabel();   // Change label state
         this.EmitLabelData();
     }
 
@@ -443,7 +443,7 @@ public class LabelManager2 : MonoBehaviour
         selectedLabel.GetComponent<Label2>().SelectLabel(false);       
         Destroy(labelCanvasGO);
         selectedLabel = null;
-        hom3r.state.currentLabelMode = THom3rLabelMode.idle;
+        hom3r.state.currentLabelMode = THom3rLabelMode.show;
     }
 
     private void UpdateCanvasSliders(TLabelType _labelType)
