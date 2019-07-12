@@ -365,6 +365,8 @@ public class NavigationManager : MonoBehaviour {
             RotateCameraPlane(planeRotation);
             MoveCameraWithinThePlane(newCameraPosition);
             OrientateCamera(pointToLook);
+            //Emit event
+            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Navigation_CameraMoved));
         }
     }
 
@@ -394,6 +396,8 @@ public class NavigationManager : MonoBehaviour {
         RotateCameraPlane(planeRotation);
         MoveCameraWithinThePlane(newCameraPosition);
         OrientateCamera(pointToLook);
+        //Emit event
+        hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Navigation_CameraMoved));
     }
 
     private Vector2 GetCurrentCameraPositionWithinPlane()
