@@ -66,12 +66,18 @@ public class ModelManager : MonoBehaviour {
     ///<param name="productModel_url">URL of the product model</param>    
     ///<param name="_explosionXML_url">URL of the product explosion model</param>    
     public void LoadProductModels(string productModel_url, string _explosionXML_url)
-    {        
+    {
         if ((!productModelLoaded) && (productModel_url != ""))
-        {     
+        {
             explosionXML_url = _explosionXML_url;
-            _3DFilePath = GetPathIfLocalFile(productModel_url);            
+            _3DFilePath = GetPathIfLocalFile(productModel_url);
             StartCoroutine(CoroutineLoadProductModel(productModel_url));    //Download and Load the product model from web-server             
+        }
+        else
+        {
+            string errorMessage = "ERROR: Product model incorrect!!";
+            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.ModelManagement_ModelLoadError, errorMessage));
+            SendMessageToUI(errorMessage, 5.0f);
         }
     }
 
