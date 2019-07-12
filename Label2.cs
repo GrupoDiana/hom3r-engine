@@ -208,6 +208,16 @@ public class Label2 : MonoBehaviour
     }
 
     /// <summary>
+    /// Update pole position, in the ARApp sometimes the pole lost its position. 
+    /// </summary>
+    public void UpdatePolePosition()
+    {
+        LineRenderer pole = poleGO.GetComponent<LineRenderer>();
+        pole.SetPosition(0, anchorGO.transform.position);
+        pole.SetPosition(1, boardGO.transform.position);
+    }
+
+    /// <summary>
     /// Calculate a scale factor in terms of 3D bounding box. 
     /// It is calculated as the x% of the size of the main axis of the bounding box
     /// </summary>

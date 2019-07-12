@@ -409,6 +409,17 @@ public class LabelManager2 : MonoBehaviour
             }
         }
     }
+    public void UpdateAnchoredLabelsOrientationAndPole()
+    {
+        foreach (GameObject label in labelList)
+        {
+            if (label.GetComponent<Label2>().GetLabelType() == TLabelType.anchoredLabel)
+            {
+                label.GetComponent<Label2>().UpdateOrientation();
+                label.GetComponent<Label2>().UpdatePolePosition();
+            }
+        }
+    }
 
     ///////////////////
     // CANVAS       ///
