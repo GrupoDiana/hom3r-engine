@@ -16,13 +16,13 @@ public class LabelManager2CommandReceiver : MonoBehaviour
 
     private void DoLabelManager2Command(CCoreCommand command)
     {
-        if (command.GetType() == typeof(CLabelMananager2Command)) { command.Do(this); }
+        if (command.GetType() == typeof(CLabelManager2Command)) { command.Do(this); }
         else { /* Do nothing */ }
     }
 
     private void UndoLabelManager2Command(CCoreCommand command)
     {
-        if (command.GetType() == typeof(CLabelMananager2Command)) { command.Undo(this); }
+        if (command.GetType() == typeof(CLabelManager2Command)) { command.Undo(this); }
         else { /* Do nothing */ }
     }
 }
@@ -58,32 +58,32 @@ public class CLabelManager2CommandData
 }
 
 /// <summary>A 'ConcreteCommand' class</summary>
-public class CLabelMananager2Command : CCoreCommand
+public class CLabelManager2Command : CCoreCommand
 {
     public CLabelManager2CommandData data;    
 
     //////////////////
     // Constructors //
     //////////////////
-    public CLabelMananager2Command(TLabelManager2Commands _command)
+    public CLabelManager2Command(TLabelManager2Commands _command)
     {
         data = new CLabelManager2CommandData(_command);
     }
 
-    public CLabelMananager2Command(TLabelManager2Commands _command, string _labelId)
+    public CLabelManager2Command(TLabelManager2Commands _command, string _labelId)
     {
         data = new CLabelManager2CommandData(_command);
         this.data.labelId = _labelId;        
     }
 
-    public CLabelMananager2Command(TLabelManager2Commands _command, string _labelId, string _text)
+    public CLabelManager2Command(TLabelManager2Commands _command, string _labelId, string _text)
     {
         data = new CLabelManager2CommandData(_command);
         this.data.labelId = _labelId;
         this.data.text = _text;    
     }
 
-    public CLabelMananager2Command(TLabelManager2Commands _command, string _labelId, string _areaId, string _text, string _colour)
+    public CLabelManager2Command(TLabelManager2Commands _command, string _labelId, string _areaId, string _text, string _colour)
     {
         data = new CLabelManager2CommandData(_command);
         this.data.labelId = _labelId;
@@ -92,7 +92,7 @@ public class CLabelMananager2Command : CCoreCommand
         this.data.colour = _colour;
     }
 
-    public CLabelMananager2Command(TLabelManager2Commands _command, string _labelId, string _text, Vector3 _labelPosition, Quaternion _boardRotation, float _scaleFactor)
+    public CLabelManager2Command(TLabelManager2Commands _command, string _labelId, string _text, Vector3 _labelPosition, Quaternion _boardRotation, float _scaleFactor)
     {
         data = new CLabelManager2CommandData(_command);
         this.data.labelId = _labelId;
@@ -101,7 +101,7 @@ public class CLabelMananager2Command : CCoreCommand
         this.data.boardRotation = _boardRotation;
         this.data.scaleFactor = _scaleFactor;
     }
-    public CLabelMananager2Command(TLabelManager2Commands _command, string _labelId, string _areaId, string _text, Vector3 _labelPosition, Vector3 _anchorPosition, float _scaleFactor)
+    public CLabelManager2Command(TLabelManager2Commands _command, string _labelId, string _areaId, string _text, Vector3 _labelPosition, Vector3 _anchorPosition, float _scaleFactor)
     {
         data = new CLabelManager2CommandData(_command);
         this.data.labelId = _labelId;

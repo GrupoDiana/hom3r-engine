@@ -265,10 +265,8 @@ public class Label2 : MonoBehaviour
 
     public void UpdateBoardPosition(float dragMovementX, float dragMovementY)
     {
-        if (this.selectedState != TLabelSelectedState.moving) { return; }
-        // Check if we are editing
-        //if (this.state != TLabelState.editing) { return; }
-        Debug.Log("UpdateBoardPosition");
+        if (this.selectedState != TLabelSelectedState.moving) { return; }        
+        // Debug.Log("UpdateBoardPosition");
 
         // Calculate correction parameter
         Vector3 distanceVector = boardGO.transform.position - Camera.main.transform.position;
