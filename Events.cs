@@ -63,7 +63,7 @@ public enum TCoreEvent
     LabelManager_LabelDataUpdated,
 
     PointOnSurface_PointCaptureBegin, PointOnSurface_PointCaptureEnd,
-    PointOnSurface_PointCaptureSuccess,
+    PointOnSurface_PointCaptureSuccess, PointOnSurface_PointCaptureError,
 
     UIAR_StartAuthoring, UIAR_StopAuthoring,
     ExhibitionManager_ExhibitionPlotLoadError, ExhibitionManager_ExhibitionPlotLoadSuccess,

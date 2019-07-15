@@ -27,13 +27,21 @@ public class PointOnSurfaceManager : MonoBehaviour
         hom3r.state.selectionBlocked = true;
         pointCaptureManagerState = TPointOnSurfaceManagerState.capturing;
         hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.PointOnSurface_PointCaptureBegin));
+        this.SendMessageToUI("Please, select a point into the object surface..");
     }
 
     public void StartPointCapture(string _areaId)
     {
         specificAreaId = _areaId;
         specificAreaGO = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetAreaGameObject_ByAreaID(specificAreaId);
-        this.StartPointCapture();
+        if (specificAreaGO == null)
+        {
+            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.PointOnSurface_PointCaptureError));
+            Debug.Log("AREA NOT VALID");
+        } else
+        {
+            this.StartPointCapture();
+        }        
     }
 
     public bool GetPointCapturingActivated() { return this.pointCaptureManagerState == TPointOnSurfaceManagerState.capturing; }
@@ -47,7 +55,7 @@ public class PointOnSurfaceManager : MonoBehaviour
     {
         if (rayCastedArea == null) { return; }
         if (pointCaptureManagerState != TPointOnSurfaceManagerState.capturing) { return; }
-        if ((specificAreaGO != null) && (specificAreaGO != rayCastedArea)) { return; }
+        if ((specificAreaGO == null) || (specificAreaGO != rayCastedArea)) { return; }
                         
         int productRootLayer = 1 << LayerMask.NameToLayer(hom3r.state.productRootLayer);
         Vector3 clickPosition = Raycast(mousePosition, Camera.main, productRootLayer);          
@@ -92,4 +100,14 @@ public class PointOnSurfaceManager : MonoBehaviour
         }
     }
 
+
+    void SendMessageToUI(string _message)
+    {
+        SendMessageToUI(_message, 0.0f);
+    }
+    void SendMessageToUI(string _message, float _time)
+    {
+        hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.ModelManagement_ShowMessage, _message, _time));
+        Debug.Log(_message);
+    }
 }

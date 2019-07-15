@@ -31,6 +31,9 @@ public class LabelManager2EventReceiver : MonoBehaviour
                 case TCoreEvent.PointOnSurface_PointCaptureSuccess:
                     hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().AfterAnchorPointCapture(_event.data.anchorPosition, _event.data.areaId);
                     break;
+                case TCoreEvent.PointOnSurface_PointCaptureError:
+                    hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().AfterAnchorPointCaptureError();
+                    break;
                 case TCoreEvent.Navigation_CameraMoved:
                     hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().UpdateAnchoredLabelsOrientation();
                     break;

@@ -107,12 +107,31 @@ public class LabelManager2 : MonoBehaviour
     }
 
 
+    public void UpdateLabelText(string _labelId, string _newText)
+    {
+        GameObject _labelToEdit = this.labelList.Find(r => r.GetComponent<Label2>().GetLabelId() == _labelId);       
+        if (_labelToEdit != null && _newText != "")
+        {
+            _labelToEdit.GetComponent<Label2>().UpdateText(_newText);
+        }        
+    }
+
     public void AfterAnchorPointCapture(Vector3 _anchorPosition, string _areaId)
     {
 
         Debug.Log("AfterAnchorPointCapture: " + _anchorPosition + " - " + _areaId);
         CLabelTransform labelPosition = this.GetDefaultPositionAnchoredLabel(_anchorPosition, _areaId);
         this.AddLabel(currentLabel.id, _areaId, TLabelType.anchoredLabel, currentLabel.text, labelPosition);
+    }
+
+    public void AfterAnchorPointCaptureError()
+    {       
+        if (this.labelList.Count == 0) {
+            hom3r.state.currentLabelMode = THom3rLabelMode.idle;
+        } else {
+            hom3r.state.currentLabelMode = THom3rLabelMode.show;
+        }
+        currentLabel = new CLabelData();
     }
 
     /// <summary>

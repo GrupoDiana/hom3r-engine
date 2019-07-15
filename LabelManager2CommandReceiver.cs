@@ -33,7 +33,7 @@ public enum TLabelManager2Commands
 {
     AddBoardLabel,  AddAnchoredLabel,
     ShowBoardLabel, ShowAnchoredLabel,
-    EditLabel,
+    EditLabel, UpdateLabelText,
     RemoveLabel, RemoveAllLabel,
     UpdateAnchoredLabelView
 }
@@ -144,6 +144,9 @@ public class CLabelManager2Command : CCoreCommand
                         break;
                     case TLabelManager2Commands.UpdateAnchoredLabelView:
                         hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().UpdateAnchoredLabelsOrientationAndPole();
+                        break;
+                    case TLabelManager2Commands.UpdateLabelText:
+                        hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().UpdateLabelText(data.labelId, data.text);
                         break;
                     default:
                         Debug.LogError("Error: This command " + data.commandEvent + " is not valid.");
