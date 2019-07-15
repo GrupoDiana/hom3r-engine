@@ -495,11 +495,14 @@ public class LabelManager2 : MonoBehaviour
     {
         GameObject labelToRemove = this.labelList.Find(r => r.GetComponent<Label2>().GetLabelId() == _labelId);
         if (labelToRemove != null)
-        {
+        {         
+            // Close label edition to avoid conflicts, just in case
+            if (this.selectedLabel) { this.OnClickLabelCloseButton(); }
+            // Remove Label                    
             Destroy(labelToRemove);
             this.labelList.Remove(labelToRemove);
         }    
-        
+        // Update hom3r mode
         if (this.labelList.Count == 0) { hom3r.state.currentLabelMode = THom3rLabelMode.idle; }
     }
 
@@ -508,11 +511,15 @@ public class LabelManager2 : MonoBehaviour
     /// </summary>
     public void RemoveAllLabel()
     {
+        // Close label edition to avoid conflicts, just in case
+        if (this.selectedLabel) { this.OnClickLabelCloseButton(); }
+        // Remove labels
         foreach (GameObject label in this.labelList)
         {
             Destroy(label);
         }
         this.labelList.Clear();
+        // Update hom3r mode
         hom3r.state.currentLabelMode = THom3rLabelMode.idle;
     }
 
