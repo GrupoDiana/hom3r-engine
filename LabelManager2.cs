@@ -229,6 +229,7 @@ public class LabelManager2 : MonoBehaviour
         Vector3 boardLocalPosition = areaGO.transform.InverseTransformPoint(poleEnd);        
 
         float nomalizeFactor = Mathf.Sqrt(MathHom3r.Pow2(_3DObjectBounds.size.x) + MathHom3r.Pow2(_3DObjectBounds.size.y) + MathHom3r.Pow2(_3DObjectBounds.size.z));
+        nomalizeFactor = 1.0f;
         //labelTransform.boardPosition = boardPositionRelativeTo3DCentre / nomalizeFactor;        
         labelTransform.boardPosition = boardLocalPosition / nomalizeFactor;
 

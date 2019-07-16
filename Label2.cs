@@ -102,7 +102,7 @@ public class Label2 : MonoBehaviour
     private void CreateBoard()
     {
         // Des-normalized board position        
-        this.labelTransform.boardPosition = DesnormalizeBoardPosition(this.labelTransform.boardPosition);
+        this.labelTransform.boardPosition = DesnormalizeBoardPosition(this.labelTransform.boardPosition, null);
 
         // Create Board
         boardGO.transform.position = this.labelTransform.boardPosition;     // Emplace position
@@ -132,8 +132,12 @@ public class Label2 : MonoBehaviour
 
     private void CreateAnchoredLabel()
     {
+        //Get area object
+        GameObject areaGO = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetAreaGameObject_ByAreaID(this.areaId);
+        if (areaGO == null) { return; }
+
         // Des-normalized board position        
-        this.labelTransform.boardPosition = DesnormalizeBoardPosition(this.labelTransform.boardPosition);
+        this.labelTransform.boardPosition = DesnormalizeBoardPosition(this.labelTransform.boardPosition, areaGO);
 
         // PANEL                
         boardGO.transform.position = this.labelTransform.boardPosition;             // Emplace
@@ -141,8 +145,7 @@ public class Label2 : MonoBehaviour
         boardGO.transform.localScale = this.scaleFactor * this.GetDefaultScaleLabelFactor() * defaultBoardGOScale;    // Size
 
         // ANCHOR
-        // Calculate ANCHOR position world coordinates based on data received
-        GameObject areaGO = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetAreaGameObject_ByAreaID(this.areaId);
+        // Calculate ANCHOR position world coordinates based on data received        
         Vector3 globalAnchorPosition = areaGO.transform.TransformPoint(this.labelTransform.anchorPosition);
         labelTransform.anchorPosition = globalAnchorPosition;
 
@@ -159,18 +162,20 @@ public class Label2 : MonoBehaviour
         this.UpdateText(this.text);       
     }
 
-    private Vector3 DesnormalizeBoardPosition(Vector3 position)
+    private Vector3 DesnormalizeBoardPosition(Vector3 position, GameObject areaGO)
     {        
         Bounds _3DObjectBounds = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().Get3DModelBoundingBox();
-        float nomalizeFactor = Mathf.Sqrt(MathHom3r.Pow2(_3DObjectBounds.size.x) + MathHom3r.Pow2(_3DObjectBounds.size.y) + MathHom3r.Pow2(_3DObjectBounds.size.z));        
-        Vector3 boardGlobalPosition = (position * nomalizeFactor);
+        float nomalizeFactor = Mathf.Sqrt(MathHom3r.Pow2(_3DObjectBounds.size.x) + MathHom3r.Pow2(_3DObjectBounds.size.y) + MathHom3r.Pow2(_3DObjectBounds.size.z));
+        Vector3 boardGlobalPosition = new Vector3();// = (position * nomalizeFactor);
         if (this.type == TLabelType.boardLabel)
         {
+            boardGlobalPosition = (position * nomalizeFactor);
             boardGlobalPosition = boardGlobalPosition + _3DObjectBounds.center;
         }
         else if (this.type == TLabelType.anchoredLabel)
-        {            
-            GameObject areaGO = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetAreaGameObject_ByAreaID(this.areaId);
+        {
+            boardGlobalPosition = position;
+            // GameObject areaGO = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetAreaGameObject_ByAreaID(this.areaId);
             boardGlobalPosition = areaGO.transform.TransformPoint(boardGlobalPosition);            
         }
         
@@ -362,21 +367,21 @@ public class Label2 : MonoBehaviour
 
 
         Vector3 boardPositionRelativeTo3DCentre = new Vector3();
+        float nomalizeFactor = 1.0f;
         if (this.type == TLabelType.boardLabel)
         {
             boardPositionRelativeTo3DCentre = boardGO.transform.position - _3DObjectBounds.center;
+            nomalizeFactor = Mathf.Sqrt(MathHom3r.Pow2(_3DObjectBounds.size.x) + MathHom3r.Pow2(_3DObjectBounds.size.y) + MathHom3r.Pow2(_3DObjectBounds.size.z));
         } else if (this.type == TLabelType.anchoredLabel)
         {
             GameObject areaGO = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetAreaGameObject_ByAreaID(this.areaId);
-            boardPositionRelativeTo3DCentre = areaGO.transform.InverseTransformPoint(boardGO.transform.position);            
+            boardPositionRelativeTo3DCentre = areaGO.transform.InverseTransformPoint(boardGO.transform.position);
+            nomalizeFactor = 1.0f;
         }
-
-        float nomalizeFactor = Mathf.Sqrt(MathHom3r.Pow2(_3DObjectBounds.size.x) + MathHom3r.Pow2(_3DObjectBounds.size.y) + MathHom3r.Pow2(_3DObjectBounds.size.z));
+        
         Vector3 boardPositionRelativeTo3DCentreNormalized = boardPositionRelativeTo3DCentre / nomalizeFactor;
 
-
         labelLocalTransform.boardPosition = boardPositionRelativeTo3DCentreNormalized;
-
 
 
         // Rotation
