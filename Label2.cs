@@ -110,11 +110,8 @@ public class Label2 : MonoBehaviour
         boardGO.transform.Rotate(-1.0f * boardGO.transform.rotation.eulerAngles.x, 0f, 0f); // Force just vertical board
 
         boardGO.transform.localScale = this.scaleFactor * this.GetDefaultScaleLabelFactor() * defaultBoardGOScale;    // Size
-
-        //textGO.GetComponent<TextMeshPro>().GetComponent<TMP_Text>().text = this.text;   // Update Text
-
-        // resize according to the text                
-        //panelGO.transform.localScale = new Vector3(panelGO.transform.localScale.x, textGO.GetComponent<TextMeshPro>().GetPreferredValues().y + panelGOPadding, panelGO.transform.localScale.z);
+        
+        // resize according to the text                        
         this.UpdateText(this.text);
         //Invoke("Invoke_RelocateBoard", 0.05f);
     }
@@ -159,21 +156,24 @@ public class Label2 : MonoBehaviour
         this.UpdatePoleVisualAspect(pole);
 
         // Add Text to PANEL
-        this.UpdateText(this.text);
-        /*textGO.GetComponent<TextMeshPro>().GetComponent<TMP_Text>().text = this.text;
-        textGO.GetComponent<TextMeshPro>().ForceMeshUpdate();
-        Bounds textBound = textGO.GetComponent<TextMeshPro>().bounds;                
-        float xCorrection = textBound.size.x;        
-        float yCorrection = textBound.size.y;       
-        panelGO.transform.localScale = new Vector3(xCorrection + panelGOPadding, yCorrection + panelGOPadding, panelGO.transform.localScale.z);
-        */
+        this.UpdateText(this.text);       
     }
 
     private Vector3 DesnormalizeBoardPosition(Vector3 position)
-    {
+    {        
         Bounds _3DObjectBounds = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().Get3DModelBoundingBox();
-        float nomalizeFactor = Mathf.Sqrt(MathHom3r.Pow2(_3DObjectBounds.size.x) + MathHom3r.Pow2(_3DObjectBounds.size.y) + MathHom3r.Pow2(_3DObjectBounds.size.z));
-        Vector3 boardGlobalPosition = (position * nomalizeFactor) + _3DObjectBounds.center;        
+        float nomalizeFactor = Mathf.Sqrt(MathHom3r.Pow2(_3DObjectBounds.size.x) + MathHom3r.Pow2(_3DObjectBounds.size.y) + MathHom3r.Pow2(_3DObjectBounds.size.z));        
+        Vector3 boardGlobalPosition = (position * nomalizeFactor);
+        if (this.type == TLabelType.boardLabel)
+        {
+            boardGlobalPosition = boardGlobalPosition + _3DObjectBounds.center;
+        }
+        else if (this.type == TLabelType.anchoredLabel)
+        {            
+            GameObject areaGO = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetAreaGameObject_ByAreaID(this.areaId);
+            boardGlobalPosition = areaGO.transform.TransformPoint(boardGlobalPosition);            
+        }
+        
 
         return boardGlobalPosition;
     }
@@ -359,11 +359,25 @@ public class Label2 : MonoBehaviour
 
         //Position Board
         Bounds _3DObjectBounds = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().Get3DModelBoundingBox();
-        Vector3 boardPositionRelativeTo3DCentre = boardGO.transform.position - _3DObjectBounds.center;
+
+
+        Vector3 boardPositionRelativeTo3DCentre = new Vector3();
+        if (this.type == TLabelType.boardLabel)
+        {
+            boardPositionRelativeTo3DCentre = boardGO.transform.position - _3DObjectBounds.center;
+        } else if (this.type == TLabelType.anchoredLabel)
+        {
+            GameObject areaGO = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetAreaGameObject_ByAreaID(this.areaId);
+            boardPositionRelativeTo3DCentre = areaGO.transform.InverseTransformPoint(boardGO.transform.position);            
+        }
+
         float nomalizeFactor = Mathf.Sqrt(MathHom3r.Pow2(_3DObjectBounds.size.x) + MathHom3r.Pow2(_3DObjectBounds.size.y) + MathHom3r.Pow2(_3DObjectBounds.size.z));
         Vector3 boardPositionRelativeTo3DCentreNormalized = boardPositionRelativeTo3DCentre / nomalizeFactor;
 
+
         labelLocalTransform.boardPosition = boardPositionRelativeTo3DCentreNormalized;
+
+
 
         // Rotation
         labelLocalTransform.boardRotation = boardGO.transform.rotation;

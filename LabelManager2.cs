@@ -117,9 +117,7 @@ public class LabelManager2 : MonoBehaviour
     }
 
     public void AfterAnchorPointCapture(Vector3 _anchorPosition, string _areaId)
-    {
-
-        Debug.Log("AfterAnchorPointCapture: " + _anchorPosition + " - " + _areaId);
+    {        
         CLabelTransform labelPosition = this.GetDefaultPositionAnchoredLabel(_anchorPosition, _areaId);
         this.AddLabel(currentLabel.id, _areaId, TLabelType.anchoredLabel, currentLabel.text, labelPosition);
     }
@@ -226,11 +224,14 @@ public class LabelManager2 : MonoBehaviour
 
         // Normalize Board Position       
         Bounds _3DObjectBounds = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().Get3DModelBoundingBox();
-        Vector3 boardPositionRelativeTo3DCentre = poleEnd - _3DObjectBounds.center;
-        float nomalizeFactor = Mathf.Sqrt(MathHom3r.Pow2(_3DObjectBounds.size.x) + MathHom3r.Pow2(_3DObjectBounds.size.y) + MathHom3r.Pow2(_3DObjectBounds.size.z));
-        labelTransform.boardPosition = boardPositionRelativeTo3DCentre / nomalizeFactor;
+        //Vector3 boardPositionRelativeTo3DCentre = poleEnd - _3DObjectBounds.center;
+        
+        Vector3 boardLocalPosition = areaGO.transform.InverseTransformPoint(poleEnd);        
 
-        //labelTransform.boardPosition = poleEnd;
+        float nomalizeFactor = Mathf.Sqrt(MathHom3r.Pow2(_3DObjectBounds.size.x) + MathHom3r.Pow2(_3DObjectBounds.size.y) + MathHom3r.Pow2(_3DObjectBounds.size.z));
+        //labelTransform.boardPosition = boardPositionRelativeTo3DCentre / nomalizeFactor;        
+        labelTransform.boardPosition = boardLocalPosition / nomalizeFactor;
+
 
         return labelTransform;
     }
