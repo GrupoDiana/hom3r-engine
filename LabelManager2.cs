@@ -46,12 +46,14 @@ public class LabelManager2 : MonoBehaviour
     /// <param name="_text">Text to show into the board</param>
     public void AddBoard(string _labelId, string _text)
     {
-        if (hom3r.state.currentLabelMode == THom3rLabelMode.edit)
-        {
-            this.OnClickLabelCloseButton();
-        }
-        hom3r.state.currentLabelMode = THom3rLabelMode.add;
+        // If the navigation edit is not available, the process to create a new label is not available
+        if (!hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetActiveLabelEdition()) { return; }
 
+        // Check current state
+        if (hom3r.state.currentLabelMode == THom3rLabelMode.add) { return; }
+        if (hom3r.state.currentLabelMode == THom3rLabelMode.edit) { this.CloseEditMode(); }
+
+        hom3r.state.currentLabelMode = THom3rLabelMode.add;
         CLabelTransform labelPosition = this.GetDefaultBoardTransform();
         this.AddLabel(_labelId, null, TLabelType.boardLabel, _text, labelPosition);
     }
@@ -81,12 +83,12 @@ public class LabelManager2 : MonoBehaviour
     /// <param name="_text"></param>
     public void AddAnchoredLabel(string _labelId, string _areaId, string _text, string _colour)
     {
+        // If the navigation edit is not availabled, the proccess to create a new label is not available
+        if (!hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetActiveLabelEdition()) { return; }
+        
+        // Check current state
         if (hom3r.state.currentLabelMode == THom3rLabelMode.add) { return; }
-
-        if (hom3r.state.currentLabelMode == THom3rLabelMode.edit)
-        {
-            this.OnClickLabelCloseButton();
-        }
+        if (hom3r.state.currentLabelMode == THom3rLabelMode.edit) { this.CloseEditMode(); }
 
         hom3r.state.currentLabelMode = THom3rLabelMode.add;
         currentLabel.id = _labelId;     // Save to use later
@@ -442,6 +444,14 @@ public class LabelManager2 : MonoBehaviour
         }
     }
 
+    private void CloseEditMode()
+    {
+        selectedLabel.GetComponent<Label2>().SelectLabel(false);
+        Destroy(labelCanvasGO);
+        selectedLabel = null;
+        hom3r.state.currentLabelMode = THom3rLabelMode.show;
+    }
+
     ///////////////////
     // CANVAS       ///
     //////////////////
@@ -472,11 +482,14 @@ public class LabelManager2 : MonoBehaviour
 
     private void OnClickLabelCloseButton()
     {
-        selectedLabel.GetComponent<Label2>().SelectLabel(false);       
+        /*selectedLabel.GetComponent<Label2>().SelectLabel(false);       
         Destroy(labelCanvasGO);
         selectedLabel = null;
-        hom3r.state.currentLabelMode = THom3rLabelMode.show;
+        hom3r.state.currentLabelMode = THom3rLabelMode.show;*/
+        this.CloseEditMode();
     }
+
+    
 
     private void UpdateCanvasSliders(TLabelType _labelType)
     {
@@ -518,7 +531,7 @@ public class LabelManager2 : MonoBehaviour
         if (labelToRemove != null)
         {         
             // Close label edition to avoid conflicts, just in case
-            if (this.selectedLabel) { this.OnClickLabelCloseButton(); }
+            if (this.selectedLabel) { this.CloseEditMode(); }
             // Remove Label                    
             Destroy(labelToRemove);
             this.labelList.Remove(labelToRemove);
@@ -533,7 +546,7 @@ public class LabelManager2 : MonoBehaviour
     public void RemoveAllLabel()
     {
         // Close label edition to avoid conflicts, just in case
-        if (this.selectedLabel) { this.OnClickLabelCloseButton(); }
+        if (this.selectedLabel) { this.CloseEditMode(); }
         // Remove labels
         foreach (GameObject label in this.labelList)
         {
