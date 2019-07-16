@@ -34,7 +34,7 @@ public enum TLabelManager2Commands
     AddBoardLabel,  AddAnchoredLabel,
     ShowBoardLabel, ShowAnchoredLabel,
     EditLabel, UpdateLabelText,
-    RemoveLabel, RemoveAllLabel,
+    RemoveLabel, RemoveAllLabel, RemoveAllBoardLabel, RemoveAllAnchoredLabel,
     UpdateAnchoredLabelView
 }
 
@@ -138,6 +138,9 @@ public class CLabelManager2Command : CCoreCommand
                         break;
                     case TLabelManager2Commands.RemoveLabel:
                         hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().RemoveLabel(data.labelId);
+                        break;
+                    case TLabelManager2Commands.RemoveAllBoardLabel:
+                        hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().RemoveAllBoardLabel();
                         break;
                     case TLabelManager2Commands.RemoveAllLabel:
                         hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().RemoveAllLabel();

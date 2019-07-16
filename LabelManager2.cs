@@ -543,6 +543,30 @@ public class LabelManager2 : MonoBehaviour
     /// <summary>
     /// Remove all the labels from the scene
     /// </summary>
+    public void RemoveAllBoardLabel()
+    {
+        // 
+        List<GameObject> listLabelToRemove = this.labelList.FindAll(r => r.GetComponent<Label2>().GetLabelType() == TLabelType.boardLabel);
+        if (listLabelToRemove != null)
+        {
+            // Close label edition to avoid conflicts, just in case
+            if (this.selectedLabel) { this.CloseEditMode(); }
+
+            foreach (GameObject labelToRemove in listLabelToRemove)
+            {
+                // Remove Label                    
+                Destroy(labelToRemove);
+                this.labelList.Remove(labelToRemove);
+            }                     
+        }
+        // Update hom3r mode
+        if (this.labelList.Count == 0) { hom3r.state.currentLabelMode = THom3rLabelMode.idle; }
+
+    }
+
+    /// <summary>
+    /// Remove all the labels from the scene
+    /// </summary>
     public void RemoveAllLabel()
     {
         // Close label edition to avoid conflicts, just in case
