@@ -113,7 +113,8 @@ public class CHom3rState
 
     //Internal use
     public bool generalState { get; set; }                      //Is false when any error happens
-    public bool productModel_Loaded { get; set; }               //Store if the model has been loaded or not    
+    public bool productModelLoaded { get; set; }               //Store if the model has been loaded or not    
+    public bool _3DModelLoaded { get; set; }               //Store if the model has been loaded or not    
     public THom3rPlatform platform { get; set; }                //Store the environment if which Hom3r is working    
     public float alphaTransparencyLevel { get; set; }
 

@@ -6,9 +6,11 @@ using UnityEngine;
 public enum TCoreEvent
 {
     Core_Hom3rReadyToStart, Core_ModeChanged,
+    
+    ConfigurationManager_ConfigurationUpdated,
 
-    ModelManagement_ProductModelLoadOk, ModelManagement_ModelLoadError,
-    ModelManagement_3DLoadSuccess, ModelManagement_3DLoadError,
+    ModelManagement_ProductModelLoadSuccess, ModelManagement_ModelLoadError,
+    ModelManagement_3DLoadSuccess, ModelManagement_3DLoadError, ModelManagement_3DListLoadSuccess,
     ModelManagement_ShowMessage,
     ModelManagement_ReadyToLoadExplosionModel,
     ModelManagement_FileDownloadBegin, ModelManagement_FileDownloadEnd,

@@ -77,6 +77,7 @@ public class ModelManager : MonoBehaviour {
         {
             string errorMessage = "ERROR: Product model incorrect!!";
             hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.ModelManagement_ModelLoadError, errorMessage));
+            hom3r.state.productModelLoaded = false;
             SendMessageToUI(errorMessage, 5.0f);
         }
     }
@@ -103,6 +104,7 @@ public class ModelManager : MonoBehaviour {
             string errorMessage = "Error: Product Model cannot be download from the URL specified." + fileWWW.error;
             Debug.LogError("WWW error: " + productModelUrl + " : " + fileWWW.error);
             hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.ModelManagement_ModelLoadError, errorMessage));
+            hom3r.state.productModelLoaded = false;
             SendMessageToUI(errorMessage);
         }
         else
@@ -114,13 +116,15 @@ public class ModelManager : MonoBehaviour {
                 if (productModelLoaded)
                 {
                     SendMessageToUI("hom3r: Product model loaded correctly!!!", 5.0f);
-                    hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.ModelManagement_ProductModelLoadOk));
+                    hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.ModelManagement_ProductModelLoadSuccess));
+                    hom3r.state.productModelLoaded = true;
                     Load3DFilesFromProductModel();      //Download the 3D files                    
                 }
                 else
                 {
                     string errorMessage = "ERROR: Product model incorrect!!!";
                     hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.ModelManagement_ModelLoadError, errorMessage));
+                    hom3r.state.productModelLoaded = false;
                     SendMessageToUI(errorMessage, 5.0f);
                 }
             }
@@ -129,6 +133,7 @@ public class ModelManager : MonoBehaviour {
                 //Send error to Application and UI
                 string errorMessage = "Error: The product model has a bad format";
                 hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.ModelManagement_ModelLoadError, errorMessage));
+                hom3r.state.productModelLoaded = false;
                 SendMessageToUI(errorMessage);
             }
         }
@@ -216,8 +221,8 @@ public class ModelManager : MonoBehaviour {
             hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.ModelManagement_3DLoadSuccess, productModel.GetNavigationAxis()));
             if (!IsAnyFileLoading())
             {
-                LoadExplosionModel(explosionXML_url);
-                hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.ModelManagement_ProductModelLoadOk));
+                LoadExplosionModel(explosionXML_url);                
+                hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.ModelManagement_3DListLoadSuccess));                
                 SetUnblockUserInterfaceAfterFileLoading();
             }
         }
@@ -227,7 +232,7 @@ public class ModelManager : MonoBehaviour {
         }        
     }
 
-    private void DoAfterScaling() {
+    /*private void DoAfterScaling() {
         hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.ModelManagement_3DLoadSuccess, productModel.GetNavigationAxis()));
         if (!IsAnyFileLoading())
         {
@@ -235,7 +240,7 @@ public class ModelManager : MonoBehaviour {
             hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.ModelManagement_ProductModelLoadOk));
             SetUnblockUserInterfaceAfterFileLoading();
         }
-    }
+    }*/
 
     /// <summary>Check if any file is downloading</summary>
     /// <returns>true if any file is downloading</returns>

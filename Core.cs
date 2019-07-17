@@ -53,7 +53,8 @@ public class Core : MonoBehaviour {
         hom3r.state.captureSinglePointBlocked = false;         //Initially single point capture is deactivated
         hom3r.state.navigationBlocked = false;                 //Initially navigation using mouse is activated          
         hom3r.state.generalState = false;                      //Initially we are not ready  
-        hom3r.state.productModel_Loaded = false;               //Initially there are not any model loaded
+        hom3r.state.productModelLoaded = false;               //Initially there are not any model loaded
+        hom3r.state._3DModelLoaded = false;
         hom3r.state.isolateModeActive = false;                 //Initially the isolate mode is not activate
         hom3r.state.smartTransparencyModeActive = false;       //Initially the smartTransparency mode is not activate
         hom3r.state.singlePointLocationModeActive = false;     //Initially the point location mode is not activate        
