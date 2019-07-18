@@ -987,6 +987,17 @@ public class ModelManager : MonoBehaviour {
     }
 
 
+    /// <summary>
+    /// Return the first Area on the list ID. We need now for boards labels.
+    /// TODO think if we should delete or do in a different way
+    /// </summary>
+    /// <returns></returns>
+    public string GetFirstAreaId()
+    {
+        if (!productModelLoaded) { return null; }
+        return productModel.areas[0].id;
+    }
+
     ////////////////////
     /// Other Methods
     ////////////////////    

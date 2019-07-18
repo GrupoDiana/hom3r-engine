@@ -101,13 +101,17 @@ public class Label2 : MonoBehaviour
     /// </summary>
     private void CreateBoard()
     {
-        // Des-normalized board position        
-        this.labelTransform.boardPosition = DesnormalizeBoardPosition(this.labelTransform.boardPosition, null);
-
-        // Create Board
+        //Get area object
+        GameObject areaGO = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetAreaGameObject_ByAreaID(this.areaId);
+        if (areaGO == null) { return; }
+        // BOARD Position        
+        this.labelTransform.boardPosition = areaGO.transform.TransformPoint(this.labelTransform.boardPosition);   // Get board position in global coordinates               
         boardGO.transform.position = this.labelTransform.boardPosition;     // Emplace position
+
+        // BOARD Rotation                
         boardGO.transform.rotation = this.labelTransform.boardRotation;     // Apply orientation        
-        boardGO.transform.Rotate(-1.0f * boardGO.transform.rotation.eulerAngles.x, 0f, 0f); // Force just vertical board
+        float angleY = Vector3.Angle(hom3r.quickLinks._3DModelRoot.transform.forward, new Vector3(0f, 0f, 1f));         // Calculate deviation from "normal" forward vector in Y axis. TODO currently just taking into account the Y rotation of the 3D model forward vector
+        boardGO.transform.Rotate(-1.0f * boardGO.transform.rotation.eulerAngles.x, angleY, 0f);                         // Force just vertical board and compensate Y axis deviation
 
         boardGO.transform.localScale = this.scaleFactor * this.GetDefaultScaleLabelFactor() * defaultBoardGOScale;    // Size
         
@@ -135,9 +139,8 @@ public class Label2 : MonoBehaviour
         //Get area object
         GameObject areaGO = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetAreaGameObject_ByAreaID(this.areaId);
         if (areaGO == null) { return; }
-
-        // Des-normalized board position        
-        this.labelTransform.boardPosition = DesnormalizeBoardPosition(this.labelTransform.boardPosition, areaGO);
+        // Get board position in global coordinates    
+        this.labelTransform.boardPosition = areaGO.transform.TransformPoint(this.labelTransform.boardPosition);
 
         // PANEL                
         boardGO.transform.position = this.labelTransform.boardPosition;             // Emplace
@@ -161,28 +164,7 @@ public class Label2 : MonoBehaviour
         // Add Text to PANEL
         this.UpdateText(this.text);       
     }
-
-    private Vector3 DesnormalizeBoardPosition(Vector3 position, GameObject areaGO)
-    {        
-        Bounds _3DObjectBounds = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().Get3DModelBoundingBox();
-        float nomalizeFactor = Mathf.Sqrt(MathHom3r.Pow2(_3DObjectBounds.size.x) + MathHom3r.Pow2(_3DObjectBounds.size.y) + MathHom3r.Pow2(_3DObjectBounds.size.z));
-        Vector3 boardGlobalPosition = new Vector3();// = (position * nomalizeFactor);
-        if (this.type == TLabelType.boardLabel)
-        {
-            boardGlobalPosition = (position * nomalizeFactor);
-            boardGlobalPosition = boardGlobalPosition + _3DObjectBounds.center;
-        }
-        else if (this.type == TLabelType.anchoredLabel)
-        {
-            boardGlobalPosition = position;
-            // GameObject areaGO = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetAreaGameObject_ByAreaID(this.areaId);
-            boardGlobalPosition = areaGO.transform.TransformPoint(boardGlobalPosition);            
-        }
-        
-
-        return boardGlobalPosition;
-    }
-
+   
     private void UpdatePoleVisualAspect(LineRenderer pole)
     {
         // Change Pole Colour
@@ -362,34 +344,17 @@ public class Label2 : MonoBehaviour
     {
         CLabelTransform labelLocalTransform = new CLabelTransform();
 
-        //Position Board
-        Bounds _3DObjectBounds = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().Get3DModelBoundingBox();
+        // Calculate Board position, from global coordinates to local
+        GameObject areaGO = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetAreaGameObject_ByAreaID(this.areaId);
+        labelLocalTransform.boardPosition = areaGO.transform.InverseTransformPoint(boardGO.transform.position);
 
-
-        Vector3 boardPositionRelativeTo3DCentre = new Vector3();
-        float nomalizeFactor = 1.0f;
-        if (this.type == TLabelType.boardLabel)
-        {
-            boardPositionRelativeTo3DCentre = boardGO.transform.position - _3DObjectBounds.center;
-            nomalizeFactor = Mathf.Sqrt(MathHom3r.Pow2(_3DObjectBounds.size.x) + MathHom3r.Pow2(_3DObjectBounds.size.y) + MathHom3r.Pow2(_3DObjectBounds.size.z));
-        } else if (this.type == TLabelType.anchoredLabel)
-        {
-            GameObject areaGO = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetAreaGameObject_ByAreaID(this.areaId);
-            boardPositionRelativeTo3DCentre = areaGO.transform.InverseTransformPoint(boardGO.transform.position);
-            nomalizeFactor = 1.0f;
-        }
-        
-        Vector3 boardPositionRelativeTo3DCentreNormalized = boardPositionRelativeTo3DCentre / nomalizeFactor;
-
-        labelLocalTransform.boardPosition = boardPositionRelativeTo3DCentreNormalized;
-
-
-        // Rotation
+        // Get rotation       
         labelLocalTransform.boardRotation = boardGO.transform.rotation;
-        // Anchor
+        // TODO maybe we should save the forward vector of the 3DProduct model
+
+        // Calculate Anchor position, from global coordinates to local
         if (this.type == TLabelType.anchoredLabel)
         {
-            GameObject areaGO = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetAreaGameObject_ByAreaID(this.areaId);
             labelLocalTransform.anchorPosition = areaGO.transform.InverseTransformPoint(anchorGO.transform.position);
         }
         

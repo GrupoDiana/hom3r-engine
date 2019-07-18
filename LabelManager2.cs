@@ -53,9 +53,16 @@ public class LabelManager2 : MonoBehaviour
         if (hom3r.state.currentLabelMode == THom3rLabelMode.add) { return; }
         if (hom3r.state.currentLabelMode == THom3rLabelMode.edit) { this.CloseEditMode(); }
 
+        // Change to Adding label mode
         hom3r.state.currentLabelMode = THom3rLabelMode.add;
-        CLabelTransform labelPosition = this.GetDefaultBoardTransform();
-        this.AddLabel(_labelId, null, TLabelType.boardLabel, _text, labelPosition);
+        
+        // Get a reference area
+        string _areadId = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetFirstAreaId();
+        // Calculate initial position
+        CLabelTransform labelPosition = this.GetDefaultBoardTransform(_areadId);
+                
+        // Start label creation
+        this.AddLabel(_labelId, _areadId, TLabelType.boardLabel, _text, labelPosition);
     }
 
     /// <summary>
@@ -70,8 +77,11 @@ public class LabelManager2 : MonoBehaviour
         CLabelTransform labelPosition = new CLabelTransform();
         labelPosition.boardPosition = _boardPosition;
         labelPosition.boardRotation = _boardRotation;
-        
-        this.AddLabel(_labelId, null, TLabelType.boardLabel, _text, labelPosition, _scaleFactor);
+        // Get a reference area
+        string _areadId = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetFirstAreaId();
+
+        // Start label show
+        this.AddLabel(_labelId, _areadId, TLabelType.boardLabel, _text, labelPosition, _scaleFactor);
     }
 
 
@@ -175,30 +185,33 @@ public class LabelManager2 : MonoBehaviour
     /// Calculate a default position/rotation to emplace a board label on the scene
     /// </summary>
     /// <returns></returns>
-    private CLabelTransform GetDefaultBoardTransform()
+    private CLabelTransform GetDefaultBoardTransform(string _areaId)
     {
         CLabelTransform labelTransform = new CLabelTransform();
 
         // Calculate Default Position
         Bounds _3DObjectBounds = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().Get3DModelBoundingBox();
-        Vector3 local_position = Vector3.zero;        
+        Vector3 defaultPosition = Vector3.zero;        
         float pos = Mathf.Sqrt(MathHom3r.Pow2(_3DObjectBounds.extents.z) + MathHom3r.Pow2(_3DObjectBounds.extents.x));
-        local_position.z = (-1.0f) * pos;
-        local_position.x = (+1.0f) * pos;
+        defaultPosition.z = (-1.0f) * pos;
+        defaultPosition.x = (+1.0f) * pos;
 
-        // Normalize default position
-        Vector3 boardPositionRelativeTo3DCentre = local_position - _3DObjectBounds.center;
-        float nomalizeFactor = Mathf.Sqrt(MathHom3r.Pow2(_3DObjectBounds.size.x) + MathHom3r.Pow2(_3DObjectBounds.size.y) + MathHom3r.Pow2(_3DObjectBounds.size.z));
-        labelTransform.boardPosition = boardPositionRelativeTo3DCentre / nomalizeFactor;
-
-        //labelTransform.boardPosition = local_position;
-
+        // Transform to local position       
+        GameObject areaGO = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetAreaGameObject_ByAreaID(_areaId);
+        Vector3 boardLocalPosition = areaGO.transform.InverseTransformPoint(defaultPosition);
+        
+        // Store board position
+        labelTransform.boardPosition = boardLocalPosition;
+        
         // Calculate Default Rotation
         Vector3 direction = labelTransform.boardPosition - Camera.main.transform.position;
         direction = direction.normalized;   //Desired direction, looking to the camera
-        Quaternion _quatRotation = Quaternion.LookRotation(direction, Vector3.up);       
-        labelTransform.boardRotation = _quatRotation;
-        
+        Quaternion globalBoardRotation = Quaternion.LookRotation(direction, Vector3.up);
+                
+        // Save Rotation        
+        labelTransform.boardRotation = globalBoardRotation;
+        // TODO maybe we should save the forward vector of the 3DProduct model
+
         return labelTransform;
     }
 
@@ -224,17 +237,11 @@ public class LabelManager2 : MonoBehaviour
         // Calculate POLE end        
         Vector3 poleEnd = CalculatePoleEndPosition(anchorGlobalPosition, poleOrigin);
 
-        // Normalize Board Position       
-        Bounds _3DObjectBounds = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().Get3DModelBoundingBox();
-        //Vector3 boardPositionRelativeTo3DCentre = poleEnd - _3DObjectBounds.center;
-        
-        Vector3 boardLocalPosition = areaGO.transform.InverseTransformPoint(poleEnd);        
+        // Transform to local position
+        Vector3 boardLocalPosition = areaGO.transform.InverseTransformPoint(poleEnd);
 
-        float nomalizeFactor = Mathf.Sqrt(MathHom3r.Pow2(_3DObjectBounds.size.x) + MathHom3r.Pow2(_3DObjectBounds.size.y) + MathHom3r.Pow2(_3DObjectBounds.size.z));
-        nomalizeFactor = 1.0f;
-        //labelTransform.boardPosition = boardPositionRelativeTo3DCentre / nomalizeFactor;        
-        labelTransform.boardPosition = boardLocalPosition / nomalizeFactor;
-
+        // Store board position        
+        labelTransform.boardPosition = boardLocalPosition; 
 
         return labelTransform;
     }
