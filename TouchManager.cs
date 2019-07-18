@@ -133,8 +133,8 @@ public class TouchManager : MonoBehaviour
 
         // 3. Check if user has clicked in a product area
         GameObject rayCastedGO = Raycast(currentTouchPosition, Camera.main, productRootLayer);
-        Debug.Log("hom3r: " + currentTouchPosition.ToString());
-        Debug.Log("hom3r: " + rayCastedGO.name);       
+        // Debug.Log("hom3r: " + currentTouchPosition.ToString());
+        // Debug.Log("hom3r: " + rayCastedGO.name);       
         hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.TouchManager_OneSelectionTouch, currentTouchPosition, rayCastedGO, false));
     }
 
