@@ -16,13 +16,13 @@ public class LabelManager2CommandReceiver : MonoBehaviour
 
     private void DoLabelManager2Command(CCoreCommand command)
     {
-        if (command.GetType() == typeof(CLabelMananager2Command)) { command.Do(this); }
+        if (command.GetType() == typeof(CLabelManager2Command)) { command.Do(this); }
         else { /* Do nothing */ }
     }
 
     private void UndoLabelManager2Command(CCoreCommand command)
     {
-        if (command.GetType() == typeof(CLabelMananager2Command)) { command.Undo(this); }
+        if (command.GetType() == typeof(CLabelManager2Command)) { command.Undo(this); }
         else { /* Do nothing */ }
     }
 }
@@ -31,9 +31,11 @@ public class LabelManager2CommandReceiver : MonoBehaviour
 /// <summary>Navigation Commands</summary>
 public enum TLabelManager2Commands
 {
-    AddBoardLabel, 
-    AddAnchoredLabel,
-    RemoveLabel, RemoveAllLabel
+    AddBoardLabel,  AddAnchoredLabel,
+    ShowBoardLabel, ShowAnchoredLabel,
+    EditLabel, UpdateLabelText,
+    RemoveLabel, RemoveAllLabel, RemoveAllBoardLabel, RemoveAllAnchoredLabel,
+    UpdateAnchoredLabelView
 }
 
 
@@ -45,36 +47,69 @@ public class CLabelManager2CommandData
     public string labelId { get; set; }
     public string text { get; set; }
     public string areaId { get; set; }
+    public string colour { get; set; }
     public Vector3 labelPosition { get; set; }
+    public Vector3 anchorPosition { get; set; }
+    public Quaternion boardRotation { get; set; }
+    public float scaleFactor { get; set; }
+
 
     public CLabelManager2CommandData(TLabelManager2Commands _commandEvent) { this.commandEvent = _commandEvent; }
 }
 
 /// <summary>A 'ConcreteCommand' class</summary>
-public class CLabelMananager2Command : CCoreCommand
+public class CLabelManager2Command : CCoreCommand
 {
-    public CLabelManager2CommandData data;
+    public CLabelManager2CommandData data;    
+
     //////////////////
     // Constructors //
     //////////////////
-    public CLabelMananager2Command(TLabelManager2Commands _command)
+    public CLabelManager2Command(TLabelManager2Commands _command)
     {
         data = new CLabelManager2CommandData(_command);
     }
 
-    public CLabelMananager2Command(TLabelManager2Commands _command, string _labelId, string _text)
+    public CLabelManager2Command(TLabelManager2Commands _command, string _labelId)
+    {
+        data = new CLabelManager2CommandData(_command);
+        this.data.labelId = _labelId;        
+    }
+
+    public CLabelManager2Command(TLabelManager2Commands _command, string _labelId, string _text)
     {
         data = new CLabelManager2CommandData(_command);
         this.data.labelId = _labelId;
-        this.data.text = _text;
+        this.data.text = _text;    
     }
 
-    public CLabelMananager2Command(TLabelManager2Commands _command, string _labelId, string _areaId, string _text)
+    public CLabelManager2Command(TLabelManager2Commands _command, string _labelId, string _areaId, string _text, string _colour)
     {
         data = new CLabelManager2CommandData(_command);
         this.data.labelId = _labelId;
         this.data.text = _text;
         this.data.areaId = _areaId;
+        this.data.colour = _colour;
+    }
+
+    public CLabelManager2Command(TLabelManager2Commands _command, string _labelId, string _text, Vector3 _labelPosition, Quaternion _boardRotation, float _scaleFactor)
+    {
+        data = new CLabelManager2CommandData(_command);
+        this.data.labelId = _labelId;
+        this.data.text = _text;
+        this.data.labelPosition = _labelPosition;
+        this.data.boardRotation = _boardRotation;
+        this.data.scaleFactor = _scaleFactor;
+    }
+    public CLabelManager2Command(TLabelManager2Commands _command, string _labelId, string _areaId, string _text, Vector3 _labelPosition, Vector3 _anchorPosition, float _scaleFactor)
+    {
+        data = new CLabelManager2CommandData(_command);
+        this.data.labelId = _labelId;
+        this.data.areaId = _areaId;
+        this.data.text = _text;
+        this.data.labelPosition = _labelPosition;
+        this.data.anchorPosition = _anchorPosition;
+        this.data.scaleFactor = _scaleFactor;
     }
 
     //////////////////
@@ -92,13 +127,29 @@ public class CLabelMananager2Command : CCoreCommand
                         hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().AddBoard(data.labelId, data.text);
                         break;
                     case TLabelManager2Commands.AddAnchoredLabel:
-                        hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().AddAnchoredLabel(data.areaId, data.areaId, data.text);
+                        hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().AddAnchoredLabel(data.labelId, data.areaId, data.text, data.colour);
+                        break;
+
+                    case TLabelManager2Commands.ShowBoardLabel:
+                        hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().AddBoard(data.labelId, data.text, data.labelPosition, data.boardRotation, data.scaleFactor);
+                        break;
+                    case TLabelManager2Commands.ShowAnchoredLabel:
+                        hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().AddAnchoredLabel(data.labelId, data.areaId, data.text, data.labelPosition, data.anchorPosition, data.scaleFactor);
                         break;
                     case TLabelManager2Commands.RemoveLabel:
-                        hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().RemoveLabel(data.areaId);
+                        hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().RemoveLabel(data.labelId);
+                        break;
+                    case TLabelManager2Commands.RemoveAllBoardLabel:
+                        hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().RemoveAllBoardLabel();
                         break;
                     case TLabelManager2Commands.RemoveAllLabel:
                         hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().RemoveAllLabel();
+                        break;
+                    case TLabelManager2Commands.UpdateAnchoredLabelView:
+                        hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().UpdateAnchoredLabelsOrientationAndPole();
+                        break;
+                    case TLabelManager2Commands.UpdateLabelText:
+                        hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().UpdateLabelText(data.labelId, data.text);
                         break;
                     default:
                         Debug.LogError("Error: This command " + data.commandEvent + " is not valid.");

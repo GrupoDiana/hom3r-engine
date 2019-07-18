@@ -35,6 +35,7 @@ public enum TConfigurationCommands
     ActiveUISelection, ActiveUIAutomaticSelection,
     ActiveTouchInteration, ActiveMouseInteration,
     ActiveNavigation, ActiveNavigationZoom,
+    ActiveLabelEdition,
     SetMouseMapping
 }
 
@@ -109,6 +110,9 @@ public class CConfigurationCommand : CCoreCommand
                     break;
                 case TConfigurationCommands.SetMouseMapping:
                     hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetMouseMapping(data.mouseMapping);
+                    break;
+                case TConfigurationCommands.ActiveLabelEdition:
+                    hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetActiveLabelEdition(data.activate);
                     break;
                 default:
                     Debug.LogError("Error: This command " + data.command + " is not valid.");

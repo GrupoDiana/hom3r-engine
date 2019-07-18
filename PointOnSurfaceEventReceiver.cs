@@ -30,7 +30,7 @@ public class PointOnSurfaceEventReceiver : MonoBehaviour
             {
                 case TCoreEvent.MouseManager_LeftButtonUp:
                     hom3r.quickLinks.scriptsObject.GetComponent<PointOnSurfaceManager>().CapturePointOnSurface(_event.data.mousePosition, _event.data.obj);
-                    break;
+                    break;                
                 default:
                     break;
             }

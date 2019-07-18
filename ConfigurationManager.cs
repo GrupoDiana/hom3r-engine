@@ -19,6 +19,8 @@ public class ConfigurationManager : MonoBehaviour
     private bool navigationZoomEnabled;         // This control if the navigation Zoom is On or not
     private TNavigationSystem navigationSystem; // This control the navigation system that is going to be used
 
+    private bool LabelEditionEnabled;            // This control if the labels can be edit or not
+
     private void Awake()
     {
         UIEnabled                   = true;     // Initially the UI is activated
@@ -34,6 +36,8 @@ public class ConfigurationManager : MonoBehaviour
         navigationZoomEnabled       = true;
         navigationSystem            = TNavigationSystem.Spherical;
 
+        LabelEditionEnabled         = true;
+
         Debug.Log("Configuration Manager Awake");     
     } 
 
@@ -47,7 +51,7 @@ public class ConfigurationManager : MonoBehaviour
     public void SetActiveUI(bool _enabled)
     {
         UIEnabled = _enabled;
-        // TODO send command message to UIManager
+        this.SendUpdateEvent();
     }
 
     /// <summary>
@@ -69,6 +73,7 @@ public class ConfigurationManager : MonoBehaviour
     public void SetActiveUISelection(bool _enabled)
     {
         uiSelectionEnabled = _enabled;
+        this.SendUpdateEvent();
     }
 
     /// <summary>
@@ -87,6 +92,7 @@ public class ConfigurationManager : MonoBehaviour
     public void SetActiveUIAutomaticSelection(bool _enabled)
     {
         uiAutomaticSelectionEnabled = _enabled;
+        this.SendUpdateEvent();
     }
 
     public bool GetActiveUIAutomaticSelection()
@@ -104,6 +110,7 @@ public class ConfigurationManager : MonoBehaviour
     public void SetActiveTouchInteration(bool _enabled)
     {
         touchInteractionEnabled = _enabled;
+        this.SendUpdateEvent();
     }
     /// <summary>
     /// Get if touch interaction is activated or not. 
@@ -124,6 +131,7 @@ public class ConfigurationManager : MonoBehaviour
     public void SetActiveMouseInteration(bool _enabled)
     {
         mouseInteractionEnabled = _enabled;
+        this.SendUpdateEvent();
     }
     /// <summary>
     /// Get if mouse interaction is activated or not. 
@@ -141,6 +149,7 @@ public class ConfigurationManager : MonoBehaviour
     public void SetMouseMapping(TMouseMapping _mouseMapping)
     {
         mouseMapping = _mouseMapping;
+        this.SendUpdateEvent();
     }
 
     /// <summary>
@@ -152,41 +161,7 @@ public class ConfigurationManager : MonoBehaviour
         return mouseMapping;
     }
 
-    /// <summary>
-    /// Get the ID of the mouse button used to selection
-    /// </summary>
-    /// <returns></returns>
-    public int GetMouseSelectionButton()
-    {
-        if (mouseMapping == TMouseMapping.standard) {
-            return 0;
-        } else if (mouseMapping == TMouseMapping.inverse) {
-            return 1;
-        } else
-        {
-            return 0;
-        }
-    }
-
-    /// <summary>
-    /// Get the ID of the mouse which is used to navigation
-    /// </summary>
-    /// <returns></returns>
-    public int GetMouseNavigationButton()
-    {
-        if (mouseMapping == TMouseMapping.standard)
-        {
-            return 1;
-        }
-        else if (mouseMapping == TMouseMapping.inverse)
-        {
-            return 0;
-        }
-        else
-        {
-            return 1;
-        }
-    }
+      
     /////////////////////
     // Navigation
     /////////////////////
@@ -197,6 +172,7 @@ public class ConfigurationManager : MonoBehaviour
     public void SetActiveNavigation(bool _enabled)
     {
         navigationEnabled = _enabled;
+        this.SendUpdateEvent();
     }
     /// <summary>
     /// Get if the navigation is activated or not. 
@@ -214,6 +190,7 @@ public class ConfigurationManager : MonoBehaviour
     public void SetActiveNavigationZoom(bool _enabled)
     {
         navigationZoomEnabled = _enabled;
+        this.SendUpdateEvent();
     }
     /// <summary>
     /// Get if the zoom is activated or not. 
@@ -222,5 +199,33 @@ public class ConfigurationManager : MonoBehaviour
     public bool GetActiveNavigationZoom()
     {
         return navigationZoomEnabled;
+    }
+
+
+    /////////////////////
+    // Label Edition
+    /////////////////////
+    /// <summary>
+    /// Set if the edition is activated or not. 
+    /// </summary>
+    /// <param name="_enabled">true activate the mouse interaction</param>
+    public void SetActiveLabelEdition(bool _enabled)
+    {
+        LabelEditionEnabled = _enabled;
+        this.SendUpdateEvent();
+    }
+    /// <summary>
+    /// Get if the navigation is activated or not. 
+    /// </summary>
+    /// <returns>True if mouse interaction is activated</returns>
+    public bool GetActiveLabelEdition()
+    {
+        return LabelEditionEnabled;
+    }
+
+
+    private void SendUpdateEvent()
+    {
+        hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.ConfigurationManager_ConfigurationUpdated));
     }
 }

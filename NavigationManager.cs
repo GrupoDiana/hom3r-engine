@@ -246,6 +246,7 @@ public class NavigationManager : MonoBehaviour {
 
         // Check if the navigation is activated or not        
         if (!hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetActiveNavigation()) { return;  }
+        if (hom3r.state.navigationBlocked) { return; }
 
         if ((navigationInitialized) & ((mouseMovementX != 0) || (mouseMovementY != 0) || (mouseWhellMovement != 0.0f)))
         {
@@ -295,7 +296,10 @@ public class NavigationManager : MonoBehaviour {
             //Apply movement
             RotateCameraPlane(planeRotation);
             MoveCameraWithinThePlane(newCameraPosition);
-            OrientateCamera(pointToLook);                        
+            OrientateCamera(pointToLook);
+
+            //Emit event
+            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Navigation_CameraMoved));                 
         }
     }
    
@@ -323,7 +327,7 @@ public class NavigationManager : MonoBehaviour {
         
         // Check if the navigation is activated or not
         if (!hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetActiveNavigation()) { return; }
-
+        if (hom3r.state.navigationBlocked) { return; }
         if ((navigationInitialized) & ((mouseMovementX != 0) || (mouseMovementY != 0)))
         {
             ///////////////////////////////////////////////////
@@ -362,6 +366,8 @@ public class NavigationManager : MonoBehaviour {
             RotateCameraPlane(planeRotation);
             MoveCameraWithinThePlane(newCameraPosition);
             OrientateCamera(pointToLook);
+            //Emit event
+            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Navigation_CameraMoved));
         }
     }
 
@@ -391,6 +397,8 @@ public class NavigationManager : MonoBehaviour {
         RotateCameraPlane(planeRotation);
         MoveCameraWithinThePlane(newCameraPosition);
         OrientateCamera(pointToLook);
+        //Emit event
+        hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Navigation_CameraMoved));
     }
 
     private Vector2 GetCurrentCameraPositionWithinPlane()

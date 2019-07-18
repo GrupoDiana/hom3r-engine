@@ -564,7 +564,7 @@ public class CLabel
             //newSize = 0.2f;       //hom3r web Hard code
         }
 
-        Debug.Log("distance : " + distance + " - initialCameraDistance: " + initialCameraDistance + " - newSize: " + newSize );
+        // Debug.Log("distance : " + distance + " - initialCameraDistance: " + initialCameraDistance + " - newSize: " + newSize );
         //annotationGO.transform.localScale = initialAnnotationSize * newSize * annotationScale;
         //annotationWidth = annotationGO.transform.localScale.x;
         //annotationHeight = annotationGO.transform.localScale.y;

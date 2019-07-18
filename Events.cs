@@ -6,9 +6,11 @@ using UnityEngine;
 public enum TCoreEvent
 {
     Core_Hom3rReadyToStart, Core_ModeChanged,
+    
+    ConfigurationManager_ConfigurationUpdated,
 
-    ModelManagement_ProductModelLoadOk, ModelManagement_ModelLoadError,
-    ModelManagement_3DLoadSuccess, ModelManagement_3DLoadError,
+    ModelManagement_ProductModelLoadSuccess, ModelManagement_ModelLoadError,
+    ModelManagement_3DLoadSuccess, ModelManagement_3DLoadError, ModelManagement_3DListLoadSuccess,
     ModelManagement_ShowMessage,
     ModelManagement_ReadyToLoadExplosionModel,
     ModelManagement_FileDownloadBegin, ModelManagement_FileDownloadEnd,
@@ -19,9 +21,12 @@ public enum TCoreEvent
     _3DFileManager_ShowMessage, _3DFileManager_ShowMessageConsole,
 
     MouseManager_MousePosition,
-    MouseManager_LeftButtonUp, MouseManager_LeftButtonDown,    
+    MouseManager_LeftButtonUp, MouseManager_LeftButtonDown,
     MouseManager_RightButtonUp, MouseManager_RightButtonDown,
     MouseManager_RightButtonDragMovement, MouseManager_WheelMovement,
+
+    MouseManager_MouseDragGestureEnd, MouseManager_MouseDragGestureBegin,
+    MouseManager_MouseDragGesture,
 
     TouchManager_OneSelectionTouch,
     TouchManager_DragMovementBegin,TouchManager_DragMovement, TouchManager_DragMovementEnd,
@@ -44,8 +49,9 @@ public enum TCoreEvent
     UI_NewTransparencyAlphaLevel,
 
     Navigation_NavigationInitiaded,
-    Navigation_NavigationToFocusEnd, Navigation_ApproximationEnd, Navigation_PseudoLatitudeMovement, Navigation_PseudoLongitudeMovement,
-    Navigation_PseudoRadioMovement,
+    Navigation_NavigationToFocusEnd, Navigation_ApproximationEnd,
+    Navigation_PseudoLatitudeMovement, Navigation_PseudoLongitudeMovement, Navigation_PseudoRadioMovement,
+    Navigation_CameraMoved,
 
     Occlusion_ExplosionBegin, Occlusion_ExplosionEnd, Occlusion_ExplodingAreas, Occlusion_ImplodingAreas,
     Occlusion_ExplosionGlobalON, Occlusion_ExplosionGlobalOFF,
@@ -56,9 +62,14 @@ public enum TCoreEvent
     ObjectState_AreaRemoved,
 
     LabelManager_ShowMessage, LabelManager_LabelRemoved,
+    LabelManager_LabelDataUpdated,
+
+    PointOnSurface_PointCaptureBegin, PointOnSurface_PointCaptureEnd,
+    PointOnSurface_PointCaptureSuccess, PointOnSurface_PointCaptureError,
 
     UIAR_StartAuthoring, UIAR_StopAuthoring,
-    ExhibitionManager_ExhibitionPlotLoadError, ExhibitionManager_ExhibitionPlotLoadSuccess, ExhibitionManager_ExhibitionPointLoaded, ExhibitionManager_ExhibitionLanguageChanged,
+    ExhibitionManager_ExhibitionPlotLoadError, ExhibitionManager_ExhibitionPlotLoadSuccess,
+    ExhibitionManager_ExhibitionPointLoaded, ExhibitionManager_ExhibitionLanguageChanged,
 
     AR_TapToPlaceScene_Success
 };
@@ -72,10 +83,17 @@ public class CCoreEventData
     public GameObject obj { get; set; }    
     public string text { get; set; }
     public string text2 { get; set; }
+    public string areaId { get; set; }
     public float value1 { get; set; }
     public float value2 { get; set; }
     public bool control { get; set; }
-    public Vector3 mousePosition { get; set; }    
+    public string labelId { get; set; }
+    public TLabelType labelType { get; set; }
+    public Vector3 mousePosition { get; set; }
+    public Vector3 anchorPosition { get; set; }
+    public Vector3 boardPosition { get; set; }
+    public Quaternion boardRotation { get; set; }
+    public float scaleFactor { get; set; }
     public float mouseDragMovementX { get; set; }
     public float mouseDragMovementY { get; set; }
     public float mouseWhellMovement { get; set; }
@@ -151,6 +169,20 @@ public class CCoreEvent
         data.mousePosition = _mousePosition;
     }
 
+    public CCoreEvent(TCoreEvent _command, Vector3 _anchorPosition, string _areaID)
+    {
+        data = new CCoreEventData(_command);
+        data.anchorPosition = _anchorPosition;
+        data.areaId = _areaID;
+    }
+
+    public CCoreEvent(TCoreEvent _command, Vector3 _mousePosition, GameObject _gameObject)
+    {
+        data = new CCoreEventData(_command);
+        data.mousePosition  = _mousePosition;
+        data.obj            = _gameObject;        
+    }
+
     public CCoreEvent(TCoreEvent _command, Vector3 _mousePosition, GameObject _gameObject, bool _control)
     {
         data = new CCoreEventData(_command);
@@ -170,6 +202,26 @@ public class CCoreEvent
     {
         data = new CCoreEventData(_command);
         data.textList = _texlist;
+    }
+
+    public CCoreEvent(TCoreEvent _command, string _labelId, TLabelType _labelType, Vector3 _boardPosition, Quaternion _boardRotation, float _scaleFactor )
+    {
+        data = new CCoreEventData(_command);
+        data.labelId = _labelId;
+        data.labelType = _labelType;
+        data.boardPosition = _boardPosition;       
+        data.boardRotation = _boardRotation;
+        data.scaleFactor = _scaleFactor;
+    }
+    public CCoreEvent(TCoreEvent _command, string _labelId, string _areaId, TLabelType _labelType, Vector3 _boardPosition, Vector3 _anchorPosition, float _scaleFactor)
+    {
+        data = new CCoreEventData(_command);
+        data.labelId = _labelId;
+        data.areaId = _areaId;
+        data.labelType = _labelType;
+        data.boardPosition = _boardPosition;
+        data.anchorPosition = _anchorPosition;
+        data.scaleFactor = _scaleFactor;
     }
 }
 

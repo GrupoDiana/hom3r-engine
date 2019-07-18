@@ -29,49 +29,49 @@ public class LabelEventReceiver : MonoBehaviour {
             switch (_event.data.commandEvent)
             {
                 case TCoreEvent.Occlusion_ExplosionBegin:
-                    hom3r.quickLinks.scriptsObject.GetComponent<LabelManager>().HideAllLabels();
+                    //hom3r.quickLinks.scriptsObject.GetComponent<LabelManager>().HideAllLabels();
                     break;
                 case TCoreEvent.Occlusion_ExplosionEnd:
-                    hom3r.quickLinks.scriptsObject.GetComponent<LabelManager>().RedrawAllLabels();
+                    //hom3r.quickLinks.scriptsObject.GetComponent<LabelManager>().RedrawAllLabels();
                     break;
                 case TCoreEvent.Occlusion_IsolateON:
-                    hom3r.quickLinks.scriptsObject.GetComponent<LabelManager>().HideAllLabels();
+                    //hom3r.quickLinks.scriptsObject.GetComponent<LabelManager>().HideAllLabels();
                     break;
                 case TCoreEvent.Navigation_NavigationToFocusEnd:
                     //Labels scale update
                     // Draw only labels of isolated objects, using local center                     
-                    IEnumerable<GameObject> isolatedGOs = hom3r.quickLinks.scriptsObject.GetComponent<SelectionManager>().GetListOfConfirmedObjects();
+                    /*IEnumerable<GameObject> isolatedGOs = hom3r.quickLinks.scriptsObject.GetComponent<SelectionManager>().GetListOfConfirmedObjects();
                     List<GameObject> isolatedGOList = new List<GameObject>(isolatedGOs);
                     foreach (GameObject go in isolatedGOList)
                     {
                         hom3r.quickLinks.scriptsObject.GetComponent<LabelManager>().RedrawLabelsLocallyForGO(go);
-                    }
+                    }*/
                     break;
                 case TCoreEvent.Navigation_ApproximationEnd:
-                    hom3r.quickLinks.scriptsObject.GetComponent<LabelManager>().RedrawAllLabels();      //Labels scale update
+                    //hom3r.quickLinks.scriptsObject.GetComponent<LabelManager>().RedrawAllLabels();      //Labels scale update
                     break;
                 case TCoreEvent.Occlusion_IsolateOFF:
-                    hom3r.quickLinks.scriptsObject.GetComponent<LabelManager>().RedrawAllLabels();
+                    //hom3r.quickLinks.scriptsObject.GetComponent<LabelManager>().RedrawAllLabels();
                     break;
                 case TCoreEvent.ObjectState_AreaRemoved:
                     //Remove label
-                    if (this.GetComponent<LabelManager>().LabelContainsTarget(_event.data.obj))
+                    /*if (this.GetComponent<LabelManager>().LabelContainsTarget(_event.data.obj))
                     {
                         this.GetComponent<LabelManager>().DestroyLabelFromTargetGO(_event.data.obj);
-                    }
+                    }*/
                     break;
                 
                 case TCoreEvent.Selection_AreaConfirmationOn:
-                    this.AddLabelToConfirmedArea(_event.data.obj);
+                    // this.AddLabelToConfirmedArea(_event.data.obj);
                     break;
                 case TCoreEvent.Selection_AllPartsDeselected:
-                    hom3r.coreLink.Do(new CLabelCommand(TLabelCommands.RemoveAllLabelOfConfirmedObjects));
+                    // hom3r.coreLink.Do(new CLabelCommand(TLabelCommands.RemoveAllLabelOfConfirmedObjects));
                     break;
                 case TCoreEvent.ObjectState_AreaConfirmationOn:
-                    this.AddLabelToConfirmedArea(_event.data.obj);
+                    // this.AddLabelToConfirmedArea(_event.data.obj);
                     break;
                 case TCoreEvent.ObjectState_AreaConfirmationOff:
-                    if (hom3r.state.currentLabelMode == THom3rLabelMode.SHOWLABEL)
+                    /*if (hom3r.state.currentLabelMode == THom3rLabelMode.show)
                     {
                         //Every time an area is "deselected" we have to check if it has a label and remove it in case.                        
                         //foreach (string area in _event.data.obj.GetComponent<ObjectStateManager>().areaID)
@@ -87,12 +87,12 @@ public class LabelEventReceiver : MonoBehaviour {
                         {
                             this.GetComponent<LabelManager>().RemoveLabel(specialNodeID);
                         }
-                    }
+                    }*/
                     break;
                 case TCoreEvent.ModelManagement_ResetModel:
                     //hom3r.coreLink.Do(new CLabelCommand(TLabelCommands.RemoveAllLabelOfConfirmedObjects), Constants.undoNotAllowed);
                     //hom3r.quickLinks.scriptsObject.GetComponent<LabelCommandReceiver>().ExecuteRemoveAllLabelOfConfirmedGOList();
-                    hom3r.quickLinks.scriptsObject.GetComponent<LabelManager>().RemoveAllLabels();                    
+                    /*hom3r.quickLinks.scriptsObject.GetComponent<LabelManager>().RemoveAllLabels();     */               
                     break;
 
 
@@ -105,7 +105,7 @@ public class LabelEventReceiver : MonoBehaviour {
 
     private void AddLabelToConfirmedArea(GameObject obj)
     {
-        if (hom3r.state.currentLabelMode == THom3rLabelMode.SHOWLABEL)
+        if (hom3r.state.currentLabelMode == THom3rLabelMode.show)
         {
             if (hom3r.state.currentSelectionMode == THom3rSelectionMode.AREA)
             {                

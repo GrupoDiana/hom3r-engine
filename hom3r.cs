@@ -7,7 +7,7 @@ static class Constants
     public const float Pi = 3.14159265359f;
     public const bool undoAllowed = true;             //Const to store the valueo to allow undo 
     public const bool undoNotAllowed = false;         //Const to store the valueo to not allow undo 
-    public const int largeText = 25;                  //Const to indicate when a text is considered long
+    public const int largeText = 25;                  //Const to indicate when a text is considered long    
 }
 
 static class MathHom3r
@@ -100,7 +100,7 @@ public enum THom3rMode { IDLE, SMARTTRANSPARENCY, SINGLEPOINTLOCATION, REMOVE, L
 public enum THom3rExplosionMode { EXPLODE, IMPLODE };
 public enum THom3rIsolationMode { IDLE, ISOLATE, WITH_REMOVEDNODES };
 public enum THom3rSelectionMode { AREA, SPECIAL_NODE };
-public enum THom3rLabelMode { IDLE, SHOWLABEL };
+public enum THom3rLabelMode { idle, show, edit, add };
 
 /// <summary> Class to store the state of the app in every moment.</summary>
 public class CHom3rState
@@ -113,7 +113,8 @@ public class CHom3rState
 
     //Internal use
     public bool generalState { get; set; }                      //Is false when any error happens
-    public bool productModel_Loaded { get; set; }               //Store if the model has been loaded or not    
+    public bool productModelLoaded { get; set; }               //Store if the model has been loaded or not    
+    public bool _3DModelLoaded { get; set; }               //Store if the model has been loaded or not    
     public THom3rPlatform platform { get; set; }                //Store the environment if which Hom3r is working    
     public float alphaTransparencyLevel { get; set; }
 
@@ -128,7 +129,7 @@ public class CHom3rState
     public THom3rExplosionMode currentExplosionMode { get; set; }       //Store the current explosion mode where HOM3R is working
     public THom3rSelectionMode currentSelectionMode { get; set; }       //Store the current mode of selection 
     public THom3rIsolationMode currentVisualizationMode { get; set; }   //Store the current visualization mode (if there are removed nodes ot not)
-    public THom3rLabelMode currentLabelMode { get; set; }               //Store the current labeling mode                 
+    public THom3rLabelMode currentLabelMode { get; set; }               //Store the current labeling mode                     
 
     //Layers
     public string labelsUILayer;                // Store camera layer for Labels
