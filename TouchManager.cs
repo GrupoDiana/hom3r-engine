@@ -60,7 +60,7 @@ public class TouchManager : MonoBehaviour
     {
         if (Input.touchCount == 1)
         {
-            Debug.Log("hom3r - one touch");
+            //Debug.Log("hom3r - one touch");
             if (Input.GetTouch(0).phase == TouchPhase.Began)
             {
                 this.selectionTouchId = Input.GetTouch(0).fingerId;
@@ -168,7 +168,7 @@ public class TouchManager : MonoBehaviour
         if (isDragMovement)
         {
             movementCounter = 0;
-            Debug.Log("hom3r - Movement");
+            //Debug.Log("hom3r - Movement");
             //TODO DO SOMETHING
             Touch touch = Input.GetTouch(0);
 
