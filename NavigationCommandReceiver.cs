@@ -87,7 +87,7 @@ public class CNavigationCommand : CCoreCommand
                     case TNavigationCommands.InitializeNavigation:
                         string navigation_axis = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetModelNavigationAxis();
                         hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().InitNavigation(navigation_axis);
-                        hom3r.coreLink.Do(new CLabelManager2Command(TLabelManager2Commands.UpdateAnchoredLabelView)); //Needed for label face to camera before starting the navigation
+                        //hom3r.coreLink.Do(new CLabelManager2Command(TLabelManager2Commands.UpdateAnchoredLabelView)); //Needed for label face to camera before starting the navigation
                         break;
                     case TNavigationCommands.MouseMovement:                        
                         hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().SetMouseMovement(data.mouseX, data.mouseY, data.mouseWheel);

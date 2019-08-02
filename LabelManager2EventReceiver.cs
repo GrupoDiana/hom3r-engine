@@ -46,6 +46,9 @@ public class LabelManager2EventReceiver : MonoBehaviour
                 case TCoreEvent.MouseManager_MouseDragGesture:
                     hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().DragLabel(_event.data.mouseDragMovementX, _event.data.mouseDragMovementY);                   
                     break;
+                case TCoreEvent.Navigation_NavigationInitiaded:                    
+                    hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().UpdateAnchoredLabelsOrientationAndPole();
+                    break;
                 default:
                     break;
             }
