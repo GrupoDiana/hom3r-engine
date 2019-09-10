@@ -101,6 +101,7 @@ public enum THom3rExplosionMode { EXPLODE, IMPLODE };
 public enum THom3rIsolationMode { IDLE, ISOLATE, WITH_REMOVEDNODES };
 public enum THom3rSelectionMode { AREA, SPECIAL_NODE };
 public enum THom3rLabelMode { idle, show, edit, add };
+public enum THom3rCommandOrigin { ui, io};
 
 /// <summary> Class to store the state of the app in every moment.</summary>
 public class CHom3rState

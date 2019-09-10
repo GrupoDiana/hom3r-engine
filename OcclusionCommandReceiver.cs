@@ -101,6 +101,7 @@ public class COcclusionCommandData
     public GameObject obj { get; set; }
     public bool confirmedObject { get; set; }
     public float alphaLevel { get; set; }
+    public THom3rCommandOrigin origin { get; set; }
 
     public COcclusionCommandData(TOcclusionCommands _command)
     {
@@ -118,6 +119,11 @@ public class COcclusionCommand : CCoreCommand
     public COcclusionCommand(TOcclusionCommands _command)
     {
         data = new COcclusionCommandData(_command);
+    }
+    public COcclusionCommand(TOcclusionCommands _command, THom3rCommandOrigin _origin)
+    {
+        data = new COcclusionCommandData(_command);
+        data.origin = _origin;
     }
     public COcclusionCommand(TOcclusionCommands _command, List<GameObject> _listRemovedObjets)
     {
@@ -169,19 +175,20 @@ public class COcclusionCommand : CCoreCommand
                 case TOcclusionCommands.EnableSmartTransparency:
                     if (!hom3r.state.smartTransparencyModeActive)
                     {
-                        hom3r.quickLinks.scriptsObject.GetComponent<OcclusionManager>().StartSmartTransparency();
+                        hom3r.quickLinks.scriptsObject.GetComponent<OcclusionManager>().StartSmartTransparency(data.origin);
                     }
                     break;
 
                 case TOcclusionCommands.DisableSmartTransparency:
                     if (hom3r.state.smartTransparencyModeActive)
                     {
-                        hom3r.quickLinks.scriptsObject.GetComponent<OcclusionManager>().StopSmartTransparency();                        
+                        hom3r.quickLinks.scriptsObject.GetComponent<OcclusionManager>().StopSmartTransparency(data.origin);                        
                     }
                     break;
 
                 case TOcclusionCommands.ResetSmartTransparency:
-                    m.GetComponent<TransparencyManager>().SetRayDestinationPoints_AllSelectedAreas();
+                    hom3r.quickLinks.scriptsObject.GetComponent<TransparencyManager>().SetRayDestinationPoints_AllSelectedAreas();
+                    //m.GetComponent<TransparencyManager>().SetRayDestinationPoints_AllSelectedAreas();
                     break;
 
                 ////////  ISOLATE  //////////////
@@ -192,7 +199,7 @@ public class COcclusionCommand : CCoreCommand
                         if (hom3r.state.smartTransparencyModeActive)
                         {
                             //this.GetComponent<Core_Script>().Do(new UICoreCommand(TUIEvent.SmartTransparency, false), Constants.undoNotAllowed);
-                            m.GetComponent<Core>().Do(new COcclusionCommand(TOcclusionCommands.DisableSmartTransparency), Constants.undoNotAllowed);
+                            // m.GetComponent<Core>().Do(new COcclusionCommand(TOcclusionCommands.DisableSmartTransparency), Constants.undoNotAllowed);
                         }
                         //1. Update Core mode
                         hom3r.state.currentVisualizationMode = THom3rIsolationMode.ISOLATE;

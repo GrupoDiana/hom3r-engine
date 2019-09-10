@@ -114,7 +114,8 @@ public class OcclusionEventReceiver : MonoBehaviour {
                     break;
 
                 case TCoreEvent.UI_NewTransparencyAlphaLevel:
-                    hom3r.coreLink.Do(new COcclusionCommand(TOcclusionCommands.SetTransparencyAlphaLevel, _event.data.value1));
+                    //hom3r.coreLink.Do(new COcclusionCommand(TOcclusionCommands.SetTransparencyAlphaLevel, _event.data.value1));
+                    hom3r.quickLinks.scriptsObject.GetComponent<TransparencyManager>().SetTransparencyLevelToAllTransparentObjects(_event.data.value1);                    
                     break;
 
 

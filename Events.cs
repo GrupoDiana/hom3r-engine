@@ -46,7 +46,7 @@ public enum TCoreEvent
     ObjectState_AreaHiddenOn, ObjectState_AreaHiddenOff,
     ObjectState_AreaRemoveOn, ObjectState_AreaRemoveOff,
 
-    UI_NewTransparencyAlphaLevel,
+    UI_NewTransparencyAlphaLevel, UI_SmartTransparency_Enabled, UI_SmartTransparency_Disabled,
 
     Navigation_NavigationInitiaded,
     Navigation_NavigationToFocusEnd, Navigation_ApproximationEnd,
@@ -57,7 +57,7 @@ public enum TCoreEvent
     Occlusion_ExplosionGlobalON, Occlusion_ExplosionGlobalOFF,
     Occlusion_ExplosionChangedMode,
     Occlusion_IsolateON, Occlusion_IsolateOFF,
-    Occlusion_SmartTransparencyON, Occlusion_SmartTransparencyOFF,
+    Occlusion_SmartTransparency_Enabled, Occlusion_SmartTransparency_Disabled,
 
     ObjectState_AreaRemoved,
 
@@ -98,6 +98,7 @@ public class CCoreEventData
     public float mouseDragMovementY { get; set; }
     public float mouseWhellMovement { get; set; }
     public List<string> textList { get; set; }
+    public THom3rCommandOrigin origin { get; set; }
 
     public CCoreEventData(TCoreEvent _commandEvent) { this.commandEvent = _commandEvent; }
 }
@@ -112,6 +113,11 @@ public class CCoreEvent
     public CCoreEvent(TCoreEvent _command)
     {
         data = new CCoreEventData(_command);
+    }
+    public CCoreEvent(TCoreEvent _command, THom3rCommandOrigin _origin)
+    {
+        data = new CCoreEventData(_command);
+        data.origin = _origin;
     }
     public CCoreEvent(TCoreEvent _command, List<GameObject> _goList)
     {

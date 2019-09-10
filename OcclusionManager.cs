@@ -99,23 +99,24 @@ public class OcclusionManager : MonoBehaviour
     // TRANSPARENCY             //
     //////////////////////////////
     
-    public void StartSmartTransparency()
+    public void StartSmartTransparency(THom3rCommandOrigin _origin)
     {        
         hom3r.state.smartTransparencyModeActive = true;     // Start transparency
         ExecuteSmartTransparency(true);                     //Execute algorithms                
-        hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Occlusion_SmartTransparencyON));      // Indicate to others
+        hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Occlusion_SmartTransparency_Enabled, _origin));      // Indicate to others
     }
 
 
-    public void StopSmartTransparency()
+    public void StopSmartTransparency(THom3rCommandOrigin _origin)
     {
         //Reset objects materials
         hom3r.quickLinks.scriptsObject.GetComponent<TransparencyManager>().AllGameObjectTransparencyOff();
         hom3r.quickLinks.scriptsObject.GetComponent<HiddenManager>().RevealAllHiddenGameObjects();
-                
-        hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Occlusion_SmartTransparencyOFF));      // Indicate to others
 
-        //Execute algorithms
+        // Indicate to others
+        hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Occlusion_SmartTransparency_Disabled, _origin));      
+
+        //Execute stop tranparency algorithms
         hom3r.state.smartTransparencyModeActive = false;
         ExecuteSmartTransparency(false);
     }
