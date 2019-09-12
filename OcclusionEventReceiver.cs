@@ -113,12 +113,9 @@ public class OcclusionEventReceiver : MonoBehaviour {
                     hom3r.quickLinks._3DModelRoot.GetComponent<ExplosionManager>().Clear();        // Clear Explosion  
                     break;
 
-                case TCoreEvent.UI_NewTransparencyAlphaLevel:
-                    //hom3r.coreLink.Do(new COcclusionCommand(TOcclusionCommands.SetTransparencyAlphaLevel, _event.data.value1));
-                    hom3r.quickLinks.scriptsObject.GetComponent<TransparencyManager>().SetTransparencyLevelToAllTransparentObjects(_event.data.value1);                    
+                case TCoreEvent.UI_SmartTransparency_AlphaLevelUpdated:                    
+                    hom3r.quickLinks.scriptsObject.GetComponent<TransparencyManager>().SetSmartTransparencyAlphaLevel(_event.data.value1, THom3rCommandOrigin.ui);                    
                     break;
-
-
 
                 default:
                     break;

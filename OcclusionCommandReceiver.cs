@@ -83,7 +83,7 @@ public class OcclusionCommandReceiver : MonoBehaviour {
 /// <summary>Occlusions commands</summary>
 public enum TOcclusionCommands
 {
-    EnableSmartTransparency, DisableSmartTransparency, ResetSmartTransparency, SetTransparencyAlphaLevel,
+    EnableSmartTransparency, DisableSmartTransparency, ResetSmartTransparency, SetSmartTransparencyAlphaLevel,
     Isolate,
     RemoveGameObject, ShowRemovedGameObject,
     ShowAll,
@@ -151,10 +151,11 @@ public class COcclusionCommand : CCoreCommand
         data.obj = _obj;
         data.confirmedObject = _confirmedObject;
     }
-    public COcclusionCommand(TOcclusionCommands _command, float _alphaLevel)
+    public COcclusionCommand(TOcclusionCommands _command, float _alphaLevel, THom3rCommandOrigin _origin)
     {
         data = new COcclusionCommandData(_command);
         data.alphaLevel = _alphaLevel;
+        data.origin = _origin;
     }
 
     //////////////////
@@ -168,13 +169,13 @@ public class COcclusionCommand : CCoreCommand
             {
 
                 ////////  SMART TRANSPARENCY  //////////////
-                case TOcclusionCommands.SetTransparencyAlphaLevel:
-                    hom3r.quickLinks.scriptsObject.GetComponent<TransparencyManager>().SetTransparencyLevelToAllTransparentObjects(data.alphaLevel);
+                case TOcclusionCommands.SetSmartTransparencyAlphaLevel:
+                    hom3r.quickLinks.scriptsObject.GetComponent<TransparencyManager>().SetSmartTransparencyAlphaLevel(data.alphaLevel, data.origin);
                     break;
 
                 case TOcclusionCommands.EnableSmartTransparency:
                     if (!hom3r.state.smartTransparencyModeActive)
-                    {
+                    {                        
                         hom3r.quickLinks.scriptsObject.GetComponent<OcclusionManager>().StartSmartTransparency(data.origin);
                     }
                     break;

@@ -46,7 +46,7 @@ public enum TCoreEvent
     ObjectState_AreaHiddenOn, ObjectState_AreaHiddenOff,
     ObjectState_AreaRemoveOn, ObjectState_AreaRemoveOff,
 
-    UI_NewTransparencyAlphaLevel, UI_SmartTransparency_Enabled, UI_SmartTransparency_Disabled,
+    UI_SmartTransparency_AlphaLevelUpdated, UI_SmartTransparency_Enabled, UI_SmartTransparency_Disabled,
 
     Navigation_NavigationInitiaded,
     Navigation_NavigationToFocusEnd, Navigation_ApproximationEnd,
@@ -57,7 +57,7 @@ public enum TCoreEvent
     Occlusion_ExplosionGlobalON, Occlusion_ExplosionGlobalOFF,
     Occlusion_ExplosionChangedMode,
     Occlusion_IsolateON, Occlusion_IsolateOFF,
-    Occlusion_SmartTransparency_Enabled, Occlusion_SmartTransparency_Disabled,
+    Occlusion_SmartTransparency_Enabled, Occlusion_SmartTransparency_Disabled, Occlusion_SmartTransparency_AlphaLevelUpdated,
 
     ObjectState_AreaRemoved,
 

@@ -122,22 +122,8 @@ public class TransparencyManager : MonoBehaviour {
         }
 		//Empty the list of hidden objects
 		gameObjectTransparentList.Clear (); 
-	}//End RevealHiddenGameObjects
+	}
 
-	//////////////////////////////////////////////////////////////////////
-	/// <summary> Remove the transparency of all the objects.</summary>	 //
-	///////////////////////////////////////////////////////////////////////
-	//public void FromTransparentToHiddenAllGameObjects()
-	//{
- //       //Make not transparent one by one
- //       List<GameObject> temp = new List<GameObject>(gameObjectTransparentList);
-	//	foreach (GameObject obj in temp)
- //       {
- //           //obj.GetComponent<ObjectState_Script> ().GameObjectInstantTransparencyOff ();
- //           obj.GetComponent<ObjectState_Script>().SendEvent(ObjectVisualStateEvents_Type.Hidden_On);
-
- //       }
-	//}//End RevealHiddenGameObjects
 
 	////////////////////////////////////////////////////////////////////////////
 	/// <summary> Make transparent a list of objets. </summary>               //
@@ -149,7 +135,7 @@ public class TransparencyManager : MonoBehaviour {
         {
             obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Transparency_On, duration);
 		}
-	}//END GameObjectListTransparencyOn
+	}
 	
 	////////////////////////////////////////////////////////////////////////////
 	/// <summary> Make not transparent a list of objets. </summary>           //
@@ -162,13 +148,39 @@ public class TransparencyManager : MonoBehaviour {
         }
 	}
 
-    public void SetTransparencyLevelToAllTransparentObjects(float alphaLevel)
+
+    /////////////////////////////
+    /// ALPHA Level
+    ///////////////////////////// 
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    private void SetSmartTransparencyLevelToAllTransparentObjects()
     {
         foreach (GameObject obj in gameObjectTransparentList)
         {
-            ObjectStateMaterialUtils.SetAlphaColorToMaterial(obj.GetComponent<Renderer>().material, alphaLevel);
+            ObjectStateMaterialUtils.SetAlphaColorToMaterial(obj.GetComponent<Renderer>().material, hom3r.state.smartTransparencyAlphaLevel);
         }
     }
+
+
+    public void SetSmartTransparencyAlphaLevel(float value, THom3rCommandOrigin _origin)
+    {
+        hom3r.state.smartTransparencyAlphaLevel = value;
+        if (_origin == THom3rCommandOrigin.io)
+        {
+            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Occlusion_SmartTransparency_AlphaLevelUpdated));
+        }        
+        this.SetSmartTransparencyLevelToAllTransparentObjects();
+    }
+
+
+
+
+
+
+
 
 	/////////////////////////////////////////////////////////
 	/// <summary> Start the smart transparency.</summary>

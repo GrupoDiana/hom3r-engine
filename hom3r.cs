@@ -117,7 +117,7 @@ public class CHom3rState
     public bool productModelLoaded { get; set; }               //Store if the model has been loaded or not    
     public bool _3DModelLoaded { get; set; }               //Store if the model has been loaded or not    
     public THom3rPlatform platform { get; set; }                //Store the environment if which Hom3r is working    
-    public float alphaTransparencyLevel { get; set; }
+    public float smartTransparencyAlphaLevel { get; set; }
 
     //Modes Management
     public bool selectionBlocked { get; set; }                          //External blocking/unblocking of selection (indicate and confirm)   
