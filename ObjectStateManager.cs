@@ -226,9 +226,13 @@ public class ObjectStateManager : MonoBehaviour {
         indicatedColour = indicatedDefaultColor;
     }
 
-    /////////////////////////
-    // Fade effect Methods //
-    /////////////////////////
+    /////////////////////////////////////
+    // Reset to Initial Material State //
+    /////////////////////////////////////
+
+    public void SetMaterialInitialColor() {
+        ObjectStateMaterialUtils.SetColourToMaterial(this.GetComponent<Renderer>().material, initialColor);
+    }
 
     /// <summary>Set the original colour and reder mode to the object material</summary>
     public void SetMaterialInitialConditions(float delayTime)
@@ -246,6 +250,9 @@ public class ObjectStateManager : MonoBehaviour {
         ObjectStateMaterialUtils.SetColourToMaterial(this.GetComponent<Renderer>().material, initialColor);
     }
 
+    /////////////////////////
+    // Fade effect Methods //
+    /////////////////////////
     public void ProcessFadeInEffect(float delayTime, float durationTime, ObjectStateMaterialUtils.TMaterialState newState)
     {
         float targetAlpha = 1.0f;
@@ -273,7 +280,7 @@ public class ObjectStateManager : MonoBehaviour {
             ObjectStateMaterialUtils.SetMaterialRenderingMode(this.GetComponent<Renderer>().material, ObjectStateMaterialUtils.TBlendMode.Fade);    //Change Rendering mode to fade            
 
             if      (newState == ObjectStateMaterialUtils.TMaterialState.Hide)         { targetAlpha = 0.0f; }
-            else if (newState == ObjectStateMaterialUtils.TMaterialState.Transparent)  { targetAlpha = hom3r.state.alphaTransparencyLevel; }
+            else if (newState == ObjectStateMaterialUtils.TMaterialState.Transparent)  { targetAlpha = hom3r.state.smartTransparencyAlphaLevel; }
 
             StartCoroutine(CoroutineFadeOutEffect(0.0f, durationTime, targetAlpha));        //Start Fade-Out effect
         }           

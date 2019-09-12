@@ -77,7 +77,7 @@ class TransparentIdle_State : State
     }
     public override void StateIn(VisualStateContext context, float duration)
     {
-        
+        context.parent.SetMaterialInitialColor();      // Set Initial color. testing 
         context.parent.ProcessFadeOutEffect(0.0f, duration, ObjectStateMaterialUtils.TMaterialState.Transparent);                      //Make the material transparent                 
         hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.ObjectState_AreaTransparencyOn, context.parent.gameObject));     //Emit and event telling we are going to be transparent
     }
@@ -102,7 +102,7 @@ class TransparentIndicated_State : State
         //Get new the color of the material   
         Color temp = context.parent.indicatedColour;                 
         //temp.a = UIMaterialTransparency.GetMaterialAlphaLevel();
-        temp.a = hom3r.state.alphaTransparencyLevel;
+        temp.a = hom3r.state.smartTransparencyAlphaLevel;
         ObjectStateMaterialUtils.SetColourToMaterial(context.parent.GetComponent<Renderer>().material, temp);  //Change color of the material                
 
         hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.ObjectState_AreaIndicateOn, context.parent.gameObject));             //Emit and event: I'm indicated        
