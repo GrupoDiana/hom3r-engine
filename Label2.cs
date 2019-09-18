@@ -30,6 +30,7 @@ public class Label2 : MonoBehaviour
     float defaultScaleFactor;               // To save the board default scale
     Vector3 defaultBoardGOScale;            // To save the original board GameObject scale
     float scaleFactor;                      // Factor to modify the board default scale
+    float boardLimitDistance;             // Maximum distance to place the board;
 
     float panelGOPadding = 0.1f;    // Top/Bottom margin between panel and text
     Color32 idleColor;
@@ -146,14 +147,15 @@ public class Label2 : MonoBehaviour
         boardGO.transform.position = this.labelTransform.boardPosition;             // Emplace
         this.UpdateOrientation();                                                   // Orientation        
         boardGO.transform.localScale = this.scaleFactor * this.GetDefaultScaleLabelFactor() * defaultBoardGOScale;    // Size
+        boardLimitDistance = GetPoleMaximumLength(this.labelTransform.anchorPosition);
 
         // ANCHOR
         // Calculate ANCHOR position world coordinates based on data received        
         Vector3 globalAnchorPosition = areaGO.transform.TransformPoint(this.labelTransform.anchorPosition);
         labelTransform.anchorPosition = globalAnchorPosition;
-
         anchorGO.transform.position = this.labelTransform.anchorPosition;           // Emplace
         anchorGO.transform.localScale = this.GetDefaultScaleLabelFactor() * anchorGO.transform.localScale;
+        
         // POLE
         LineRenderer pole = poleGO.GetComponent<LineRenderer>();        
         pole.material = new Material(Shader.Find("Legacy Shaders/Particles/Additive"));
@@ -164,7 +166,36 @@ public class Label2 : MonoBehaviour
         // Add Text to PANEL
         this.UpdateText(this.text);       
     }
-   
+
+    /// <summary>
+    /// This method is an adaptation of the method GetDefaultPositionAnchoredLabel()
+    /// </summary>
+    /// <returns>maximum distance where the label can be dragged</returns>
+    private float GetPoleMaximumLength(Vector3 _anchorPosition )
+    {
+        float factor = 10.0f;       //Factor to multiply the default distance to get the maximum distance allowed
+        Bounds modelBoundingBox = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().Get3DModelBoundingBox();
+
+        float defaultPoleLength;
+        if (modelBoundingBox.size.x > modelBoundingBox.size.y)
+        {
+            //Horizontal
+            defaultPoleLength = Mathf.Sqrt(MathHom3r.Pow2(modelBoundingBox.size.z) + MathHom3r.Pow2(modelBoundingBox.size.y));
+        }
+        else
+        {
+            //Vertical
+            defaultPoleLength = Mathf.Sqrt(MathHom3r.Pow2(modelBoundingBox.size.z) + MathHom3r.Pow2(modelBoundingBox.size.x));
+        }
+
+        defaultPoleLength -= Vector3.Distance(modelBoundingBox.center, _anchorPosition);
+
+        defaultPoleLength = Mathf.Abs(defaultPoleLength);
+
+        return factor * defaultPoleLength;
+    }
+
+
     private void UpdatePoleVisualAspect(LineRenderer pole)
     {
         // Change Pole Colour
@@ -240,7 +271,6 @@ public class Label2 : MonoBehaviour
     public void UpdateBoardPosition(float dragMovementX, float dragMovementY)
     {
         if (this.selectedState != TLabelSelectedState.moving) { return; }        
-        // Debug.Log("UpdateBoardPosition");
 
         // Calculate correction parameter
         Vector3 distanceVector = boardGO.transform.position - Camera.main.transform.position;
@@ -249,8 +279,7 @@ public class Label2 : MonoBehaviour
 
         float verticalAxisCorrection = Mathf.Tan(verticalFieldOfView_rad) * 2.0f * distanceBetweenCameraAndLabel;
         float horizontalAxisCorrection = Mathf.Tan(horizontalFieldOfView_rad) * 2.0f * distanceBetweenCameraAndLabel;
-
-
+        
         // Calculate mapping of mouse x/y 
         Vector3 normalizedXVectorCamera = Camera.main.transform.right.normalized;
         Vector3 xz = normalizedXVectorCamera * horizontalAxisCorrection * dragMovementX;
@@ -261,6 +290,11 @@ public class Label2 : MonoBehaviour
         desiredPosition.boardPosition = boardGO.transform.localPosition + xz;
         desiredPosition.boardPosition.y = boardGO.transform.localPosition.y + verticalAxisCorrection * dragMovementY / Camera.main.transform.up.normalized.y;
 
+        //Check maximun distance
+        float currentDistance = Vector3.Distance(anchorGO.transform.localPosition, desiredPosition.boardPosition);
+        if (currentDistance > this.boardLimitDistance){ return; }
+        
+        //Move the label board
         boardGO.transform.localPosition = desiredPosition.boardPosition;
 
         // Redraw Pole

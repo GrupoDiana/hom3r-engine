@@ -27,6 +27,7 @@ public class LabelManager2 : MonoBehaviour
     CLabelData currentLabel;        // Store the label ID during the anchor point position capture
     GameObject selectedLabel;
     GameObject labelCanvasGO;       // Label Editor Canvas
+    float defaultLabelDistance;     //Distance to place the label by default
 
     void Awake()
     {
@@ -108,7 +109,15 @@ public class LabelManager2 : MonoBehaviour
         hom3r.coreLink.Do(new CPointOnSurfaceCommand(TPointOnSurfaceCommands.StartPointCaptureSpecificArea, _areaId));
     }
 
-
+    /// <summary>
+    /// Add an anchored label when we previosly known all the label data (position, orientation...)
+    /// </summary>
+    /// <param name="_labelId"></param>
+    /// <param name="_areaId"></param>
+    /// <param name="_text"></param>
+    /// <param name="_labelPosition"></param>
+    /// <param name="_anchorPosition"></param>
+    /// <param name="_scaleFactor"></param>
     public void AddAnchoredLabel(string _labelId, string _areaId, string _text, Vector3 _labelPosition, Vector3 _anchorPosition, float _scaleFactor)
     {        
         CLabelTransform labelTransform = new CLabelTransform();
@@ -241,7 +250,10 @@ public class LabelManager2 : MonoBehaviour
         Vector3 boardLocalPosition = areaGO.transform.InverseTransformPoint(poleEnd);
 
         // Store board position        
-        labelTransform.boardPosition = boardLocalPosition; 
+        labelTransform.boardPosition = boardLocalPosition;
+
+        //Store default label distance to use it when restrinting the label movement
+        defaultLabelDistance = Vector3.Distance(_anchorLocalPosition, boardLocalPosition);
 
         return labelTransform;
     }
@@ -342,10 +354,6 @@ public class LabelManager2 : MonoBehaviour
     {
         Bounds modelBoundingBox = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().Get3DModelBoundingBox();
 
-
-        //Calculate real bounding box extents, because the object mass centre could be translate (not in 0,0,0)
-        Vector3 modelBoundingBox_halfSize = modelBoundingBox.size * 0.5f;
-
         // Set direction of pole                       
         Vector3 poleDirection = _anchorPosition - _poleOrigin;
         poleDirection.Normalize();
@@ -363,9 +371,9 @@ public class LabelManager2 : MonoBehaviour
             poleLength = Mathf.Sqrt(MathHom3r.Pow2(modelBoundingBox.size.z) + MathHom3r.Pow2(modelBoundingBox.size.x));
         }
 
-        //poleLength *= 0.5f;
         poleLength -= Vector3.Distance(modelBoundingBox.center, _anchorPosition);
-       
+        poleLength = Mathf.Abs(poleLength);
+
         Vector3 poleEnd = _anchorPosition + poleDirection * poleLength;
 
         return poleEnd;
