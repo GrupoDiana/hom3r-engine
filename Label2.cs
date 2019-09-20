@@ -273,9 +273,11 @@ public class Label2 : MonoBehaviour
         desiredPosition.boardPosition.y = boardGO.transform.localPosition.y + verticalAxisCorrection * dragMovementY / Camera.main.transform.up.normalized.y;
 
         //Check maximun distance
-        float currentDistance = Vector3.Distance(anchorGO.transform.localPosition, desiredPosition.boardPosition);
-        if (currentDistance > this.boardLimitDistance){ return; }
-        
+        if (this.type == TLabelType.anchoredLabel) {
+            float currentDistance = Vector3.Distance(anchorGO.transform.localPosition, desiredPosition.boardPosition);
+            if (currentDistance > this.boardLimitDistance) { return; }
+        }
+                        
         //Move the label board
         boardGO.transform.localPosition = desiredPosition.boardPosition;
 
