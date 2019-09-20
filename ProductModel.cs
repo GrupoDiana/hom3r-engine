@@ -978,6 +978,10 @@ public class CProductModel
         return null;
     }
 
+    /// <summary>
+    /// Return a list of al the areas gameobjects
+    /// </summary>
+    /// <returns></returns>
     public List<GameObject> GetAllAreaGameObjectList() {
         if (dictionariesInitialized) {
             List<GameObject> tempGameObjectList = new List<GameObject>();   //List of game objects to be return    
@@ -985,6 +989,7 @@ public class CProductModel
             {
                 if (pair.Value.gameobject_pointer != null) { tempGameObjectList.Add(pair.Value.gameobject_pointer);}
             }
+            return tempGameObjectList;
         }
         return null;
     }
