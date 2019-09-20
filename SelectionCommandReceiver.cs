@@ -476,6 +476,7 @@ public class CSelectionCommand : CCoreCommand
 
                 case TSelectionCommands.ClearSelectionColour:
                     List<GameObject> temp = m.GetComponent<ModelManager>().ClearAreaSelectionColour();
+                    if (temp == null) { return; }
                     foreach (var obj in temp)
                     {
                         obj.GetComponent<ObjectStateManager>().ResetColours();
