@@ -74,6 +74,19 @@ static class MathHom3r
         // Time it before micro-optimizing though!
         return Mathf.Max(value.x, Mathf.Max(value.y, value.z));
     }
+
+    /// <summary>
+    /// Returns true if x is in range [low..high], else false. Working for negative numbers also.
+    /// </summary>
+    /// <param name="low"></param>
+    /// <param name="high"></param>
+    /// <param name="x"></param>
+    /// <returns></returns>
+    public static bool InRange(int low, int high, int x)
+    {
+        return ((x - high) * (x - low) <= 0);
+    }
+
 }
 
 static class StringHom3r

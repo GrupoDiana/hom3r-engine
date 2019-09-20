@@ -345,35 +345,22 @@ public class LabelManager2 : MonoBehaviour
     }
 
     /// <summary>
-    /// Calculate the pole end position, based on anchor, pole origin and object geometry
+    /// Calculate the pole end position, based on anchor, pole origin and object dimensions
     /// </summary>
     /// <param name="_anchorPosition"></param>
     /// <param name="_poleOrigin"></param>
     /// <returns></returns>
     private Vector3 CalculatePoleEndPosition(Vector3 _anchorPosition, Vector3 _poleOrigin)
     {
-        Bounds modelBoundingBox = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().Get3DModelBoundingBox();
-
         // Set direction of pole                       
         Vector3 poleDirection = _anchorPosition - _poleOrigin;
         poleDirection.Normalize();
+           
+        // Set pole lengh
+        float poleLength = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().CalculateDiagonalBoundingBox();
+        poleLength = 0.2f * poleLength;
 
-        float poleLength;
-        if (modelBoundingBox.size.x > modelBoundingBox.size.y)
-        {
-            //Horizontal
-            poleLength = Mathf.Sqrt(MathHom3r.Pow2(modelBoundingBox.size.z) + MathHom3r.Pow2(modelBoundingBox.size.y));
-
-        }
-        else
-        {
-            //Vertical
-            poleLength = Mathf.Sqrt(MathHom3r.Pow2(modelBoundingBox.size.z) + MathHom3r.Pow2(modelBoundingBox.size.x));
-        }
-
-        poleLength -= Vector3.Distance(modelBoundingBox.center, _anchorPosition);
-        poleLength = Mathf.Abs(poleLength);
-
+        //Set pole end position acording to the lengh and the direction
         Vector3 poleEnd = _anchorPosition + poleDirection * poleLength;
 
         return poleEnd;
@@ -413,7 +400,11 @@ public class LabelManager2 : MonoBehaviour
         this.UpdateCanvasSliders(this.selectedLabel.GetComponent<Label2>().GetLabelType());
         this.selectedLabel.GetComponent<Label2>().SelectLabel(true);    // Change label state to selected state
         this.selectedLabel.GetComponent<Label2>().StartMovingLabel();   // Change label state to moving
+        //Block selection
+        hom3r.coreLink.Do(new CSelectionCommand(TSelectionCommands.BlockSelection, true));
     }
+
+
 
     /// <summary>
     /// Finish label drag gesture
@@ -423,6 +414,8 @@ public class LabelManager2 : MonoBehaviour
         if (this.selectedLabel == null) { return; }
         this.selectedLabel.GetComponent<Label2>().StopMovingLabel();   // Change label state
         this.EmitLabelData();
+        //Unblock selection
+        hom3r.coreLink.Do(new CSelectionCommand(TSelectionCommands.BlockSelection, false));
     }
 
     /// <summary>

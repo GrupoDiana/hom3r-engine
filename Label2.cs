@@ -168,31 +168,16 @@ public class Label2 : MonoBehaviour
     }
 
     /// <summary>
-    /// This method is an adaptation of the method GetDefaultPositionAnchoredLabel()
+    /// Method to calculate the maximum distance where the anchored label can be placed
     /// </summary>
-    /// <returns>maximum distance where the label can be dragged</returns>
+    /// <returns>anchored label pole maximum lengh</returns>
     private float GetPoleMaximumLength(Vector3 _anchorPosition )
     {
-        float factor = 10.0f;       //Factor to multiply the default distance to get the maximum distance allowed
-        Bounds modelBoundingBox = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().Get3DModelBoundingBox();
-
-        float defaultPoleLength;
-        if (modelBoundingBox.size.x > modelBoundingBox.size.y)
-        {
-            //Horizontal
-            defaultPoleLength = Mathf.Sqrt(MathHom3r.Pow2(modelBoundingBox.size.z) + MathHom3r.Pow2(modelBoundingBox.size.y));
-        }
-        else
-        {
-            //Vertical
-            defaultPoleLength = Mathf.Sqrt(MathHom3r.Pow2(modelBoundingBox.size.z) + MathHom3r.Pow2(modelBoundingBox.size.x));
-        }
-
-        defaultPoleLength -= Vector3.Distance(modelBoundingBox.center, _anchorPosition);
-
-        defaultPoleLength = Mathf.Abs(defaultPoleLength);
-
-        return factor * defaultPoleLength;
+        float factor = 4.0f;       //Factor to multiply the default distance to get the maximum distance allowed
+        
+        float poleLengh = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().CalculateDiagonalBoundingBox();
+        poleLengh = 0.2f * poleLengh;
+        return factor * poleLengh;
     }
 
 
@@ -224,19 +209,16 @@ public class Label2 : MonoBehaviour
 
     /// <summary>
     /// Calculate a scale factor in terms of 3D bounding box. 
-    /// It is calculated as the x% of the size of the main axis of the bounding box
+    /// It is calculated as the % of the size of the main axis of the bounding box
     /// </summary>
     /// <returns>Scale factor to be applied</returns>
     private float GetDefaultScaleLabelFactor()
     {
         Bounds _3DModelBoundingBox = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().Get3DModelBoundingBox();
-        
-        if (_3DModelBoundingBox.size.y > _3DModelBoundingBox.size.x)
-        {            
-            return (defaultScaleFactor  * _3DModelBoundingBox.size.y);
-        } else {
-            return (defaultScaleFactor * _3DModelBoundingBox.size.x);
-        }
+
+        float maxBBSize = Mathf.Max(_3DModelBoundingBox.size.x, _3DModelBoundingBox.size.y, _3DModelBoundingBox.size.z);
+
+        return (defaultScaleFactor * maxBBSize);
     }
 
 

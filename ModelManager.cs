@@ -773,6 +773,57 @@ public class ModelManager : MonoBehaviour {
         return totalBB;
     }
 
+    public float CalculateDiagonalBoundingBox(bool force = false)
+    {
+        float diagonal = 0;
+        Bounds modelBoundingBox = Get3DModelBoundingBox(force);
+
+        float BBx = modelBoundingBox.size.x;
+        float BBy = modelBoundingBox.size.y;
+        float BBz = modelBoundingBox.size.z;
+
+        float low = (Mathf.Min(BBx, BBy, BBz));
+        float high = 5.0f * low; // We consider that 5 times bigger is out of range
+
+        if (BBx < high && BBy < high && BBz < high)
+        {
+            //Calculate Diagonal3D
+            diagonal = Mathf.Sqrt(MathHom3r.Pow2(modelBoundingBox.size.x) + MathHom3r.Pow2(modelBoundingBox.size.y) + MathHom3r.Pow2(modelBoundingBox.size.z));
+        }
+        //Calculate diagonal 2D or 1D
+        else if (BBx > high)
+        {
+            if (BBy > high)
+                diagonal = MathHom3r.Pow2(BBz);
+            else if (BBz > high)
+                diagonal = MathHom3r.Pow2(BBy);
+            else
+                diagonal = Mathf.Sqrt(MathHom3r.Pow2(BBy) + MathHom3r.Pow2(BBz));
+        }
+
+        else if (BBy > high)
+        {
+            if (BBx > high)
+                diagonal = MathHom3r.Pow2(BBz);
+            else if (BBz > high)
+                diagonal = MathHom3r.Pow2(BBx);
+            else 
+                diagonal = Mathf.Sqrt(MathHom3r.Pow2(BBx) + MathHom3r.Pow2(BBz));
+        }
+
+        else if (BBz > high)
+        {
+            if (BBx > high)
+                diagonal = MathHom3r.Pow2(BBy);
+            else if (BBy > high)
+                diagonal = MathHom3r.Pow2(BBx);
+            else
+                diagonal = Mathf.Sqrt(MathHom3r.Pow2(BBx) + MathHom3r.Pow2(BBy));
+        }
+
+        return diagonal;
+    }
+
     /////////////////////////////
     // ModelManagement Methods //
     /////////////////////////////
