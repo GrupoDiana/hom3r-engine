@@ -14,14 +14,21 @@ public class OcclusionManager : MonoBehaviour
     // REMOVE                   //
     //////////////////////////////
     
+    public void RemoveArea(string areaId, THom3rCommandOrigin _origin)
+    {
+        GameObject objToRemove = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetAreaGameObject_ByAreaID(areaId);
+        this.RemoveGameObject(objToRemove, areaId, _origin);
+    }
+
     /// <summary>Remove a game object from the scene</summary>
-    /// <param name="obj">Pointer to the object to be hide</param>
-    public void RemoveGameObject(GameObject obj)
+    /// <param name="objToRemove">Pointer to the object to be hide</param>
+    public void RemoveGameObject(GameObject objToRemove, string areaID = null, THom3rCommandOrigin _origin = THom3rCommandOrigin.ui)
     {
         //1. De confirm the area/special node if it's confirmed
-        hom3r.coreLink.Do(new CSelectionCommand(TSelectionCommands.ConfirmationOff, obj), Constants.undoNotAllowed);
-        //2. Perform the remove algorithm
-        ExecuteRemove(obj);
+        hom3r.coreLink.Do(new CSelectionCommand(TSelectionCommands.ConfirmationOff, objToRemove), Constants.undoNotAllowed);
+        //2. Perform the remove algorithm        
+        if (areaID == null) { areaID = objToRemove.GetComponent<ObjectStateManager>().areaID; }
+        ExecuteRemove(areaID, _origin);
         //3. Update mode
         hom3r.state.currentVisualizationMode = THom3rIsolationMode.WITH_REMOVEDNODES;
         //4. Re-focus
@@ -30,10 +37,10 @@ public class OcclusionManager : MonoBehaviour
     
     /// <summary>Change an object to remove state</summary>
     /// <param name="goToRemove"></param>
-    private void ExecuteRemove(GameObject goToRemove)
+    private void ExecuteRemove(string areaID, THom3rCommandOrigin _origin)
     {
         //Get the areaID of the area selected        
-        string areaID = goToRemove.GetComponent<ObjectStateManager>().areaID;
+        //string areaID = goToRemove.GetComponent<ObjectStateManager>().areaID;
         if (areaID != null)
         {
             //Filled _areaList to be selected in a different way, depending of the selection mode
@@ -46,14 +53,17 @@ public class OcclusionManager : MonoBehaviour
                     List<GameObject> areasOfaLeaf = this.GetComponent<ModelManager>().GetAreaGameObjectList_ByLeafID(leafID);
                     foreach (GameObject go in areasOfaLeaf)
                     {
-                        //Desconfirm the area special node if it's confirmed
+                        //Desconfirm the area if it's confirmed
                         hom3r.coreLink.Do(new CSelectionCommand(TSelectionCommands.ConfirmationOff, go), Constants.undoNotAllowed);
                         //Change the state of the object to hide (this method will be in charge of changing the object material)
                         go.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Remove_On, 0.8f);
                     }
-                    // Send list of areas to WebApp
-                    List<string> areaIDList = this.GetComponent<ModelManager>().GetAreaList_ByLeafID(leafID);
-                    hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.RemovedPart_Activate, areaIDList));
+                    // Send list of areas to WebApp only if the action starts in the UserInterface
+                    if (_origin == THom3rCommandOrigin.ui)
+                    {                    
+                        List<string> areaIDList = this.GetComponent<ModelManager>().GetAreaList_ByLeafID(leafID);
+                        hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.RemovedPart_Activate, areaIDList));
+                    }                    
                 }
                 else { Debug.LogError("areaID not found"); }
             }
@@ -74,8 +84,14 @@ public class OcclusionManager : MonoBehaviour
         }
     }
 
+    public void ShowRemovedArea(string areaID, THom3rCommandOrigin _origin, float duration = 0.0f)
+    {
+        GameObject objToShow = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetAreaGameObject_ByAreaID(areaID);
+        this.ShowRemovedGameObject(objToShow, duration, _origin);
 
-    public void ShowRemovedGameObject(GameObject obj, float duration = 0.0f)
+    }
+
+    public void ShowRemovedGameObject(GameObject obj, float duration = 0.0f, THom3rCommandOrigin _origin = THom3rCommandOrigin.ui)
     {
         List<string> areaIdList = new List<string>();
 
@@ -87,7 +103,7 @@ public class OcclusionManager : MonoBehaviour
                 areaIdList.Add(obj.GetComponent<ObjectStateManager>().areaID);
             }
 
-            if (areaIdList.Count != 0)
+            if ((areaIdList.Count != 0) && (_origin == THom3rCommandOrigin.ui))
             {
                 hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.RemovedPart_Deactivated, areaIdList));
             }

@@ -85,7 +85,7 @@ public enum TOcclusionCommands
 {
     EnableSmartTransparency, DisableSmartTransparency, ResetSmartTransparency, SetSmartTransparencyAlphaLevel,
     Isolate,
-    RemoveGameObject, ShowRemovedGameObject,
+    RemoveGameObject, ShowRemovedGameObject, RemoveArea, ShowRemovedArea,
     ShowAll,
     StartStopRemoveMode,
     StartStopGlobalExplosion, StartStopLayoutExplosionMode, OneObjectLayoutExplosion
@@ -97,6 +97,7 @@ public class COcclusionCommandData
     public TOcclusionCommands command;
 
     public List<GameObject> listRemovedObjets { get; set; }
+    public string areaId { get; set; }
     public THom3rIsolationMode visualizationMode { get; set; }
     public GameObject obj { get; set; }
     public bool confirmedObject { get; set; }
@@ -130,6 +131,13 @@ public class COcclusionCommand : CCoreCommand
         data = new COcclusionCommandData(_command);
 
         data.listRemovedObjets = _listRemovedObjets;
+    }
+    public COcclusionCommand(TOcclusionCommands _command, string _areaId, THom3rCommandOrigin _origin)
+    {
+        data = new COcclusionCommandData(_command);
+
+        data.areaId = _areaId;
+        data.origin = _origin;
     }
     public COcclusionCommand(TOcclusionCommands _command, THom3rIsolationMode _currentMode, List<GameObject> _listRemovedObjets)
     {
@@ -259,15 +267,19 @@ public class COcclusionCommand : CCoreCommand
 
                 case TOcclusionCommands.RemoveGameObject:
                     if (!hom3r.state.selectionBlocked)
-                    {                       
-                        hom3r.coreLink.GetComponent<OcclusionManager>().RemoveGameObject(data.obj);
+                    {
+                        hom3r.quickLinks.scriptsObject.GetComponent<OcclusionManager>().RemoveGameObject(data.obj);
                     }
                     break;
-
-                case TOcclusionCommands.ShowRemovedGameObject:
-                    hom3r.quickLinks.scriptsObject.GetComponent<OcclusionManager>().ShowRemovedGameObject(data.obj, 1f);
+                case TOcclusionCommands.RemoveArea:                    
+                    hom3r.quickLinks.scriptsObject.GetComponent<OcclusionManager>().RemoveArea(data.areaId, data.origin);                    
                     break;
-
+                case TOcclusionCommands.ShowRemovedGameObject:
+                    hom3r.quickLinks.scriptsObject.GetComponent<OcclusionManager>().ShowRemovedGameObject(data.obj, 1.0f);
+                    break;
+                case TOcclusionCommands.ShowRemovedArea:
+                    hom3r.quickLinks.scriptsObject.GetComponent<OcclusionManager>().ShowRemovedArea(data.areaId, data.origin, 1.0f);
+                    break;
                 ////////  EXPLOSION  //////////////
                 case TOcclusionCommands.StartStopGlobalExplosion:
                     if (hom3r.state.currentExplosionMode == THom3rExplosionMode.EXPLODE)
