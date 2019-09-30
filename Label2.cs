@@ -30,7 +30,7 @@ public class Label2 : MonoBehaviour
     float defaultScaleFactor;               // To save the board default scale
     Vector3 defaultBoardGOScale;            // To save the original board GameObject scale
     float scaleFactor;                      // Factor to modify the board default scale
-    float boardLimitDistance;             // Maximum distance to place the board;
+    float anchoredLabelLimitDistance;             // Maximum distance to place the board;
 
     float panelGOPadding = 0.1f;    // Top/Bottom margin between panel and text
     Color32 idleColor;
@@ -147,7 +147,7 @@ public class Label2 : MonoBehaviour
         boardGO.transform.position = this.labelTransform.boardPosition;             // Emplace
         this.UpdateOrientation();                                                   // Orientation        
         boardGO.transform.localScale = this.scaleFactor * this.GetDefaultScaleLabelFactor() * defaultBoardGOScale;    // Size
-        boardLimitDistance = GetPoleMaximumLength(this.labelTransform.anchorPosition);
+        anchoredLabelLimitDistance = GetPoleMaximumLength(this.labelTransform.anchorPosition);
 
         // ANCHOR
         // Calculate ANCHOR position world coordinates based on data received        
@@ -275,9 +275,17 @@ public class Label2 : MonoBehaviour
         //Check maximun distance
         if (this.type == TLabelType.anchoredLabel) {
             float currentDistance = Vector3.Distance(anchorGO.transform.localPosition, desiredPosition.boardPosition);
-            if (currentDistance > this.boardLimitDistance) { return; }
+            if (currentDistance > this.anchoredLabelLimitDistance) { return; }
         }
-                        
+        else if (this.type == TLabelType.boardLabel)
+        {
+            float currentDistance = Vector3.Distance(Vector3.zero, desiredPosition.boardPosition);
+            Bounds modelBoundingBox = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().Get3DModelBoundingBox();
+            float maxBBSize = Mathf.Max(modelBoundingBox.size.x, modelBoundingBox.size.y, modelBoundingBox.size.z);
+
+            if (currentDistance > maxBBSize) { return; }
+        }
+
         //Move the label board
         boardGO.transform.localPosition = desiredPosition.boardPosition;
 
