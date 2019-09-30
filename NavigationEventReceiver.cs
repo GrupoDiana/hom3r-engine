@@ -28,11 +28,20 @@ public class NavigationEventReceiver : MonoBehaviour {
         {
             switch (_event.data.commandEvent)
             {
-                case TCoreEvent.MouseManager_RightButtonDragMovement:
+                case TCoreEvent.MouseManager_LeftButtonDragMovement:
                     hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().SetMouseMovement(_event.data.mouseDragMovementX, _event.data.mouseDragMovementY, 0.0f);
+                    break;
+                case TCoreEvent.MouseManager_CentralButtonDown:
+                    hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().SetActivePanNavitagion(true);
+                    break;
+                case TCoreEvent.MouseManager_CentralButtonUp:
+                    hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().SetActivePanNavitagion(false);
                     break;
                 case TCoreEvent.MouseManager_WheelMovement:
                     hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().SetMouseMovement(0.0f, 0.0f, _event.data.mouseWhellMovement);
+                    break;
+                case TCoreEvent.MouseManager_CentralButtonDragMovement:
+                    hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().SetMouseMovement(_event.data.mouseDragMovementX, _event.data.mouseDragMovementY, 0.0f);
                     break;
                 case TCoreEvent.ModelManagement_3DLoadSuccess:                    
                     hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().InitNavigation(_event.data.text);

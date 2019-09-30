@@ -12,7 +12,7 @@ public enum TCoreEvent
     ModelManagement_ProductModelLoadSuccess, ModelManagement_ModelLoadError,
     ModelManagement_3DLoadSuccess, ModelManagement_3DLoadError, ModelManagement_3DListLoadSuccess,
     ModelManagement_ShowMessage,
-    ModelManagement_ReadyToLoadExplosionModel,
+    ModelManagement_ReadyToLoadExplosionModel, 
     ModelManagement_FileDownloadBegin, ModelManagement_FileDownloadEnd,
     ModelManagement_ResetModel,
     ModelManagement_ProductModelEditOk, ModelManagement_ProductModelEditError,
@@ -23,10 +23,13 @@ public enum TCoreEvent
     MouseManager_MousePosition,
     MouseManager_LeftButtonUp, MouseManager_LeftButtonDown,
     MouseManager_RightButtonUp, MouseManager_RightButtonDown,
-    MouseManager_RightButtonDragMovement, MouseManager_WheelMovement,
+    MouseManager_CentralButtonUp, MouseManager_CentralButtonDown,
+    MouseManager_LeftButtonDragMovement,
+    MouseManager_WheelMovement,
+    MouseManager_CentralButtonDragMovement,
 
-    MouseManager_MouseDragGestureEnd, MouseManager_MouseDragGestureBegin,
-    MouseManager_MouseDragGesture,
+    MouseManager_LabelDragGestureEnd, MouseManager_LabelDragGestureBegin,
+    MouseManager_LabelDragGesture,
 
     TouchManager_OneSelectionTouch,
     TouchManager_DragMovementBegin,TouchManager_DragMovement, TouchManager_DragMovementEnd,
@@ -49,10 +52,12 @@ public enum TCoreEvent
     UI_SmartTransparency_AlphaLevelUpdated, UI_SmartTransparency_Enabled, UI_SmartTransparency_Disabled,
 
     Navigation_NavigationInitiaded,
+    Navigation_PanNavigation_Enabled, Navigation_PanNavigation_Disabled,
     Navigation_NavigationToFocusEnd, Navigation_ApproximationEnd,
     Navigation_PseudoLatitudeMovement, Navigation_PseudoLongitudeMovement, Navigation_PseudoRadioMovement,
     Navigation_CameraMoved,
 
+    Occlusion_ExplosionModel_Empty,
     Occlusion_ExplosionBegin, Occlusion_ExplosionEnd, Occlusion_ExplodingAreas, Occlusion_ImplodingAreas,
     Occlusion_ExplosionGlobalON, Occlusion_ExplosionGlobalOFF,
     Occlusion_ExplosionChangedMode,

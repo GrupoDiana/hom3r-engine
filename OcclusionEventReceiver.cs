@@ -105,9 +105,8 @@ public class OcclusionEventReceiver : MonoBehaviour {
                 case TCoreEvent.ObjectState_AreaRemoveOff:
                     hom3r.quickLinks.scriptsObject.GetComponent<RemoveManager>().RemoveFromRemovedList(_event.data.obj);
                     break;
-                case TCoreEvent.ModelManagement_ReadyToLoadExplosionModel:
-                    string explosionXML_url = _event.data.text;
-                    hom3r.quickLinks._3DModelRoot.GetComponent<ExplosionManager>().LoadProducExplosionModel(explosionXML_url);
+                case TCoreEvent.ModelManagement_ReadyToLoadExplosionModel:                    
+                    hom3r.quickLinks._3DModelRoot.GetComponent<ExplosionManager>().LoadProducExplosionModel(_event.data.text);
                     break;
                 case TCoreEvent.ModelManagement_ResetModel:
                     hom3r.quickLinks._3DModelRoot.GetComponent<ExplosionManager>().Clear();        // Clear Explosion  

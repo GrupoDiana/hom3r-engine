@@ -259,6 +259,12 @@ public class ExplosionManager : MonoBehaviour
 
     public void LoadProducExplosionModel(string url)
     {
+        // Check if it is empty model
+        if (url == null || url == "")
+        {            
+            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Occlusion_ExplosionModel_Empty));
+            return;
+        }
         // Create product from XML file        
         if (Application.isEditor)
         {            

@@ -143,10 +143,10 @@ public class ModelManager : MonoBehaviour {
     /// <param name="url">Product explosion model</param>
     private void LoadExplosionModel(string url)
     {
-        if ((url != null) && (url != ""))
-        {
+        //if ((url != null) && (url != ""))
+        //{
             hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.ModelManagement_ReadyToLoadExplosionModel, explosionXML_url));
-        }
+        //} 
     }
 
 

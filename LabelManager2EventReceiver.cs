@@ -37,13 +37,13 @@ public class LabelManager2EventReceiver : MonoBehaviour
                 case TCoreEvent.Navigation_CameraMoved:
                     hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().UpdateAnchoredLabelsOrientation();
                     break;
-                case TCoreEvent.MouseManager_MouseDragGestureBegin:
+                case TCoreEvent.MouseManager_LabelDragGestureBegin:
                     hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().StartEditLabel(_event.data.obj);
                     break;
-                case TCoreEvent.MouseManager_MouseDragGestureEnd:
+                case TCoreEvent.MouseManager_LabelDragGestureEnd:
                     hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().StopDragLabelLabel();
                     break;
-                case TCoreEvent.MouseManager_MouseDragGesture:
+                case TCoreEvent.MouseManager_LabelDragGesture:
                     hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().DragLabel(_event.data.mouseDragMovementX, _event.data.mouseDragMovementY);                   
                     break;
                 case TCoreEvent.Navigation_NavigationInitiaded:                    

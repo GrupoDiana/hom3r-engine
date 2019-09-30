@@ -7,6 +7,8 @@ public enum TMouseMapping { standard, inverse }
 public class ConfigurationManager : MonoBehaviour
 {    
     private bool UIEnabled;                     // UI enable or not    
+    private bool UIHierarchyPanelEnabled;       // UI Hierarchy panel enable or not
+    private bool UIOcclusionPanelEnabled;       // UI Occlusion panel enable or not
 
     private bool uiSelectionEnabled;            // Selection by the UI enabled or not
     private bool uiAutomaticSelectionEnabled;   // This controlled what happens when the user click over a object
@@ -24,6 +26,9 @@ public class ConfigurationManager : MonoBehaviour
     private void Awake()
     {
         UIEnabled                   = true;     // Initially the UI is activated
+        UIHierarchyPanelEnabled     = true;     // Initially the UI Hierarchy panel is activated
+        UIOcclusionPanelEnabled     = true;     // Initially the UI Occlusion panel is activated
+
         uiSelectionEnabled          = true;     // Initially the selection from UI is activated
         uiAutomaticSelectionEnabled = true;     // Initially direct selection is activated  
         
@@ -62,6 +67,47 @@ public class ConfigurationManager : MonoBehaviour
     {
         return UIEnabled;
     }
+
+    /// <summary>
+    /// Get if the UI is visible or not. NOT WORKING YET
+    /// </summary>
+    /// <returns>True if the UI is activated</returns>
+    public bool GetActiveUIHierarchyPanel()
+    {
+        return UIHierarchyPanelEnabled;
+    }
+
+    /// <summary>
+    /// Set if the UI is visible or not. NOT WORKING YET
+    /// </summary>
+    /// <param name="_enabled">true UI is visible</param>
+    public void SetActiveUIHierarchyPanel(bool _enabled)
+    {
+        UIHierarchyPanelEnabled = _enabled;
+        this.SendUpdateEvent();
+    }
+
+
+    /// <summary>
+    /// Get if the UI is visible or not. NOT WORKING YET
+    /// </summary>
+    /// <returns>True if the UI is activated</returns>
+    public bool GetActiveUIOcclusionPanel()
+    {
+        return UIOcclusionPanelEnabled;
+    }
+
+    /// <summary>
+    /// Set if the UI is visible or not. NOT WORKING YET
+    /// </summary>
+    /// <param name="_enabled">true UI is visible</param>
+    public void SetActiveUIOcclusionPanel(bool _enabled)
+    {
+        UIOcclusionPanelEnabled = _enabled;
+        this.SendUpdateEvent();
+    }
+
+
 
     /////////////////////
     // Selection

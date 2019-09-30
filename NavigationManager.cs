@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public enum TMainAxis { Vertical, Horizontal};
+public enum TNavigationMode { regular, pan };
 
 public class NavigationManager : MonoBehaviour {
         
@@ -18,8 +19,10 @@ public class NavigationManager : MonoBehaviour {
 
     // Navigation mode parameters
     TMainAxis mainAxis;                         // Store the 3d model main axis for navigation
+    TNavigationMode navigationMode;             // Which navigation system are we using
     CCoordinateSystemManager navigationSystem;  // Define the navigation mode
-    
+    PanNavigatioMangager panNavigationSystem;
+
     // Control parameters
     bool navigationInitialized;          // Store if the navigation has been initialized or not 
 
@@ -45,6 +48,8 @@ public class NavigationManager : MonoBehaviour {
         //navigationSystem = new CSphericalCoordinatesManager();
         //navigationSystem = new CLimitedSphericalCoordinatesManager();     
         navigationSystem = new CEllipticalCoordinatesManager();
+        panNavigationSystem = new PanNavigatioMangager();
+        navigationMode = TNavigationMode.regular;
 
         navigationInitialized = false;       // This parameter controls when the navigation has been initialized
     }
@@ -64,12 +69,13 @@ public class NavigationManager : MonoBehaviour {
         InitOrbitPlanePosition();                                   // Initialize Orbit Plane position
         InitCameraRotation();                                       // Initialize Camera rotation
         InitHelpPlaneSize(modelBoundingBox);
-        cameraInitialPosition = CalculateInitialCameraPosition();   // Calculate the initial Camera position
-        Vector3 extentsVector = Get3DModelExtentsVector(modelBoundingBox); // Get extents vector from bounding box in terms of main axis
+        cameraInitialPosition = CalculateInitialCameraPosition();           // Calculate the initial Camera position
+        Vector3 extentsVector = Get3DModelExtentsVector(modelBoundingBox);  // Get extents vector from bounding box in terms of main axis
         Vector2 fielOfViewVector = GetFieldOfView();
         Vector3 pointToLook;    //Vector to store direction in which the camera has to look
         if (navigationSystem.Init(extentsVector, cameraInitialPosition, fielOfViewVector, out cameraMinimumDistance, out pointToLook))
-        {            
+        {
+            panNavigationSystem.Init(extentsVector, fielOfViewVector, cameraMinimumDistance);
             navigationInitialized = true;            
             MoveCameraWithinThePlane(cameraInitialPosition);        // Move camera to the initial position
             InitPseudoRadioCorrection();
@@ -232,13 +238,35 @@ public class NavigationManager : MonoBehaviour {
             //child is your child transform
         }
     }
+
+
+
     ////////////////////////////
     // MOUSE RECEPTION METHODS
     ////////////////////////////
 
-    /// <summary>Receive the movement of the mouse</summary>
-    /// <param name="mouseMovement">Movement of the mouse in % of the screen size</param>
+    /// <summary>
+    /// Receive the movement of the mouse and transfers it to the appropriate navigation system
+    /// </summary>
+    /// <param name="mouseMovementX">Movement of the mouse in X axis, % of the screen size</param>
+    /// <param name="mouseMovementY">Movement of the mouse in Y axis, % of the screen size</param>
+    /// <param name="mouseWhellMovement">Movement of the whell mouse, % of the screen size</param>
     public void SetMouseMovement(float mouseMovementX, float mouseMovementY, float mouseWhellMovement)
+    {
+        if (this.navigationMode == TNavigationMode.regular)
+        {
+            this.SetMouseMovementRegularNavigation(mouseMovementX, mouseMovementY, mouseWhellMovement);
+        } else
+        {
+            this.SetMouseMovementPanNavigation(mouseMovementX, mouseMovementY, mouseWhellMovement);
+        }
+    }
+
+    /// <summary>Receive the movement of the mouse and apply them</summary>
+    /// <param name="mouseMovementX">Movement of the mouse in X axis, % of the screen size</param>
+    /// <param name="mouseMovementY">Movement of the mouse in Y axis, % of the screen size</param>
+    /// <param name="mouseWhellMovement">Movement of the whell mouse, % of the screen size</param>
+    private void SetMouseMovementRegularNavigation(float mouseMovementX, float mouseMovementY, float mouseWhellMovement)
     {
         float pseudoLatitude;
         float pseudoLongitude;
@@ -302,7 +330,17 @@ public class NavigationManager : MonoBehaviour {
             hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Navigation_CameraMoved));                 
         }
     }
-   
+
+    /// <summary>Receive the movement of the mouse and apply them</summary>
+    /// <param name="mouseMovementX">Movement of the mouse in X axis, % of the screen size</param>
+    /// <param name="mouseMovementY">Movement of the mouse in Y axis, % of the screen size</param>
+    /// <param name="mouseWhellMovement">Movement of the whell mouse, % of the screen size</param>
+    private void SetMouseMovementPanNavigation(float mouseMovementX, float mouseMovementY, float mouseWhellMovement)
+    {             
+        Vector3 newPlanePosition = panNavigationSystem.CalculatePlanePosition(mouseMovementX, mouseMovementY, this.transform.position);        
+        this.MovePlane(newPlanePosition);
+    }
+
     private float CalculatePseudoRadioVariation(float mouseWheelMovement)
     {       
         return mouseWheelMovement * pseudoRadioCorrection;
@@ -423,6 +461,16 @@ public class NavigationManager : MonoBehaviour {
     // CAMERA Private Methods    
     /////////////////////////////
 
+    /// <summary>Moves the navigation plane</summary>
+    /// <param name="newPlanePosition">New plane position</param>
+    private void MovePlane(Vector3 newPlanePosition)
+    {
+        if (navigationInitialized)
+        {
+            this.transform.position = newPlanePosition;
+        }
+    }
+
     /// <summary>Moves the camera within the plane to a new position.</summary>
     /// <param name="newCameraPosition">New position of the camera. 
     /// The y-coordinate of the position will be ignored.</param>
@@ -469,6 +517,24 @@ public class NavigationManager : MonoBehaviour {
         }
     }
 
-   
+    
+    ////////////////////////////
+    // MODE Methods
+    ////////////////////////////    
+    /// <summary>
+    /// Set if the Pan navigation is activated or not
+    /// </summary>
+    /// <param name="_enabled">True if pan navigation has to be enabled</param>
+    public void SetActivePanNavitagion(bool _enabled)
+    {
+        if (_enabled) {
+            this.navigationMode = TNavigationMode.pan;
+            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Navigation_PanNavigation_Enabled));
+        } else {
+            this.navigationMode = TNavigationMode.regular;
+            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Navigation_PanNavigation_Disabled));
+        }
+    }
+
 }
 
