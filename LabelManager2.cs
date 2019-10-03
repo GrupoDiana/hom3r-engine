@@ -458,7 +458,18 @@ public class LabelManager2 : MonoBehaviour
         Destroy(labelCanvasGO);
         selectedLabel = null;
         hom3r.state.currentLabelMode = THom3rLabelMode.show;
+        hom3r.state.navigationBlocked = false;        
+        StartCoroutine(UnBlockSelectionWitDelay(0.1f));
     }
+
+
+    IEnumerator UnBlockSelectionWitDelay(float _delay)
+    {     
+        yield return new WaitForSeconds(_delay);
+        hom3r.state.selectionBlocked = false;
+    }
+
+
 
     ///////////////////
     // CANVAS       ///
@@ -473,6 +484,19 @@ public class LabelManager2 : MonoBehaviour
         tempGO.transform.Find("Panel_LabelEditor").gameObject.transform.Find("SliderRotation").gameObject.GetComponent<Slider>().onValueChanged.AddListener(OnChangeLabelEditorSliderRotation);
         tempGO.transform.Find("Panel_LabelEditor").gameObject.transform.Find("SliderScale").gameObject.GetComponent<Slider>().onValueChanged.AddListener(OnChangeLabelEditorSliderScale);
         tempGO.transform.Find("Panel_LabelEditor").gameObject.transform.Find("ImageClose").gameObject.GetComponent<Button>().onClick.AddListener(OnClickLabelCloseButton);
+        //tempGO.transform.Find("Panel_LabelEditor").gameObject.GetComponent<EventTrigger>().OnPointerEnter(OnPointerEnterEvent);
+
+        // Add event to POINTER ENTER        
+        EventTrigger.Entry entry = new EventTrigger.Entry();
+        entry.eventID = EventTriggerType.PointerEnter;
+        entry.callback.AddListener((data) => { OnPointerEnterDelegate((PointerEventData)data); });       
+        tempGO.transform.Find("Panel_LabelEditor").gameObject.GetComponent<EventTrigger>().triggers.Add(entry);
+        // Add event to POINTER Exit
+        EventTrigger.Entry entry2 = new EventTrigger.Entry();
+        entry2.eventID = EventTriggerType.PointerExit;
+        entry2.callback.AddListener((data) => { OnPointerExitDelegate((PointerEventData)data); });
+        tempGO.transform.Find("Panel_LabelEditor").gameObject.GetComponent<EventTrigger>().triggers.Add(entry2);
+
 
         return tempGO;
     }
@@ -489,15 +513,21 @@ public class LabelManager2 : MonoBehaviour
     }
 
     private void OnClickLabelCloseButton()
-    {
-        /*selectedLabel.GetComponent<Label2>().SelectLabel(false);       
-        Destroy(labelCanvasGO);
-        selectedLabel = null;
-        hom3r.state.currentLabelMode = THom3rLabelMode.show;*/
-        this.CloseEditMode();
+    {        
+        this.CloseEditMode();        
     }
 
-    
+    public void OnPointerEnterDelegate(PointerEventData data)
+    {
+        hom3r.state.navigationBlocked = true;
+        hom3r.state.selectionBlocked = true;
+    }
+
+    public void OnPointerExitDelegate(PointerEventData data)
+    {
+        hom3r.state.navigationBlocked = false;
+        hom3r.state.selectionBlocked = false;
+    }
 
     private void UpdateCanvasSliders(TLabelType _labelType)
     {
