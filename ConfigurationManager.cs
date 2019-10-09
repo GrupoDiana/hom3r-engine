@@ -21,13 +21,16 @@ public class ConfigurationManager : MonoBehaviour
     private bool navigationZoomEnabled;         // This control if the navigation Zoom is On or not
     private TNavigationSystem navigationSystem; // This control the navigation system that is going to be used
 
-    private bool LabelEditionEnabled;            // This control if the labels can be edit or not
+    private bool labelEditionEnabled;           // This control if the labels can be edit or not
+
+    private bool explosionEnabled;              // This control if the explosion is enabled or not
 
     private void Awake()
     {
         UIEnabled                   = true;     // Initially the UI is activated
         UIHierarchyPanelEnabled     = true;     // Initially the UI Hierarchy panel is activated
         UIOcclusionPanelEnabled     = true;     // Initially the UI Occlusion panel is activated
+        explosionEnabled            = true;        
 
         uiSelectionEnabled          = true;     // Initially the selection from UI is activated
         uiAutomaticSelectionEnabled = true;     // Initially direct selection is activated  
@@ -41,8 +44,9 @@ public class ConfigurationManager : MonoBehaviour
         navigationZoomEnabled       = true;
         navigationSystem            = TNavigationSystem.Spherical;
 
-        LabelEditionEnabled         = true;
+        labelEditionEnabled         = true;
 
+        
         Debug.Log("Configuration Manager Awake");     
     } 
 
@@ -252,24 +256,46 @@ public class ConfigurationManager : MonoBehaviour
     // Label Edition
     /////////////////////
     /// <summary>
-    /// Set if the edition is activated or not. 
+    /// Set if the label edition is activated or not. 
     /// </summary>
     /// <param name="_enabled">true activate the mouse interaction</param>
     public void SetActiveLabelEdition(bool _enabled)
     {
-        LabelEditionEnabled = _enabled;
+        labelEditionEnabled = _enabled;
         this.SendUpdateEvent();
     }
     /// <summary>
-    /// Get if the navigation is activated or not. 
+    /// Get if the label edition is activated or not. 
     /// </summary>
     /// <returns>True if mouse interaction is activated</returns>
     public bool GetActiveLabelEdition()
     {
-        return LabelEditionEnabled;
+        return labelEditionEnabled;
     }
 
-
+    /////////////////////
+    // Explosion
+    /////////////////////
+    /// <summary>
+    /// Set if the explosion is activated or not. 
+    /// </summary>
+    /// <param name="_enabled">true activate the mouse interaction</param>
+    public void SetActiveExplosion(bool _enabled)
+    {
+        explosionEnabled = _enabled;
+        this.SendUpdateEvent();
+    }
+    /// <summary>
+    /// Get if the explosion is activated or not. 
+    /// </summary>
+    /// <returns>True if mouse interaction is activated</returns>
+    public bool GetActiveExplosion()
+    {
+        return explosionEnabled;
+    }
+    
+    
+    // Other
     private void SendUpdateEvent()
     {
         hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.ConfigurationManager_ConfigurationUpdated));

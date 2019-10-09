@@ -34,9 +34,10 @@ public enum TConfigurationCommands
     ActiveUI,
     ActivateUIHierarchyPanel, ActivateUIOcclusionPanel,
     ActiveUISelection, ActiveUIAutomaticSelection,
-    ActiveTouchInteration, ActiveMouseInteration,
+    ActiveTouchInteration, ActiveMouseInteration,    
     ActiveNavigation, ActiveNavigationZoom,
     ActiveLabelEdition,
+    ActiveExplosion,
     SetMouseMapping
 }
 
@@ -120,6 +121,9 @@ public class CConfigurationCommand : CCoreCommand
                     break;
                 case TConfigurationCommands.ActiveLabelEdition:
                     hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetActiveLabelEdition(data.activate);
+                    break;
+                case TConfigurationCommands.ActiveExplosion:
+                    hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetActiveExplosion(data.activate);
                     break;
                 default:
                     Debug.LogError("Error: This command " + data.command + " is not valid.");

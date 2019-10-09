@@ -262,7 +262,8 @@ public class ExplosionManager : MonoBehaviour
         // Check if it is empty model
         if (url == null || url == "")
         {            
-            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Occlusion_ExplosionModel_Empty));
+            // hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Occlusion_ExplosionModel_Empty));
+            hom3r.coreLink.Do(new CConfigurationCommand(TConfigurationCommands.ActiveExplosion, false));
             return;
         }
         // Create product from XML file        
