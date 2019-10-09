@@ -57,7 +57,13 @@ public class NavigationManager : MonoBehaviour {
     ////////////////////////////////////
     // Initialize Navigation methods
     ////////////////////////////////////
-    
+    /// <summary>Initialize Navigation</summary>
+    public void InitNavigation()
+    {
+        string navigation_axis = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetModelNavigationAxis();
+        this.InitNavigation(navigation_axis);
+    }
+
     /// <summary>Initialize Navigation</summary>
     /// <param name="newMainAxis">3D model Main axis of navigation</param>
     public void InitNavigation(string newMainAxis_text)

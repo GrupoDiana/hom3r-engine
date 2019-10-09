@@ -158,7 +158,7 @@ public class CQuickLinks
     //public GameObject configurationObject;      // Pointer to the configuration script container object
     public GameObject _3DModelRoot;             // Pointer to the main product object
     public GameObject labelsObject;             // Pointer to the label container object
-    public GameObject manipulatorObject;        //Pointer to the ARCore manipulator Object 
+    public GameObject manipulatorObject;        //Pointer to the ARCore manipulator Object     
 } 
 
 public static class hom3r {

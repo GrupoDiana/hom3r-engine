@@ -102,8 +102,10 @@ public class Label2 : MonoBehaviour
     /// </summary>
     private void CreateBoard()
     {
+        // Find a reference areaID for the board draw
+        string _areaId = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetFirstAreaId();
         //Get area object
-        GameObject areaGO = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetAreaGameObject_ByAreaID(this.areaId);
+        GameObject areaGO = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetAreaGameObject_ByAreaID(_areaId);
         if (areaGO == null) { return; }
         // BOARD Position        
         this.labelTransform.boardPosition = areaGO.transform.TransformPoint(this.labelTransform.boardPosition);   // Get board position in global coordinates               
@@ -279,11 +281,11 @@ public class Label2 : MonoBehaviour
         }
         else if (this.type == TLabelType.boardLabel)
         {
-            float currentDistance = Vector3.Distance(Vector3.zero, desiredPosition.boardPosition);
-            Bounds modelBoundingBox = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().Get3DModelBoundingBox();
-            float maxBBSize = Mathf.Max(modelBoundingBox.size.x, modelBoundingBox.size.y, modelBoundingBox.size.z);
+            //float currentDistance = Vector3.Distance(Vector3.zero, desiredPosition.boardPosition);
+            //Bounds modelBoundingBox = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().Get3DModelBoundingBox();
+            //float maxBBSize = Mathf.Max(modelBoundingBox.size.x, modelBoundingBox.size.y, modelBoundingBox.size.z);
 
-            if (currentDistance > maxBBSize) { return; }
+            //if (currentDistance > maxBBSize) { return; }
         }
 
         //Move the label board
@@ -369,9 +371,18 @@ public class Label2 : MonoBehaviour
     public CLabelTransform GetLabelLocalTransform()
     {
         CLabelTransform labelLocalTransform = new CLabelTransform();
-
+        string _areaId;
+        GameObject areaGO;
         // Calculate Board position, from global coordinates to local
-        GameObject areaGO = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetAreaGameObject_ByAreaID(this.areaId);
+        if (type == TLabelType.boardLabel)
+        {
+            // Calculate Board position, from global coordinates to local
+            _areaId = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetFirstAreaId();            
+        } else
+        {
+            _areaId = this.areaId;            
+        }
+        areaGO = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetAreaGameObject_ByAreaID(_areaId);
         labelLocalTransform.boardPosition = areaGO.transform.InverseTransformPoint(boardGO.transform.position);
 
         // Get rotation       

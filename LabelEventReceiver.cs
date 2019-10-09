@@ -34,7 +34,7 @@ public class LabelEventReceiver : MonoBehaviour {
                 case TCoreEvent.Occlusion_ExplosionEnd:
                     //hom3r.quickLinks.scriptsObject.GetComponent<LabelManager>().RedrawAllLabels();
                     break;
-                case TCoreEvent.Occlusion_IsolateON:
+                case TCoreEvent.Occlusion_Isolate_Enabled:
                     //hom3r.quickLinks.scriptsObject.GetComponent<LabelManager>().HideAllLabels();
                     break;
                 case TCoreEvent.Navigation_NavigationToFocusEnd:
@@ -50,7 +50,7 @@ public class LabelEventReceiver : MonoBehaviour {
                 case TCoreEvent.Navigation_ApproximationEnd:
                     //hom3r.quickLinks.scriptsObject.GetComponent<LabelManager>().RedrawAllLabels();      //Labels scale update
                     break;
-                case TCoreEvent.Occlusion_IsolateOFF:
+                case TCoreEvent.Occlusion_Isolate_Disabled:
                     //hom3r.quickLinks.scriptsObject.GetComponent<LabelManager>().RedrawAllLabels();
                     break;
                 case TCoreEvent.ObjectState_AreaRemoved:

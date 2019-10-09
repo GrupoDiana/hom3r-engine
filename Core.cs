@@ -176,9 +176,18 @@ public class Core : MonoBehaviour {
     ////////////////////////////////////////// 
 
     ///<summary>Execute a Command </summary>
-    public void EmitEvent(CCoreEvent _event)
+    public void EmitEvent(CCoreEvent _event, float _delay = 0f)
     {
-        if (OnCoreEvent != null) { OnCoreEvent.Invoke(_event); }
+        if (OnCoreEvent == null) { return; }
+        if (_delay == 0f) {     OnCoreEvent.Invoke(_event);
+        } else {                StartCoroutine(EmitEventWithDelay(_event, _delay));
+        }
+    }
+
+    private IEnumerator EmitEventWithDelay(CCoreEvent _event, float _delay)
+    {
+        yield return new WaitForSeconds(_delay);
+        OnCoreEvent.Invoke(_event);
     }
 
     ////////////////////////////////////////////////////////

@@ -49,6 +49,12 @@ public class LabelManager2EventReceiver : MonoBehaviour
                 case TCoreEvent.Navigation_NavigationInitiaded:                    
                     hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().UpdateAnchoredLabelsOrientationAndPole();
                     break;
+                case TCoreEvent.Occlusion_Removed_Area:
+                    hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().CheckIfAreThereAnyLabelToHide(_event.data.text);
+                    break;
+                case TCoreEvent.Occlusion_Shown_Area:
+                    hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().CheckIfAreThereAnyHiddenLabelToShow(_event.data.text);                    
+                    break;
                 default:
                     break;
             }

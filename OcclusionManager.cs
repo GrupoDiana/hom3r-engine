@@ -7,7 +7,7 @@ public class OcclusionManager : MonoBehaviour
     // Awake is called at start
     void Awake()
     {
-        
+        // hom3r.quickLinks.scriptsObject.GetComponent<OcclusionCommandReceiver>().occlusionManager = this.GetComponent<OcclusionManager>();
     }
 
     //////////////////////////////
@@ -224,5 +224,56 @@ public class OcclusionManager : MonoBehaviour
             hom3r.quickLinks._3DModelRoot.GetComponent<ExplosionManager>().Implode();
         }
     }
+    
+    //////////////////////////////
+    // ISOLATE                //
+    //////////////////////////////
+    public void StartIsolate()
+    {
+        if (hom3r.quickLinks.scriptsObject.GetComponent<SelectionManager>().GetNumberOfConfirmedGameObjects() > 0)
+        {
+            //Stop transparency mode if is activated
+            if (hom3r.state.smartTransparencyModeActive)
+            {
+                hom3r.coreLink.Do(new COcclusionCommand(TOcclusionCommands.DisableSmartTransparency), Constants.undoNotAllowed);
+            }
+            //1. Update Core mode
+            hom3r.state.currentVisualizationMode = THom3rIsolationMode.ISOLATE;
+            //2. Execute algorithms                        
+            hom3r.quickLinks.scriptsObject.GetComponent<IsolateManager>().StartIsolateMode();
+        }
+        else
+        {
+            //TODO: Show messege in UI    
+            //m.GetComponent<Core>().Do(new UICoreCommand(TUICommands.ShowAlertText, "No product was selected: there is nothing to focus"), Constants.undoNotAllowed);
+        }
+    }
 
+    public void ShowAll()
+    {
+        //Exit transparency mode if is activate
+        if (hom3r.state.smartTransparencyModeActive)
+        {
+            hom3r.coreLink.Do(new COcclusionCommand(TOcclusionCommands.DisableSmartTransparency), Constants.undoNotAllowed);
+        }
+        if (hom3r.state.currentVisualizationMode == THom3rIsolationMode.ISOLATE)
+        {
+            //1. Update Core mode
+            hom3r.state.currentVisualizationMode = THom3rIsolationMode.IDLE;
+            //2. Execute algorithms
+            hom3r.quickLinks.scriptsObject.GetComponent<IsolateManager>().StopIsolateMode();
+            //3. Update buttons
+            if (hom3r.state.currentMode == THom3rMode.SINGLEPOINTLOCATION)
+            {
+                // hom3r.quickLinks.uiObject.GetComponent<UIManager>().UpdateDisableButtons_SinglePointMode(true);
+            }
+        }
+        else if (hom3r.state.currentVisualizationMode == THom3rIsolationMode.WITH_REMOVEDNODES)
+        {
+            //1. Update Core mode
+            hom3r.state.currentVisualizationMode = THom3rIsolationMode.IDLE;
+            //2. Execute algorithms
+            hom3r.quickLinks.scriptsObject.GetComponent<RemoveManager>().RevealAllRemovedGameObjects(1.0f);
+        }
+    }
 }

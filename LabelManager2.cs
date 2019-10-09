@@ -23,16 +23,19 @@ public class CLabelData
 
 public class LabelManager2 : MonoBehaviour
 {
-    List<GameObject> labelList;    
+    List<GameObject> labelList;         // List of all labels (visible and hiddens)
+    List<GameObject> hiddenLabelList;   // List of hidden labels
+
     CLabelData currentLabel;        // Store the label ID during the anchor point position capture
-    GameObject selectedLabel;
+    GameObject selectedLabel;       // Store the label selected
     GameObject labelCanvasGO;       // Label Editor Canvas
-    float defaultLabelDistance;     //Distance to place the label by default
+    float defaultLabelDistance;     // Distance to place the label by default
 
     void Awake()
     {
-        labelList = new List<GameObject>();
-        currentLabel = new CLabelData();        
+        labelList       = new List<GameObject>();
+        hiddenLabelList = new List<GameObject>();
+        currentLabel    = new CLabelData();        
     }
 
 
@@ -63,7 +66,7 @@ public class LabelManager2 : MonoBehaviour
         CLabelTransform labelPosition = this.GetDefaultBoardTransform(_areadId);
                 
         // Start label creation
-        this.AddLabel(_labelId, _areadId, TLabelType.boardLabel, _text, labelPosition);
+        this.AddLabel(_labelId, null, TLabelType.boardLabel, _text, labelPosition);
     }
 
     /// <summary>
@@ -79,10 +82,10 @@ public class LabelManager2 : MonoBehaviour
         labelPosition.boardPosition = _boardPosition;
         labelPosition.boardRotation = _boardRotation;
         // Get a reference area
-        string _areadId = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetFirstAreaId();
-
+        string _areaId = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetFirstAreaId();
+        if (_areaId == null) { return; }
         // Start label show
-        this.AddLabel(_labelId, _areadId, TLabelType.boardLabel, _text, labelPosition, _scaleFactor);
+        this.AddLabel(_labelId, null, TLabelType.boardLabel, _text, labelPosition, _scaleFactor);
     }
 
 
@@ -96,7 +99,13 @@ public class LabelManager2 : MonoBehaviour
     {
         // If the navigation edit is not availabled, the proccess to create a new label is not available
         if (!hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetActiveLabelEdition()) { return; }
-        
+
+        // If the area doesn't exist, the process to create a new label is not available
+        if (!hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().IsArea(_areaId)) { return; };
+
+        // If the area is removed, the process to create a new label is not available
+        if (hom3r.quickLinks.scriptsObject.GetComponent<RemoveManager>().IsRemovedArea(_areaId)) { return; };
+
         // Check current state
         if (hom3r.state.currentLabelMode == THom3rLabelMode.add) { return; }
         if (hom3r.state.currentLabelMode == THom3rLabelMode.edit) { this.CloseEditMode(); }
@@ -119,7 +128,10 @@ public class LabelManager2 : MonoBehaviour
     /// <param name="_anchorPosition"></param>
     /// <param name="_scaleFactor"></param>
     public void AddAnchoredLabel(string _labelId, string _areaId, string _text, Vector3 _labelPosition, Vector3 _anchorPosition, float _scaleFactor)
-    {        
+    {
+        // If the area doesn't exist, the process to create a new label is not available
+        if (!hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().IsArea(_areaId)) { return; };
+
         CLabelTransform labelTransform = new CLabelTransform();
         labelTransform.boardPosition = _labelPosition;
         labelTransform.anchorPosition = _anchorPosition;        
@@ -180,8 +192,13 @@ public class LabelManager2 : MonoBehaviour
         }        
         // Initialize the new label
         newLabelGO.GetComponent<Label2>().Create(_labelId, _areaId, _labelType, _text, _labelPosition, _scaleFactor);
-        
         labelList.Add(newLabelGO);        //Add to label list
+        
+        // If the area is removed, we hide the label
+        if ((_labelType == TLabelType.anchoredLabel) && (hom3r.quickLinks.scriptsObject.GetComponent<RemoveManager>().IsRemovedArea(_areaId))) {
+            this.HideLabel(newLabelGO);
+        }
+        
         
         //Update core and emit events
         hom3r.state.currentLabelMode = THom3rLabelMode.show;
@@ -617,6 +634,47 @@ public class LabelManager2 : MonoBehaviour
         this.labelList.Clear();
         // Update hom3r mode
         hom3r.state.currentLabelMode = THom3rLabelMode.idle;
+    }
+
+    ////////////////////
+    //  HIDE LABELS   //
+    ////////////////////
+
+
+    public void CheckIfAreThereAnyLabelToHide(string _areaID)
+    {
+        List<GameObject> listLabelToHide = this.labelList.FindAll(r => r.GetComponent<Label2>().GetAreaId() == _areaID);
+        if (listLabelToHide != null)
+        {
+            foreach (GameObject _label in listLabelToHide)
+            {
+                this.HideLabel(_label);
+            }
+        }
+    }
+
+    private void HideLabel(GameObject _label)
+    {
+        hiddenLabelList.Add(_label);
+        _label.SetActive(false);
+    }
+
+    public void CheckIfAreThereAnyHiddenLabelToShow(string _areaID)
+    {
+        List<GameObject> listOfHiddenLabelToShow = this.hiddenLabelList.FindAll(r => r.GetComponent<Label2>().GetAreaId() == _areaID);
+        if (listOfHiddenLabelToShow != null)
+        {
+            foreach (GameObject _label in listOfHiddenLabelToShow)
+            {
+                this.ShowHiddenLabel(_label);
+            }
+        }
+    }
+   
+    private void ShowHiddenLabel(GameObject _label)
+    {
+        hiddenLabelList.Remove(_label);
+        _label.SetActive(true);
     }
 
 

@@ -8,6 +8,7 @@ public class RemoveManager : MonoBehaviour {
 
     private void Awake()
     {
+        // hom3r.quickLinks.scriptsObject.GetComponent<OcclusionCommandReceiver>().removeManager = this.GetComponent<RemoveManager>();
         gameObjectRemoveList = new List<GameObject>();      //We create a list in which will be stored the game-objects that are hidden        
     }
     	
@@ -21,12 +22,24 @@ public class RemoveManager : MonoBehaviour {
         return gameObjectRemoveList.Contains(obj);
     }
     
+    /// <summary>Check if an area has been removed</summary>     
+    public bool IsRemovedArea(string _areaId)
+    {
+        if (!hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().IsArea(_areaId)) { return false; }
+
+        GameObject obj = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetAreaGameObject_ByAreaID(_areaId);
+        if (obj == null ) { return false; }
+
+        return this.IsRemovedGameObject(obj);
+    }
+
     /// <summary>Add an object to Remove list.</summary>    
     public void AddToRemovedList(GameObject obj )
     {
         if (!IsRemovedGameObject(obj))  {
             gameObjectRemoveList.Add(obj);
-            string _areaID = obj.GetComponent<ObjectStateManager>().areaID;            
+            string _areaID = obj.GetComponent<ObjectStateManager>().areaID;  
+            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Occlusion_Removed_Area, _areaID));
         }
     }
     
@@ -35,7 +48,8 @@ public class RemoveManager : MonoBehaviour {
     {
         if (IsRemovedGameObject(obj)) {
             gameObjectRemoveList.Remove(obj);
-            //string _areaID = obj.GetComponent<ObjectStateManager>().areaID;            
+            string _areaID = obj.GetComponent<ObjectStateManager>().areaID;
+            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Occlusion_Shown_Area, _areaID));
         }
     }
 
@@ -58,14 +72,14 @@ public class RemoveManager : MonoBehaviour {
     }
 
     /// <summary>Make hidden all the objects not confirmed.</summary>    
-    public void RemoveNodes(float duration = 0.0f)
+    public void RemoveNotCorfirmedNodes(float duration = 0.0f)
     {
         //Call the recursive algorithm with the Turbine Father		
-        RemoveNodesRecursive(hom3r.quickLinks._3DModelRoot, duration);
+        RemoveNotCorfirmedNodesRecursive(hom3r.quickLinks._3DModelRoot, duration);
     } //END EasyHide
 
     /// <summary>Recursively runs through the turbine and becomes transparent objects that are unconfirmed     
-    void RemoveNodesRecursive(GameObject obj, float duration = 0.0f)
+    void RemoveNotCorfirmedNodesRecursive(GameObject obj, float duration = 0.0f)
     {
         //If the object is not in the list of confirmed we make it transparent
         if (obj.GetComponent<Renderer>())
@@ -74,7 +88,7 @@ public class RemoveManager : MonoBehaviour {
             {
                 //if (!this.GetComponent<SinglePointManager>().IsASinglePoint(obj))
                 //{
-                //    obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Remove_On, duration);
+                obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Remove_On, duration);
                 //}
             }
         }
@@ -82,7 +96,7 @@ public class RemoveManager : MonoBehaviour {
         for (int i = obj.transform.childCount - 1; i >= 0; i--)
         {
             GameObject newChild = obj.transform.GetChild(i).gameObject;
-            RemoveNodesRecursive(newChild, duration);
+            RemoveNotCorfirmedNodesRecursive(newChild, duration);
         }
     }
 

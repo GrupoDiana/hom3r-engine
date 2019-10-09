@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class OcclusionCommandReceiver : MonoBehaviour {
-    	
+    
     private void OnEnable()
     {                                
         hom3r.coreLink.SubscribeCommandObserver(DoOcclusionCommand, UndoOcclusionCommand);  //Subscribe a method to the event delegate       
@@ -28,11 +28,7 @@ public class OcclusionCommandReceiver : MonoBehaviour {
 
         
     //////////////////////////////////////// Auxiliary Methods ///////////////////////////////////
-
-    
-
-    
-
+       
     /// <summary>Change the selected objects state to Visible</summary>
     public void ExecuteRemoveUndo(GameObject goToRemove)
     {
@@ -112,7 +108,7 @@ public class COcclusionCommandData
 
 /// <summary>A 'ConcreteCommand' class</summary>
 public class COcclusionCommand : CCoreCommand
-{
+{  
     public COcclusionCommandData data;
     //////////////////
     // Constructors //
@@ -202,51 +198,28 @@ public class COcclusionCommand : CCoreCommand
 
                 ////////  ISOLATE  //////////////
                 case TOcclusionCommands.Isolate:
-                    if (m.GetComponent<SelectionManager>().GetNumberOfConfirmedGameObjects() > 0)
-                    {
-                        //Stop transparency mode if is activated
-                        if (hom3r.state.smartTransparencyModeActive)
-                        {
-                            //this.GetComponent<Core_Script>().Do(new UICoreCommand(TUIEvent.SmartTransparency, false), Constants.undoNotAllowed);
-                            // m.GetComponent<Core>().Do(new COcclusionCommand(TOcclusionCommands.DisableSmartTransparency), Constants.undoNotAllowed);
-                        }
-                        //1. Update Core mode
-                        hom3r.state.currentVisualizationMode = THom3rIsolationMode.ISOLATE;
-                        //2. Execute algorithms
-                        m.GetComponent<IsolateManager>().IsolateMode_ON();
-                    }
-                    else
-                    {
-                        //TODO: Show messege in UI    
-                        //m.GetComponent<Core>().Do(new UICoreCommand(TUICommands.ShowAlertText, "No product was selected: there is nothing to focus"), Constants.undoNotAllowed);
-                    }
+                    //if (m.GetComponent<SelectionManager>().GetNumberOfConfirmedGameObjects() > 0)
+                    //{
+                    //    //Stop transparency mode if is activated
+                    //    if (hom3r.state.smartTransparencyModeActive)
+                    //    {                            
+                    //        hom3r.coreLink.Do(new COcclusionCommand(TOcclusionCommands.DisableSmartTransparency), Constants.undoNotAllowed);
+                    //    }
+                    //    //1. Update Core mode
+                    //    hom3r.state.currentVisualizationMode = THom3rIsolationMode.ISOLATE;
+                    //    //2. Execute algorithms                        
+                    //    hom3r.quickLinks.scriptsObject.GetComponent<IsolateManager>().StartIsolateMode();
+                    //}
+                    //else
+                    //{
+                    //    //TODO: Show messege in UI    
+                    //    //m.GetComponent<Core>().Do(new UICoreCommand(TUICommands.ShowAlertText, "No product was selected: there is nothing to focus"), Constants.undoNotAllowed);
+                    //}
+                    hom3r.quickLinks.scriptsObject.GetComponent<OcclusionManager>().StartIsolate();
                     break;
 
                 case TOcclusionCommands.ShowAll:
-                    //Exit transparency mode if is activate
-                    if (hom3r.state.smartTransparencyModeActive)
-                    {                        
-                        hom3r.coreLink.Do(new COcclusionCommand(TOcclusionCommands.DisableSmartTransparency), Constants.undoNotAllowed);
-                    }
-                    if (hom3r.state.currentVisualizationMode == THom3rIsolationMode.ISOLATE)
-                    {
-                        //1. Update Core mode
-                        hom3r.state.currentVisualizationMode = THom3rIsolationMode.IDLE;
-                        //2. Execute algorithms
-                        m.GetComponent<IsolateManager>().IsolateMode_OFF();
-                        //3. Update buttons
-                        if (hom3r.state.currentMode == THom3rMode.SINGLEPOINTLOCATION)
-                        {
-                           // hom3r.quickLinks.uiObject.GetComponent<UIManager>().UpdateDisableButtons_SinglePointMode(true);
-                        }
-                    }
-                    else if (hom3r.state.currentVisualizationMode == THom3rIsolationMode.WITH_REMOVEDNODES)
-                    {
-                        //1. Update Core mode
-                        hom3r.state.currentVisualizationMode = THom3rIsolationMode.IDLE;
-                        //2. Execute algorithms
-                        hom3r.quickLinks.scriptsObject.GetComponent<RemoveManager>().RevealAllRemovedGameObjects(1.0f);
-                    }
+                    hom3r.quickLinks.scriptsObject.GetComponent<OcclusionManager>().ShowAll();                    
                     break;
 
                 ////////  REMOVE  //////////////

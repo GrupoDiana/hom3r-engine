@@ -148,8 +148,7 @@ class RemoveIdle_State : State
     public override void StateIn(VisualStateContext context, float duration)
     {
         context.parent.ProcessFadeOutEffect(0.0f, duration, ObjectStateMaterialUtils.TMaterialState.Hide);                     //Make the material Hide                    
-        hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.ObjectState_AreaRemoveOn, context.parent.gameObject));   //Add to the list of hidden objects             
-        hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.ObjectState_AreaRemoved, context.parent.gameObject));              //Remove label and single point group
+        hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.ObjectState_AreaRemoveOn, context.parent.gameObject));   //Add to the list of hidden objects                     
     }
     public override void StateOut(VisualStateContext context)
     {

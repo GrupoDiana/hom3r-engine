@@ -687,7 +687,7 @@ public class ModelManager : MonoBehaviour {
     public Bounds Get3DModelBoundingBox(bool force = false)
     {
         if (force) {
-            Debug.Log("Get3DModelBoundingBox");
+            Debug.Log("Calculating a new 3D Model BoundingBox");
             Calculate3DModelBoundingBox();
         } else if (!modelBoundingBoxInit) {
             Calculate3DModelBoundingBox();

@@ -4,15 +4,21 @@ using System.Collections.Generic;
 
 public class IsolateManager : MonoBehaviour
 {
-    
+    private void Awake()
+    {
+        //hom3r.quickLinks.scriptsObject.GetComponent<OcclusionCommandReceiver>().isolateManager = this.GetComponent<IsolateManager>();
+    }
 
     /// <summary> Isolate the selected objects. Make transparent all the objets not confirmed. </summary>	 //
-    public void IsolateMode_ON()
+    public void StartIsolateMode()
     {
-        //Remove the not confirmed objects
-        this.GetComponent<RemoveManager>().RemoveNodes(1.5f);
-        //Focus the list of confirmed objects objects
-        FocusIsolatedGO();
+        //1. Update Core mode
+        hom3r.state.currentVisualizationMode = THom3rIsolationMode.ISOLATE;
+
+        hom3r.quickLinks.scriptsObject.GetComponent<RemoveManager>().RemoveNotCorfirmedNodes(1.5f);       //Remove all not confirmed objects
+        //this.FocusIsolatedGameObjects();               //Focus the list of confirmed objects objects
+        this.GetComponent<Core>().EmitEvent(new CCoreEvent(TCoreEvent.Occlusion_Isolate_Enabled), 1.6f);
+
     }
 
     /// <summary> Isolate the selected objects. Make transparent all the objets not confirmed. </summary>	 //
@@ -28,7 +34,7 @@ public class IsolateManager : MonoBehaviour
     }
 
     /// <summary> Navigate to focus the isolated gameobject or group of game objects </summary>
-    public void FocusIsolatedGO()
+    public void FocusIsolatedGameObjects()
     {
         //Check that we have at least one confirmed object
         int nConfirmed = this.GetComponent<SelectionManager>().GetNumberOfConfirmedGameObjects();
@@ -36,9 +42,9 @@ public class IsolateManager : MonoBehaviour
         if (nConfirmed > 0)
         {
             // Bounding box containing all confirmed objects, for approximation
-            Bounds totalBB = new Bounds();
+            //Bounds totalBB = new Bounds();
             // Get info from all confirmed objects to compute targets
-            List<GameObject> listConfirmedObjets = this.GetComponent<SelectionManager>().GetListOfComponentConfirmedObjects();
+            //List<GameObject> listConfirmedObjets = this.GetComponent<SelectionManager>().GetListOfComponentConfirmedObjects();
             //totalBB = hom3r.quickLinks.orbitPlane.GetComponent<NavigationManager>().ComputeBoundingBox(listConfirmedObjets);//FIXME after Navigation Refactoring
             //Move the camera to focus the isolated object
             //StartCoroutine(hom3r.quickLinks.orbitPlane.GetComponent<NavigationManager>().NavigateToFocusObject_BothNavSystems(totalBB));//-->ORIGINAL //FIXME after Navigation Refactoring
@@ -46,7 +52,7 @@ public class IsolateManager : MonoBehaviour
             //StartCoroutine(camera_OrbitPlane.GetComponent<Navigation_Script>().NavigateToFocusObject_andResetPos_BothNavSystems(totalBB));
 
             // Launch command to core
-            this.GetComponent<Core>().EmitEvent(new CCoreEvent(TCoreEvent.Occlusion_IsolateON));
+            //this.GetComponent<Core>().EmitEvent(new CCoreEvent(TCoreEvent.Occlusion_Isolate_Enabled), 1.6f);
         }
         else
         {
@@ -71,7 +77,7 @@ public class IsolateManager : MonoBehaviour
             //StartCoroutine(hom3r.quickLinks.orbitPlane.GetComponent<NavigationManager>().NavigateToFocusObject_BothNavSystems(totalBB));//-->ORIGINAL  //FIXME after Navigation Refactoring
             //StartCoroutine(camera_OrbitPlane.GetComponent<Navigation_Script>().NavigateToFocusObject_andResetPos_withoutRotation(totalBB));
             // Launch command to core
-            this.GetComponent<Core>().EmitEvent(new CCoreEvent(TCoreEvent.Occlusion_IsolateON));
+            this.GetComponent<Core>().EmitEvent(new CCoreEvent(TCoreEvent.Occlusion_Isolate_Enabled));
         }
         else
         {
@@ -94,7 +100,7 @@ public class IsolateManager : MonoBehaviour
             // Move the camera to focus the isolated object
             //StartCoroutine(hom3r.quickLinks.orbitPlane.GetComponent<NavigationManager>().NavigateToFocusObject_andResetPos_BothNavSystems(totalBB));      //FIXME after Navigation Refactoring
             // Launch command to core
-            this.GetComponent<Core>().EmitEvent(new CCoreEvent(TCoreEvent.Occlusion_IsolateON));
+            this.GetComponent<Core>().EmitEvent(new CCoreEvent(TCoreEvent.Occlusion_Isolate_Enabled));
         }
         else
         {
@@ -105,7 +111,7 @@ public class IsolateManager : MonoBehaviour
     }
 
     /// <summary> Deactivate the Isolate Mode and reset the View </summary>
-    public void IsolateMode_OFF()
+    public void StopIsolateMode()
     {
         //1. Reset View
         // hom3r.quickLinks.orbitPlane.GetComponent<NavigationManager>().ResetView_BothNavSystems();  //FIXME after Navigation Refactoring
@@ -113,6 +119,7 @@ public class IsolateManager : MonoBehaviour
         this.GetComponent<TransparencyManager>().AllGameObjectTransparencyOff();
         this.GetComponent<RemoveManager>().RevealAllRemovedGameObjects(1.5f);
         // Launch command to core
-        this.GetComponent<Core>().EmitEvent(new CCoreEvent(TCoreEvent.Occlusion_IsolateOFF));
+        this.GetComponent<Core>().EmitEvent(new CCoreEvent(TCoreEvent.Occlusion_Isolate_Disabled), 0.1f);
     }
+   
 }

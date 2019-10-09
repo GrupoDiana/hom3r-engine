@@ -967,7 +967,7 @@ public class CProductModel
 
     public GameObject GetAreaGameObjectByAreaID(string areaID)
     {
-        if (dictionariesInitialized)
+        if (dictionariesInitialized && areaID != null)
         {
             CAreaDataDictionary temp = new CAreaDataDictionary();
             if (area_DictionaryByID.TryGetValue(areaID, out temp))

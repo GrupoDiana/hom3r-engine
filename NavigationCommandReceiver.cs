@@ -77,31 +77,28 @@ public class CNavigationCommand : CCoreCommand
     //   Execute    //
     //////////////////
     public void Do(MonoBehaviour m)
-    {
-        if (!hom3r.state.navigationBlocked)
+    {              
+        if (data != null)
         {
-            if (data != null)
+            switch (data.commandEvent)
             {
-                switch (data.commandEvent)
-                {
-                    case TNavigationCommands.InitializeNavigation:
-                        string navigation_axis = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetModelNavigationAxis();
-                        hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().InitNavigation(navigation_axis);
-                        //hom3r.coreLink.Do(new CLabelManager2Command(TLabelManager2Commands.UpdateAnchoredLabelView)); //Needed for label face to camera before starting the navigation
-                        break;
-                    case TNavigationCommands.MouseMovement:                        
-                        hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().SetMouseMovement(data.mouseX, data.mouseY, data.mouseWheel);
-                        break;
-                    default:
-                        Debug.LogError("Error: This command " + data.commandEvent + " is not valid.");
-                        break;
-                }
-            }
-            else
-            {
-                Debug.LogError("Error: Has been called a Navigation command without command.");
+                case TNavigationCommands.InitializeNavigation:                   
+                    hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().InitNavigation();
+                    //hom3r.coreLink.Do(new CLabelManager2Command(TLabelManager2Commands.UpdateAnchoredLabelView)); //Needed for label face to camera before starting the navigation
+                    break;
+                case TNavigationCommands.MouseMovement:                        
+                    hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().SetMouseMovement(data.mouseX, data.mouseY, data.mouseWheel);
+                    break;
+                default:
+                    Debug.LogError("Error: This command " + data.commandEvent + " is not valid.");
+                    break;
             }
         }
+        else
+        {
+            Debug.LogError("Error: Has been called a Navigation command without command.");
+        }
+        
     }
     public void Undo(MonoBehaviour m)
     {

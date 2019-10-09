@@ -54,6 +54,12 @@ public class NavigationEventReceiver : MonoBehaviour {
                 case TCoreEvent.TouchManager_PinchZoom:
                     hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().SetTouchPithZoom(_event.data.value1);
                     break;
+                case TCoreEvent.Occlusion_Isolate_Enabled:                    
+                    hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().InitNavigation();
+                    break;
+                case TCoreEvent.Occlusion_Isolate_Disabled:
+                    hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().InitNavigation();
+                    break;
                 default:
                     break;
             }

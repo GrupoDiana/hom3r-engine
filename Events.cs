@@ -57,11 +57,12 @@ public enum TCoreEvent
     Navigation_PseudoLatitudeMovement, Navigation_PseudoLongitudeMovement, Navigation_PseudoRadioMovement,
     Navigation_CameraMoved,
 
-    Occlusion_ExplosionModel_Empty,
+    //Occlusion_ExplosionModel_Empty,
     Occlusion_ExplosionBegin, Occlusion_ExplosionEnd, Occlusion_ExplodingAreas, Occlusion_ImplodingAreas,
     Occlusion_ExplosionGlobalON, Occlusion_ExplosionGlobalOFF,
     Occlusion_ExplosionChangedMode,
-    Occlusion_IsolateON, Occlusion_IsolateOFF,
+    Occlusion_Removed_Area, Occlusion_Shown_Area,
+    Occlusion_Isolate_Enabled, Occlusion_Isolate_Disabled,
     Occlusion_SmartTransparency_Enabled, Occlusion_SmartTransparency_Disabled, Occlusion_SmartTransparency_AlphaLevelUpdated,
 
     ObjectState_AreaRemoved,
