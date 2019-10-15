@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public enum TMainAxis { Vertical, Horizontal};
-public enum TNavigationMode { regular, pan };
+//public enum THom3rNavigationMode { regular, pan };
 
 public class NavigationManager : MonoBehaviour {
         
@@ -19,7 +19,6 @@ public class NavigationManager : MonoBehaviour {
 
     // Navigation mode parameters
     TMainAxis mainAxis;                         // Store the 3d model main axis for navigation
-    TNavigationMode navigationMode;             // Which navigation system are we using
     CCoordinateSystemManager navigationSystem;  // Define the navigation mode
     PanNavigatioMangager panNavigationSystem;
 
@@ -49,7 +48,7 @@ public class NavigationManager : MonoBehaviour {
         //navigationSystem = new CLimitedSphericalCoordinatesManager();     
         navigationSystem = new CEllipticalCoordinatesManager();
         panNavigationSystem = new PanNavigatioMangager();
-        navigationMode = TNavigationMode.regular;
+        hom3r.state.navigationMode = THom3rNavigationMode.regular;
 
         navigationInitialized = false;       // This parameter controls when the navigation has been initialized
     }
@@ -259,7 +258,7 @@ public class NavigationManager : MonoBehaviour {
     /// <param name="mouseWhellMovement">Movement of the whell mouse, % of the screen size</param>
     public void SetMouseMovement(float mouseMovementX, float mouseMovementY, float mouseWhellMovement)
     {
-        if (this.navigationMode == TNavigationMode.regular)
+        if (hom3r.state.navigationMode == THom3rNavigationMode.regular)
         {
             this.SetMouseMovementRegularNavigation(mouseMovementX, mouseMovementY, mouseWhellMovement);
         } else
@@ -534,10 +533,10 @@ public class NavigationManager : MonoBehaviour {
     public void SetActivePanNavitagion(bool _enabled)
     {
         if (_enabled) {
-            this.navigationMode = TNavigationMode.pan;
+            hom3r.state.navigationMode = THom3rNavigationMode.pan;
             hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Navigation_PanNavigation_Enabled));
         } else {
-            this.navigationMode = TNavigationMode.regular;
+            hom3r.state.navigationMode = THom3rNavigationMode.regular;
             hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Navigation_PanNavigation_Disabled));
         }
     }
