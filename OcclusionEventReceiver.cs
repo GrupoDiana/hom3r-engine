@@ -51,7 +51,7 @@ public class OcclusionEventReceiver : MonoBehaviour {
                         hom3r.coreLink.Do(new COcclusionCommand(TOcclusionCommands.ResetSmartTransparency), Constants.undoNotAllowed);  //Re-launch smart transparency
                     }
                     //Visualize the area if we are in ISOLATE mode
-                    if (hom3r.state.currentVisualizationMode == THom3rIsolationMode.ISOLATE || hom3r.state.currentVisualizationMode == THom3rIsolationMode.WITH_REMOVEDNODES)
+                    if (hom3r.state.currentIsolateMode == THom3rIsolationMode.ISOLATE || hom3r.state.currentIsolateMode == THom3rIsolationMode.WITH_REMOVEDNODES)
                     {
                         //string areaID = _event.data.obj.GetComponent<ObjectState_Script>().areaID[0];
                         //string parentID = hom3r.quickLinks.scriptsObject.GetComponent<ModelManagement_Script>().GetNodeLeafID_ByAreaID(areaID);
@@ -93,11 +93,11 @@ public class OcclusionEventReceiver : MonoBehaviour {
 
 
                 case TCoreEvent.MouseManager_LeftButtonUp:
-                    if (hom3r.state.currentMode == THom3rMode.REMOVE)
+                    if (hom3r.state.currentMode == THom3rMode.remove)
                     {
                         CCoreCommand command = new COcclusionCommand(TOcclusionCommands.RemoveGameObject, _event.data.obj);
                         this.GetComponent<Core>().Do(command, Constants.undoAllowed);
-                    } else if (hom3r.state.currentMode == THom3rMode.LOCALEXPLOSION) {
+                    } else if (hom3r.state.currentMode == THom3rMode.local_explosion) {
                         CCoreCommand command = new COcclusionCommand(TOcclusionCommands.OneObjectLayoutExplosion, _event.data.obj);
                         this.GetComponent<Core>().Do(command, Constants.undoAllowed);
                     }
@@ -115,7 +115,9 @@ public class OcclusionEventReceiver : MonoBehaviour {
                 case TCoreEvent.UI_SmartTransparency_AlphaLevelUpdated:                    
                     hom3r.quickLinks.scriptsObject.GetComponent<TransparencyManager>().SetSmartTransparencyAlphaLevel(_event.data.value1, THom3rCommandOrigin.ui);                    
                     break;
-
+                case TCoreEvent.Core_ModeChanged:
+                    hom3r.quickLinks.scriptsObject.GetComponent<OcclusionManager>().UpdateOcclusionMode();
+                    break;
                 default:
                     break;
             }

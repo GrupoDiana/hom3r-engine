@@ -109,12 +109,14 @@ static class StringHom3r
 
 /// <summary>Hom3rModes_Type will try to show the mode in which HOM3R is working every moment</summary>
 public enum THom3rPlatform { Editor, WebGL, Android, IOS, Windows, Other };
-public enum THom3rMode { IDLE, SMARTTRANSPARENCY, SINGLEPOINTLOCATION, REMOVE, LOCALEXPLOSION };
+public enum THom3rMode { idle, capturing_surface_point, remove, local_explosion };
 public enum THom3rExplosionMode { EXPLODE, IMPLODE };
-public enum THom3rIsolationMode { IDLE, ISOLATE, WITH_REMOVEDNODES };
+public enum THom3rIsolationMode { idle, ISOLATE, WITH_REMOVEDNODES };
 public enum THom3rSelectionMode { AREA, SPECIAL_NODE };
 public enum THom3rLabelMode { idle, show, edit, add };
+public enum THom3rPointCaptureMode { iddle, capturing, editing };
 public enum THom3rCommandOrigin { ui, io};
+public enum THom3rNavigationMode { regular, pan };
 
 /// <summary> Class to store the state of the app in every moment.</summary>
 public class CHom3rState
@@ -139,11 +141,24 @@ public class CHom3rState
     public bool isolateModeActive { get; set; }                         //Store if the isolate mode is activate or not
     public bool smartTransparencyModeActive { get; set; }               //Store if the isolate mode is activate or not
     public bool singlePointLocationModeActive { get; set; }             //Store if the node 
-    public THom3rMode currentMode { get; set; }                         //Store the current mode where HOM3R is working
-    public THom3rExplosionMode currentExplosionMode { get; set; }       //Store the current explosion mode where HOM3R is working
-    public THom3rSelectionMode currentSelectionMode { get; set; }       //Store the current mode of selection 
-    public THom3rIsolationMode currentVisualizationMode { get; set; }   //Store the current visualization mode (if there are removed nodes ot not)
-    public THom3rLabelMode currentLabelMode { get; set; }               //Store the current labeling mode                     
+
+    // Store the current mode where HOM3R is working
+    private THom3rMode current_mode;
+    public THom3rMode currentMode {
+        get { return current_mode; }
+
+        set {
+            current_mode = value;
+            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Core_ModeChanged));
+        }
+    }                         
+
+    public THom3rExplosionMode      currentExplosionMode { get; set; }       //Store the current explosion mode where HOM3R is working
+    public THom3rSelectionMode      currentSelectionMode { get; set; }       //Store the current mode of selection 
+    public THom3rIsolationMode      currentIsolateMode { get; set; }         //Store the current visualization mode (if there are removed nodes ot not)
+    public THom3rLabelMode          currentLabelMode { get; set; }               //Store the current labeling mode                     
+    public THom3rPointCaptureMode   currentPointCaptureMode { get; set; }
+    public THom3rNavigationMode     navigationMode;             // Which navigation system are we using
 
     //Layers
     public string labelsUILayer;                // Store camera layer for Labels

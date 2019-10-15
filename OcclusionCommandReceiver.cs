@@ -224,18 +224,7 @@ public class COcclusionCommand : CCoreCommand
 
                 ////////  REMOVE  //////////////
                 case TOcclusionCommands.StartStopRemoveMode:
-                    if (hom3r.state.currentMode == THom3rMode.REMOVE)
-                    {
-                        hom3r.coreLink.SetCurrentMode(THom3rMode.IDLE);                        
-                    }
-                    else
-                    {
-                        hom3r.coreLink.SetCurrentMode(THom3rMode.REMOVE);                        
-                        if (hom3r.state.currentVisualizationMode == THom3rIsolationMode.IDLE)
-                        {
-                            hom3r.state.currentVisualizationMode = THom3rIsolationMode.WITH_REMOVEDNODES;
-                        }
-                    }
+                    hom3r.quickLinks.scriptsObject.GetComponent<OcclusionManager>().StartStopRemoveMode();                    
                     break;
 
                 case TOcclusionCommands.RemoveGameObject:
@@ -276,7 +265,7 @@ public class COcclusionCommand : CCoreCommand
                     break;
 
                 case TOcclusionCommands.StartStopLayoutExplosionMode:
-                    if (hom3r.state.currentMode == THom3rMode.LOCALEXPLOSION)
+                    if (hom3r.state.currentMode == THom3rMode.local_explosion)
                     {
                         hom3r.quickLinks.scriptsObject.GetComponent<OcclusionManager>().StopLocalExplosionMode();                        
                     }
@@ -336,11 +325,11 @@ public class COcclusionCommand : CCoreCommand
                         //3. Update Modes
                         if (hom3r.quickLinks.scriptsObject.GetComponent<RemoveManager>().GetRemovedList().Count > 0)
                         {
-                            hom3r.state.currentVisualizationMode = THom3rIsolationMode.WITH_REMOVEDNODES;
+                            hom3r.state.currentIsolateMode = THom3rIsolationMode.WITH_REMOVEDNODES;
                         }
                         else
                         {
-                            hom3r.state.currentVisualizationMode = THom3rIsolationMode.IDLE;
+                            hom3r.state.currentIsolateMode = THom3rIsolationMode.idle;
                         }
                         //4. Move to reset Position
                         //TODO: Do reset with a navigation command
@@ -353,14 +342,14 @@ public class COcclusionCommand : CCoreCommand
                     if (data.visualizationMode == THom3rIsolationMode.ISOLATE)
                     {
                         //1. Update the mode
-                        hom3r.state.currentVisualizationMode = THom3rIsolationMode.ISOLATE;
+                        hom3r.state.currentIsolateMode = THom3rIsolationMode.ISOLATE;
                         //2. Execute Isolate
                         m.GetComponent<IsolateManager>().IsolateAGivenGOList_ModeON(data.listRemovedObjets);
                     }
                     else if (data.visualizationMode == THom3rIsolationMode.WITH_REMOVEDNODES)
                     {
                         //1. Update the mode
-                        hom3r.state.currentVisualizationMode = THom3rIsolationMode.WITH_REMOVEDNODES;
+                        hom3r.state.currentIsolateMode = THom3rIsolationMode.WITH_REMOVEDNODES;
                         //2. Execute Remove of previously removed nodes
                         foreach (GameObject goToRemove in data.listRemovedObjets)
                         {
@@ -382,11 +371,11 @@ public class COcclusionCommand : CCoreCommand
                     //3. Update Visualization Modes
                     if (hom3r.quickLinks.scriptsObject.GetComponent<RemoveManager>().GetRemovedList().Count > 0)
                     {
-                        hom3r.state.currentVisualizationMode = THom3rIsolationMode.WITH_REMOVEDNODES;
+                        hom3r.state.currentIsolateMode = THom3rIsolationMode.WITH_REMOVEDNODES;
                     }
                     else
                     {
-                        hom3r.state.currentVisualizationMode = THom3rIsolationMode.IDLE;
+                        hom3r.state.currentIsolateMode = THom3rIsolationMode.idle;
                     }
                     break;
 

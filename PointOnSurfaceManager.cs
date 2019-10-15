@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public enum TPointOnSurfaceManagerState { iddle, capturing, editing };
+//public enum THom3rPointCaptureMode { iddle, capturing, editing };
 
 public class PointOnSurfaceManager : MonoBehaviour
 {
-    TPointOnSurfaceManagerState pointCaptureManagerState;
+    //TPointOnSurfaceManagerState currentPointCaptureMode;
     string specificAreaId;
     GameObject specificAreaGO;
 
     void Awake()
     {
-        pointCaptureManagerState = TPointOnSurfaceManagerState.iddle;
+        //currentPointCaptureMode = TPointOnSurfaceManagerState.iddle;
         specificAreaGO = null;
     }
 
@@ -25,13 +25,14 @@ public class PointOnSurfaceManager : MonoBehaviour
     public void StartPointCapture()
     {
         hom3r.state.selectionBlocked = true;
-        pointCaptureManagerState = TPointOnSurfaceManagerState.capturing;
-        hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.PointOnSurface_PointCaptureBegin));
+        hom3r.state.currentMode = THom3rMode.capturing_surface_point;
+        hom3r.state.currentPointCaptureMode = THom3rPointCaptureMode.capturing;        
+        //hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.PointOnSurface_PointCaptureBegin));
         this.SendMessageToUI("Please, select a point into the object surface..");
     }
 
     public void StartPointCapture(string _areaId)
-    {
+    {        
         specificAreaId = _areaId;
         specificAreaGO = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetAreaGameObject_ByAreaID(specificAreaId);
         if (specificAreaGO == null)
@@ -44,7 +45,7 @@ public class PointOnSurfaceManager : MonoBehaviour
         }        
     }
 
-    public bool GetPointCapturingActivated() { return this.pointCaptureManagerState == TPointOnSurfaceManagerState.capturing; }
+    public bool GetPointCapturingActivated() { return hom3r.state.currentPointCaptureMode == THom3rPointCaptureMode.capturing; }
 
     /// <summary>
     /// Capture a point into the surface of an area
@@ -54,7 +55,7 @@ public class PointOnSurfaceManager : MonoBehaviour
     public void CapturePointOnSurface(Vector3 mousePosition, GameObject rayCastedArea)
     {
         if (rayCastedArea == null) { return; }
-        if (pointCaptureManagerState != TPointOnSurfaceManagerState.capturing) { return; }
+        if (hom3r.state.currentPointCaptureMode != THom3rPointCaptureMode.capturing) { return; }
         if ((specificAreaGO == null) || (specificAreaGO != rayCastedArea)) { return; }
                         
         int productRootLayer = 1 << LayerMask.NameToLayer(hom3r.state.productRootLayer);
@@ -65,8 +66,9 @@ public class PointOnSurfaceManager : MonoBehaviour
         //Emit event            
         hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.PointOnSurface_PointCaptureSuccess, pointLocal, areaId));
         hom3r.state.selectionBlocked = false;
-        pointCaptureManagerState = TPointOnSurfaceManagerState.iddle;
-        hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.PointOnSurface_PointCaptureEnd));
+        hom3r.state.currentMode = THom3rMode.idle;
+        hom3r.state.currentPointCaptureMode = THom3rPointCaptureMode.iddle;
+        //hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.PointOnSurface_PointCaptureEnd));
     }
 
     public void DrawPointOnSurface(Vector3 pointLocalPosition, string areaID) {

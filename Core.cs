@@ -58,12 +58,13 @@ public class Core : MonoBehaviour {
         hom3r.state.isolateModeActive = false;                 //Initially the isolate mode is not activate
         hom3r.state.smartTransparencyModeActive = false;       //Initially the smartTransparency mode is not activate
         hom3r.state.singlePointLocationModeActive = false;     //Initially the point location mode is not activate        
-        hom3r.state.currentMode = THom3rMode.IDLE;                                 // Initially HOM3R is not in a specific mode
+        hom3r.state.currentMode = THom3rMode.idle;                                 // Initially HOM3R is not in a specific mode
         hom3r.state.currentExplosionMode = THom3rExplosionMode.IMPLODE;            // Initially HOM3R objects are imploded
         //hom3r.state.currentSelectionMode = THom3rSelectionMode.SPECIAL_NODE;     // Initially HOM3R is selecting by component
         hom3r.state.currentSelectionMode = THom3rSelectionMode.AREA;               // Initially HOM3R is selecting by area
-        hom3r.state.currentVisualizationMode = THom3rIsolationMode.IDLE;           // Initially HOM3R show every node of the product
+        hom3r.state.currentIsolateMode = THom3rIsolationMode.idle;           // Initially HOM3R show every node of the product
         hom3r.state.currentLabelMode = THom3rLabelMode.idle;                       // Initially HOM3R doesn't show any label                 
+        hom3r.state.currentPointCaptureMode = THom3rPointCaptureMode.iddle;
         hom3r.state.labelsUILayer = "Default";    
         hom3r.state.productRootLayer = "go_father_layer";
         hom3r.state.platform = GetPlatform();
@@ -110,18 +111,7 @@ public class Core : MonoBehaviour {
         hom3r.state.generalState = true;
         this.EmitEvent(new CCoreEvent(TCoreEvent.Core_Hom3rReadyToStart));        
     }
-
-    public void SetCurrentMode(THom3rMode _newMode)
-    {
-        hom3r.state.currentMode = _newMode;
-        EmitEvent(new CCoreEvent(TCoreEvent.Core_ModeChanged));
-    }
-
-    public THom3rMode GetCurrentMode()
-    {
-        return hom3r.state.currentMode;        
-    }
-
+   
     //////////////////////////////////////////
     // Methods to manage the Command Pattern //
     //////////////////////////////////////////      

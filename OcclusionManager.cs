@@ -30,7 +30,7 @@ public class OcclusionManager : MonoBehaviour
         if (areaID == null) { areaID = objToRemove.GetComponent<ObjectStateManager>().areaID; }
         ExecuteRemove(areaID, _origin);
         //3. Update mode
-        hom3r.state.currentVisualizationMode = THom3rIsolationMode.WITH_REMOVEDNODES;
+        hom3r.state.currentIsolateMode = THom3rIsolationMode.WITH_REMOVEDNODES;
         //4. Re-focus
         //this.GetComponent<Isolate_Script>().ReFocusIsolatedGO();
     }
@@ -110,7 +110,28 @@ public class OcclusionManager : MonoBehaviour
         }        
     }
 
+    public void StartStopRemoveMode()
+    {
+        if (hom3r.state.currentMode == THom3rMode.remove) { this.StopRemoveMode(); }
+        else { this.StartRemoveMode(); }
+    }
+  
+    private void StartRemoveMode()
+    {
+        hom3r.state.currentMode = THom3rMode.remove;
+        if (hom3r.state.currentIsolateMode == THom3rIsolationMode.idle)
+        {
+            hom3r.state.currentIsolateMode = THom3rIsolationMode.WITH_REMOVEDNODES;
+        }
+    }
 
+    private void StopRemoveMode()
+    {
+        if (hom3r.state.currentMode == THom3rMode.remove)
+        {
+            hom3r.state.currentMode = THom3rMode.idle;
+        }            
+    }
     //////////////////////////////
     // TRANSPARENCY             //
     //////////////////////////////
@@ -180,13 +201,13 @@ public class OcclusionManager : MonoBehaviour
     {
         if (!hom3r.quickLinks._3DModelRoot.GetComponent<ExplosionManager>().IsEmpty())
         {
-            hom3r.coreLink.SetCurrentMode(THom3rMode.LOCALEXPLOSION);            
+            hom3r.state.currentMode = THom3rMode.local_explosion;            
         }
     }
 
     public void StopLocalExplosionMode()
-    {
-        hom3r.coreLink.SetCurrentMode(THom3rMode.IDLE);
+    {        
+        hom3r.state.currentMode = THom3rMode.idle;
         if (hom3r.quickLinks._3DModelRoot.GetComponent<ExplosionManager>().IsAnyObjectExploded())
         {            
             hom3r.state.currentExplosionMode = THom3rExplosionMode.EXPLODE;
@@ -238,7 +259,7 @@ public class OcclusionManager : MonoBehaviour
                 hom3r.coreLink.Do(new COcclusionCommand(TOcclusionCommands.DisableSmartTransparency), Constants.undoNotAllowed);
             }
             //1. Update Core mode
-            hom3r.state.currentVisualizationMode = THom3rIsolationMode.ISOLATE;
+            hom3r.state.currentIsolateMode = THom3rIsolationMode.ISOLATE;
             //2. Execute algorithms                        
             hom3r.quickLinks.scriptsObject.GetComponent<IsolateManager>().StartIsolateMode();
         }
@@ -256,24 +277,30 @@ public class OcclusionManager : MonoBehaviour
         {
             hom3r.coreLink.Do(new COcclusionCommand(TOcclusionCommands.DisableSmartTransparency), Constants.undoNotAllowed);
         }
-        if (hom3r.state.currentVisualizationMode == THom3rIsolationMode.ISOLATE)
+        if (hom3r.state.currentIsolateMode == THom3rIsolationMode.ISOLATE)
         {
             //1. Update Core mode
-            hom3r.state.currentVisualizationMode = THom3rIsolationMode.IDLE;
+            hom3r.state.currentIsolateMode = THom3rIsolationMode.idle;
             //2. Execute algorithms
             hom3r.quickLinks.scriptsObject.GetComponent<IsolateManager>().StopIsolateMode();
             //3. Update buttons
-            if (hom3r.state.currentMode == THom3rMode.SINGLEPOINTLOCATION)
+            if (hom3r.state.currentMode == THom3rMode.capturing_surface_point)
             {
                 // hom3r.quickLinks.uiObject.GetComponent<UIManager>().UpdateDisableButtons_SinglePointMode(true);
             }
         }
-        else if (hom3r.state.currentVisualizationMode == THom3rIsolationMode.WITH_REMOVEDNODES)
+        else if (hom3r.state.currentIsolateMode == THom3rIsolationMode.WITH_REMOVEDNODES)
         {
             //1. Update Core mode
-            hom3r.state.currentVisualizationMode = THom3rIsolationMode.IDLE;
+            hom3r.state.currentIsolateMode = THom3rIsolationMode.idle;
             //2. Execute algorithms
             hom3r.quickLinks.scriptsObject.GetComponent<RemoveManager>().RevealAllRemovedGameObjects(1.0f);
         }
+    }
+
+
+    public void UpdateOcclusionMode()
+    {
+        // Do nothing for now
     }
 }

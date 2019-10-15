@@ -74,13 +74,19 @@ public class RemoveManager : MonoBehaviour {
     /// <summary>Make hidden all the objects not confirmed.</summary>    
     public void RemoveNotCorfirmedNodes(float duration = 0.0f)
     {
+        List<GameObject> removedAreas = new List<GameObject>();
+
         //Call the recursive algorithm with the Turbine Father		
-        RemoveNotCorfirmedNodesRecursive(hom3r.quickLinks._3DModelRoot, duration);
-    } //END EasyHide
+        removedAreas = RemoveNotCorfirmedNodesRecursive(hom3r.quickLinks._3DModelRoot, duration);
+
+        //Emit event with removes areas
+        this.EmitRemovedAreaEvent(removedAreas);        
+    }
 
     /// <summary>Recursively runs through the turbine and becomes transparent objects that are unconfirmed     
-    void RemoveNotCorfirmedNodesRecursive(GameObject obj, float duration = 0.0f)
+    private List<GameObject> RemoveNotCorfirmedNodesRecursive(GameObject obj, float duration = 0.0f)
     {
+        List<GameObject> _removedAreas = new List<GameObject>();
         //If the object is not in the list of confirmed we make it transparent
         if (obj.GetComponent<Renderer>())
         {
@@ -89,6 +95,8 @@ public class RemoveManager : MonoBehaviour {
                 //if (!this.GetComponent<SinglePointManager>().IsASinglePoint(obj))
                 //{
                 obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Remove_On, duration);
+                _removedAreas.Add(obj);
+                return _removedAreas;
                 //}
             }
         }
@@ -96,8 +104,30 @@ public class RemoveManager : MonoBehaviour {
         for (int i = obj.transform.childCount - 1; i >= 0; i--)
         {
             GameObject newChild = obj.transform.GetChild(i).gameObject;
-            RemoveNotCorfirmedNodesRecursive(newChild, duration);
+            _removedAreas.AddRange(RemoveNotCorfirmedNodesRecursive(newChild, duration));
         }
+        return _removedAreas;
+    }
+
+
+    private void EmitRemovedAreaEvent(List<GameObject> objList)
+    {
+        List<string> areaIDList = new List<string>();
+
+        foreach (GameObject obj in objList)
+        {
+            if (obj != null) {
+                if (obj.GetComponent<ObjectStateManager>().areaID != null || obj.GetComponent<ObjectStateManager>().areaID != "")
+                {
+                    areaIDList.Add(obj.GetComponent<ObjectStateManager>().areaID);
+                }
+
+            }                                              
+        }
+        if (areaIDList.Count != 0)
+        {
+            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.RemovedPart_Activate, areaIDList));
+        }        
     }
 
     public List<GameObject> GetRemovedList() {

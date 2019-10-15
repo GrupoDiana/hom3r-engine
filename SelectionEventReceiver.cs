@@ -29,19 +29,19 @@ public class SelectionEventReceiver : MonoBehaviour {
             switch (_event.data.commandEvent)
             {
                 case TCoreEvent.MouseManager_MousePosition:
-                    if (hom3r.state.currentMode == THom3rMode.IDLE || hom3r.state.currentMode == THom3rMode.SMARTTRANSPARENCY)
+                    if (hom3r.state.currentMode == THom3rMode.idle)
                     {
                         hom3r.quickLinks.scriptsObject.GetComponent<SelectionManager>().IndicationByMousePosition(_event.data.mousePosition);
                     }                    
                     break;
                 case TCoreEvent.MouseManager_LeftButtonUp:
-                    if (hom3r.state.currentMode == THom3rMode.IDLE || hom3r.state.currentMode == THom3rMode.SMARTTRANSPARENCY)
+                    if (hom3r.state.currentMode == THom3rMode.idle)
                     {
                         hom3r.quickLinks.scriptsObject.GetComponent<SelectionManager>().ConfirmByMouseLeftClickAndMousePosition(_event.data.mousePosition, _event.data.obj, _event.data.control);
                     }                        
                     break;
                 case TCoreEvent.TouchManager_OneSelectionTouch:
-                    if (hom3r.state.currentMode == THom3rMode.IDLE || hom3r.state.currentMode == THom3rMode.SMARTTRANSPARENCY)
+                    if (hom3r.state.currentMode == THom3rMode.idle)
                     {
                         hom3r.quickLinks.scriptsObject.GetComponent<SelectionManager>().ConfirmByMouseLeftClickAndMousePosition(_event.data.mousePosition, _event.data.obj, _event.data.control);
                     }

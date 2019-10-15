@@ -150,7 +150,7 @@ public class LabelManager2 : MonoBehaviour
     }
 
     public void AfterAnchorPointCapture(Vector3 _anchorPosition, string _areaId)
-    {        
+    {               
         CLabelTransform labelPosition = this.GetDefaultPositionAnchoredLabel(_anchorPosition, _areaId);
         this.AddLabel(currentLabel.id, _areaId, TLabelType.anchoredLabel, currentLabel.text, labelPosition);
     }

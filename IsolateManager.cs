@@ -13,7 +13,7 @@ public class IsolateManager : MonoBehaviour
     public void StartIsolateMode()
     {
         //1. Update Core mode
-        hom3r.state.currentVisualizationMode = THom3rIsolationMode.ISOLATE;
+        hom3r.state.currentIsolateMode = THom3rIsolationMode.ISOLATE;
 
         hom3r.quickLinks.scriptsObject.GetComponent<RemoveManager>().RemoveNotCorfirmedNodes(1.5f);       //Remove all not confirmed objects
         //this.FocusIsolatedGameObjects();               //Focus the list of confirmed objects objects
