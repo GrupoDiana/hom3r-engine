@@ -116,9 +116,12 @@ public class TransparencyManager : MonoBehaviour {
         //Make not transparent one by one
         List<GameObject> temp = new List<GameObject>(gameObjectTransparentList);
 		foreach (GameObject obj in temp)
-        { 
-			//obj.GetComponent<ObjectState_Script> ().GameObjectTransparencyOff ();
-            obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Transparency_Off , 0.5f);
+        {
+            if (obj != null)
+            {
+                //obj.GetComponent<ObjectState_Script> ().GameObjectTransparencyOff ();
+                obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Transparency_Off, 0.5f);
+            }
         }
 		//Empty the list of hidden objects
 		gameObjectTransparentList.Clear (); 
