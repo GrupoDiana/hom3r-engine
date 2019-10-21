@@ -436,24 +436,25 @@ public class CSelectionCommand : CCoreCommand
                     break;
 
                 case TSelectionCommands.SelectPart:
-                    //Action coming from the Web APP (Select in a different way if is Area or Node)                    
-                    if (hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().IsArea(data.partID))
-                    {
-                        this.SelectArea(data.partID, data.colour);
-                    }
-                    else if (hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().IsLeaf(data.partID))
-                    {
-                        this.SelectLeaf(data.partID, data.colour);
-                    }
-                    else if (hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().IsNode(data.partID))
-                    {
-                        this.SelectNode(data.partID, data.colour);
-                    }
-                    else
-                    {
-                        //It is not an valid ID
-                        hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Selection_ShowMessage, "This product part, id = " + data.partID + ", does not exist."));                        
-                    }
+                    ////Action coming from the Web APP (Select in a different way if is Area or Node)                    
+                    //if (hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().IsArea(data.partID))
+                    //{
+                    //    this.SelectArea(data.partID, data.colour);
+                    //}
+                    //else if (hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().IsLeaf(data.partID))
+                    //{
+                    //    this.SelectLeaf(data.partID, data.colour);
+                    //}
+                    //else if (hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().IsNode(data.partID))
+                    //{
+                    //    this.SelectNode(data.partID, data.colour);
+                    //}
+                    //else
+                    //{
+                    //    //It is not an valid ID
+                    //    hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Selection_ShowMessage, "This product part, id = " + data.partID + ", does not exist."));                        
+                    //}
+                    hom3r.quickLinks.scriptsObject.GetComponent<SelectionManager>().SelectPartFromInterface(data.partID, data.colour);
                     break;
 
                 case TSelectionCommands.DeselectPart:
@@ -475,12 +476,14 @@ public class CSelectionCommand : CCoreCommand
                     break;
 
                 case TSelectionCommands.ClearSelectionColour:
-                    List<GameObject> temp = m.GetComponent<ModelManager>().ClearAreaSelectionColour();
-                    if (temp == null) { return; }
-                    foreach (var obj in temp)
-                    {
-                        obj.GetComponent<ObjectStateManager>().ResetColours();
-                    }
+
+                    hom3r.quickLinks.scriptsObject.GetComponent<SelectionManager>().ClearSelectionColour();
+                    //List<GameObject> temp = m.GetComponent<ModelManager>().ClearAreaSelectionColour();
+                    //if (temp == null) { return; }
+                    //foreach (var obj in temp)
+                    //{
+                    //    obj.GetComponent<ObjectStateManager>().ResetColours();
+                    //}
                     break;
 
                 case TSelectionCommands.BlockSelection:
@@ -507,72 +510,72 @@ public class CSelectionCommand : CCoreCommand
 
     }
 
-    private void SelectArea(string areaID, string colour)
-    {
-        //Is an AREA                   
-        GameObject objectArea = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetAreaGameObject_ByAreaID(areaID);
-        if (objectArea != null)
-        {
-            if (!hom3r.quickLinks.scriptsObject.GetComponent<SelectionManager>().IsConfirmedGameObject(objectArea))
-            {
-                //Select that area.                            
-                objectArea.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Confirmation_Multiple_On, data.colour);
+    //private void SelectArea(string areaID, string colour)
+    //{
+    //    //Is an AREA                   
+    //    GameObject objectArea = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetAreaGameObject_ByAreaID(areaID);
+    //    if (objectArea != null)
+    //    {
+    //        if (!hom3r.quickLinks.scriptsObject.GetComponent<SelectionManager>().IsConfirmedGameObject(objectArea))
+    //        {
+    //            //Select that area.                            
+    //            objectArea.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Confirmation_Multiple_On, data.colour);
                                 
-                //Add component to the list if is apropiate                            
-                string _specialNodeID = hom3r.coreLink.GetComponent<ModelManager>().GetSpecialAncestorID_ByAreaID(areaID);
-                if (hom3r.quickLinks.scriptsObject.GetComponent<SelectionManager>().AreAllAreaOfSpecialNodeSeleted(_specialNodeID)) {
-                    hom3r.coreLink.GetComponent<SelectionManager>().AddConfirmedSpecialNode(_specialNodeID);
-                }
+    //            //Add component to the list if is apropiate                            
+    //            string _specialNodeID = hom3r.coreLink.GetComponent<ModelManager>().GetSpecialAncestorID_ByAreaID(areaID);
+    //            if (hom3r.quickLinks.scriptsObject.GetComponent<SelectionManager>().AreAllAreaOfSpecialNodeSeleted(_specialNodeID)) {
+    //                hom3r.coreLink.GetComponent<SelectionManager>().AddConfirmedSpecialNode(_specialNodeID);
+    //            }
 
-            }
-        }
-    }
+    //        }
+    //    }
+    //}
 
-    private void SelectLeaf(string leafID, string colour)
-    {
-        //Update Component selected list
-        if (hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().IsLeaf(leafID))
-        {         
-            List<string> areaList = new List<string>();
-            areaList = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetAreaList_ByLeafID(leafID);
-            if (areaList != null)
-            {
-                foreach (string area in areaList)
-                {
-                    SelectArea(area, colour);
-                }
-            }
-        }
-        else
-        {
-         // ERROR  
-        }        
-    }
+    //private void SelectLeaf(string leafID, string colour)
+    //{
+    //    //Update Component selected list
+    //    if (hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().IsLeaf(leafID))
+    //    {         
+    //        List<string> areaList = new List<string>();
+    //        areaList = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetAreaList_ByLeafID(leafID);
+    //        if (areaList != null)
+    //        {
+    //            foreach (string area in areaList)
+    //            {
+    //                SelectArea(area, colour);
+    //            }
+    //        }
+    //    }
+    //    else
+    //    {
+    //     // ERROR  
+    //    }        
+    //}
 
-    private void SelectNode(string nodeID, string colour)
-    {
-        //Update Component selected list
-        if (hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().IsSpecialNode(nodeID))
-        {
-            hom3r.quickLinks.scriptsObject.GetComponent<SelectionManager>().AddConfirmedSpecialNode(nodeID);    //Is SpecialNode
-        }
-        else
-        {
-            //Is not SpecialNode but is it a specialnode parent?
-            List<string> specialNodeKidsList = new List<string>();
-            specialNodeKidsList = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetSpecialAncestorIDList_ByProductID(nodeID);
-            if (specialNodeKidsList != null)
-            {
-                foreach (var item in specialNodeKidsList) { hom3r.quickLinks.scriptsObject.GetComponent<SelectionManager>().AddConfirmedSpecialNode(item); }
-            }
-        }        
-        List<GameObject> objectAreaList = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetAreaGameObjectList_ByProductNodeID(nodeID);     //Find the list of areas to select
+    //private void SelectNode(string nodeID, string colour)
+    //{
+    //    //Update Component selected list
+    //    if (hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().IsSpecialNode(nodeID))
+    //    {
+    //        hom3r.quickLinks.scriptsObject.GetComponent<SelectionManager>().AddConfirmedSpecialNode(nodeID);    //Is SpecialNode
+    //    }
+    //    else
+    //    {
+    //        //Is not SpecialNode but is it a specialnode parent?
+    //        List<string> specialNodeKidsList = new List<string>();
+    //        specialNodeKidsList = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetSpecialAncestorIDList_ByProductID(nodeID);
+    //        if (specialNodeKidsList != null)
+    //        {
+    //            foreach (var item in specialNodeKidsList) { hom3r.quickLinks.scriptsObject.GetComponent<SelectionManager>().AddConfirmedSpecialNode(item); }
+    //        }
+    //    }        
+    //    List<GameObject> objectAreaList = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetAreaGameObjectList_ByProductNodeID(nodeID);     //Find the list of areas to select
 
-        //Select the list of objects
-        foreach (var obj in objectAreaList) {
-            obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Confirmation_Multiple_On, colour);
-        }                
-    }
+    //    //Select the list of objects
+    //    foreach (var obj in objectAreaList) {
+    //        obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Confirmation_Multiple_On, colour);
+    //    }                
+    //}
 
     private void DeselectAreaNode(string areaID)
     {
