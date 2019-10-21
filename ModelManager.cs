@@ -495,7 +495,7 @@ public class ModelManager : MonoBehaviour {
 
             InitVars();     // Initialize all the variables
 
-            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.ModelManagement_ResetModel));
+            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.ModelManagement_ModelReset_Success));
             Resources.UnloadUnusedAssets();
                                   
             SetUnblockUserInterfaceAfterFileLoading();          // UnBlock UI

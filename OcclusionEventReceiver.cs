@@ -108,8 +108,8 @@ public class OcclusionEventReceiver : MonoBehaviour {
                 case TCoreEvent.ModelManagement_ReadyToLoadExplosionModel:                    
                     hom3r.quickLinks._3DModelRoot.GetComponent<ExplosionManager>().LoadProducExplosionModel(_event.data.text);
                     break;
-                case TCoreEvent.ModelManagement_ResetModel:
-                    hom3r.quickLinks._3DModelRoot.GetComponent<ExplosionManager>().Clear();        // Clear Explosion  
+                case TCoreEvent.ModelManagement_ModelReset_Success:                    
+                    hom3r.quickLinks.scriptsObject.GetComponent<OcclusionManager>().ResetOcclusionProcess();                    
                     break;
 
                 case TCoreEvent.UI_SmartTransparency_AlphaLevelUpdated:                    

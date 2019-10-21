@@ -55,6 +55,9 @@ public class LabelManager2EventReceiver : MonoBehaviour
                 case TCoreEvent.Occlusion_Shown_Area:
                     hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().CheckIfAreThereAnyHiddenLabelToShow(_event.data.text);                    
                     break;
+                case TCoreEvent.ModelManagement_ModelReset_Success:
+                    hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().RemoveAllLabel();
+                    break;
                 default:
                     break;
             }

@@ -632,6 +632,7 @@ public class LabelManager2 : MonoBehaviour
             Destroy(label);
         }
         this.labelList.Clear();
+        this.hiddenLabelList.Clear();
         // Update hom3r mode
         hom3r.state.currentLabelMode = THom3rLabelMode.idle;
     }

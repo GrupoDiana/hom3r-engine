@@ -89,7 +89,7 @@ public class LabelEventReceiver : MonoBehaviour {
                         }
                     }*/
                     break;
-                case TCoreEvent.ModelManagement_ResetModel:
+                case TCoreEvent.ModelManagement_ModelReset_Success:
                     //hom3r.coreLink.Do(new CLabelCommand(TLabelCommands.RemoveAllLabelOfConfirmedObjects), Constants.undoNotAllowed);
                     //hom3r.quickLinks.scriptsObject.GetComponent<LabelCommandReceiver>().ExecuteRemoveAllLabelOfConfirmedGOList();
                     /*hom3r.quickLinks.scriptsObject.GetComponent<LabelManager>().RemoveAllLabels();     */               
