@@ -26,18 +26,18 @@ public class HiddenManager : MonoBehaviour {
 	public bool smartHideState;
 
 	//To know if the mouse is on motion
-	bool mouseOnMotion;
+	// bool mouseOnMotion;
 
     private void Awake()
     {        
         gameObjectHiddenList = new List<GameObject>();  //We create a list in which will be stored the gameobjects that are hidden
         smartHideState = false;
-        mouseOnMotion = false;
+       // mouseOnMotion = false;
     }
     
 	// Update is called once per frame
 	void Update () {
-		mouseOnMotion = Input.GetMouseButton(1);
+		// mouseOnMotion = Input.GetMouseButton(1);
 	}
 
 	//////////////////////////////////////////////////////////////////////////////
