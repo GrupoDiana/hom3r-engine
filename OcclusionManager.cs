@@ -303,4 +303,22 @@ public class OcclusionManager : MonoBehaviour
     {
         // Do nothing for now
     }
+
+
+    public void ResetOcclusionProcess()
+    {
+        hom3r.quickLinks._3DModelRoot.GetComponent<ExplosionManager>().Clear();        // Clear Explosion 
+                       
+        hom3r.quickLinks.scriptsObject.GetComponent<TransparencyManager>().AllGameObjectTransparencyOff();        
+        hom3r.quickLinks.scriptsObject.GetComponent<HiddenManager>().RevealAllHiddenGameObjects();
+        
+        //Execute stop tranparency algorithms
+        hom3r.state.smartTransparencyModeActive = false;
+        ExecuteSmartTransparency(false);
+        
+        // Update Isolate state
+        hom3r.state.currentIsolateMode = THom3rIsolationMode.idle;        
+    }
+
+
 }

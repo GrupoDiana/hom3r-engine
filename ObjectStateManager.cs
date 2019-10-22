@@ -75,20 +75,17 @@ public class ObjectStateManager : MonoBehaviour {
         return objectExplosionState;
     }
 
+    
+  
+
+   
+
     /// <summary>Set a new state to this area</summary>
     /// <param name="newEvent">Event that has to be processed</param>    
     public void SendEvent(TObjectVisualStateEvents newEvent, string colour="")
     {
-        //Colour management
-        if (colour != "")
-        {
-            if (confirmedColour != ObjectStateMaterialUtils.HexToColor(colour))
-            {
-                confirmedColour = ObjectStateMaterialUtils.HexToColor(colour);
-                indicatedColour = ObjectStateMaterialUtils.IndicatedColourCalculate(confirmedColour);
-            }
-        }
-
+        this.SetColour(colour);          //Colour management
+      
         //Get current State
         TObjectVisualStates currentState = this.GetVisualState();
         switch (newEvent)
@@ -159,6 +156,21 @@ public class ObjectStateManager : MonoBehaviour {
         }
     }
 
+    public void SendEvent(TObjectVisualStateEvents newEvent, float duration, string colour = "")
+    {
+        this.SetColour(colour);                                         //Colour management                                         
+        TObjectVisualStates currentState = this.GetVisualState();       //Get current State
+        switch (newEvent)
+        {
+            case TObjectVisualStateEvents.Confirmation_Multiple_On:
+                if (currentState == TObjectVisualStates.Idle || currentState == TObjectVisualStates.Indicated || currentState == TObjectVisualStates.Transparent_Idle || currentState == TObjectVisualStates.Transparent_Indicated || currentState == TObjectVisualStates.Hidden_Idle || currentState == TObjectVisualStates.Remove_Idle)
+                {
+                    objectVisualState.ChangeState_toConfirmed(true, duration);
+                }
+                break;
+        }
+    }
+
     public void SendEvent(TObjectVisualStateEvents newEvent, float duration)
     {
         //Get current State
@@ -215,11 +227,25 @@ public class ObjectStateManager : MonoBehaviour {
             }
         }
     }
-        
-   
+
+
     /////////////////////
     // Colour Methods
     /////////////////////    
+    private void SetColour(string colour = "")
+    {
+        //Colour management
+        if (colour != "")
+        {
+            if (confirmedColour != ObjectStateMaterialUtils.HexToColor(colour))
+            {
+                confirmedColour = ObjectStateMaterialUtils.HexToColor(colour);
+                indicatedColour = ObjectStateMaterialUtils.IndicatedColourCalculate(confirmedColour);
+            }
+        }
+    }
+
+    /// <summary>Reset colous to default ones</summary>
     public void ResetColours()
     {
         confirmedColour = confirmedDefaultColor;
@@ -249,6 +275,29 @@ public class ObjectStateManager : MonoBehaviour {
         ObjectStateMaterialUtils.SetMaterialRenderingMode(this.GetComponent<Renderer>().material, ObjectStateMaterialUtils.TBlendMode.Opaque);
         ObjectStateMaterialUtils.SetColourToMaterial(this.GetComponent<Renderer>().material, initialColor);
     }
+
+    /////////////////////////////////////
+    // Change to confirmed State //
+    /////////////////////////////////////
+
+    public void SetConfirmedState(float delayTime)
+    {
+        StartCoroutine(CoroutineSetConfirmedState(delayTime));
+    }
+    IEnumerator CoroutineSetConfirmedState(float delayTime)
+    {
+        //Start delay
+        if (delayTime != 0) { yield return new WaitForSeconds(delayTime); }
+
+        //Add to the list of confirmed objects
+        hom3r.quickLinks.scriptsObject.GetComponent<SelectionManager>().ConfirmGameObjectON(this.gameObject);
+        //Change color of the material             
+        //context.parent.gameObject.GetComponent<Renderer>().material.color = context.parent.confirmedColour;
+        ObjectStateMaterialUtils.SetColourToMaterial(this.GetComponent<Renderer>().material, this.confirmedColour);
+        //Add label to the area if proceed
+        hom3r.quickLinks.scriptsObject.GetComponent<Core>().EmitEvent(new CCoreEvent(TCoreEvent.ObjectState_AreaConfirmationOn, this.gameObject));
+    }
+
 
     /////////////////////////
     // Fade effect Methods //

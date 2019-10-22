@@ -14,7 +14,7 @@ public enum TCoreEvent
     ModelManagement_ShowMessage,
     ModelManagement_ReadyToLoadExplosionModel, 
     ModelManagement_FileDownloadBegin, ModelManagement_FileDownloadEnd,
-    ModelManagement_ResetModel,
+    ModelManagement_ModelReset_Success,
     ModelManagement_ProductModelEditOk, ModelManagement_ProductModelEditError,
     ModelManagement_NavigationAxisChanged,
 

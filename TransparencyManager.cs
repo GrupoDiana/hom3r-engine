@@ -151,7 +151,6 @@ public class TransparencyManager : MonoBehaviour {
         }
 	}
 
-
     /////////////////////////////
     /// ALPHA Level
     ///////////////////////////// 

@@ -50,16 +50,17 @@ class Confirmed_State : State
 {
     public override void StateIn(VisualStateContext context)
     {
-        
-        //Add to the list of confirmed objects
-        hom3r.quickLinks.scriptsObject.GetComponent<SelectionManager>().ConfirmGameObjectON(context.parent.gameObject);
-        //Change color of the material             
-        //context.parent.gameObject.GetComponent<Renderer>().material.color = context.parent.confirmedColour;
-        ObjectStateMaterialUtils.SetColourToMaterial(context.parent.GetComponent<Renderer>().material, context.parent.confirmedColour);
-        //Add label to the area if proceed
-        hom3r.quickLinks.scriptsObject.GetComponent<Core>().EmitEvent(new CCoreEvent(TCoreEvent.ObjectState_AreaConfirmationOn, context.parent.gameObject));
+        this.StateIn(context, 0.0f);
+        ////Add to the list of confirmed objects
+        //hom3r.quickLinks.scriptsObject.GetComponent<SelectionManager>().ConfirmGameObjectON(context.parent.gameObject);
+        ////Change color of the material                     
+        //ObjectStateMaterialUtils.SetColourToMaterial(context.parent.GetComponent<Renderer>().material, context.parent.confirmedColour);
+        ////Add label to the area if proceed
+        //hom3r.quickLinks.scriptsObject.GetComponent<Core>().EmitEvent(new CCoreEvent(TCoreEvent.ObjectState_AreaConfirmationOn, context.parent.gameObject));
     }
-    public override void StateIn(VisualStateContext context, float duration) { }
+    public override void StateIn(VisualStateContext context, float duration) {
+        context.parent.SetConfirmedState(duration);      //Init material  
+    }
     public override void StateOut(VisualStateContext context)
     {
         //Delete from the list of confirmed GameObjects
@@ -239,10 +240,10 @@ class VisualStateContext
         }
     }
 
-    public void ChangeState_toConfirmed(bool multiple)
+    public void ChangeState_toConfirmed(bool multiple, float duration = 0.0f)
     {
         //Finish current state
-        state.StateOut(this);
+        state.StateOut(this, duration);
         if (!multiple)
         {
             //2. Des-confirm all previous objects
@@ -250,7 +251,7 @@ class VisualStateContext
         }
         //Change to the new state
         state = new Confirmed_State();
-        state.StateIn(this);
+        state.StateIn(this, duration);
     }
 
     public void ChangeState_toTransparent(float duration)
