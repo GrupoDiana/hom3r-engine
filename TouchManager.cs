@@ -15,6 +15,7 @@ public class TouchManager : MonoBehaviour
     private int     movementDetector;
     private float   initTwoTouchesDistance;
 
+
     private TTwoTouchIteractionMode twoTouchInteractionMode;
     private float twoTouchInitialDistance;
     private float pinchMovementDetectorMargin;
@@ -32,7 +33,8 @@ public class TouchManager : MonoBehaviour
         this.isDragMovement = false;
         this.isPitchMovement = false;
         this.movementCounter = 0;
-        this.movementDetector = 5;         // TODO do this in a different way ?
+        this.movementDetector = 5;              // TODO do this in a different way ?
+        this.pinchMovementDetectorMargin = 0.35f;
         this.initTwoTouchesDistance = 0f;
         this.twoTouchInteractionMode = TTwoTouchIteractionMode.iddle;
 
@@ -72,6 +74,7 @@ public class TouchManager : MonoBehaviour
             //Debug.Log("hom3r - one touch");
             if (Input.GetTouch(0).phase == TouchPhase.Began)
             {
+                Debug.Log(" TouchPhase.Began ");
                 this.selectionTouchId = Input.GetTouch(0).fingerId;
                 if (this.isDragMovement)
                 {
@@ -82,6 +85,8 @@ public class TouchManager : MonoBehaviour
                 {
                     hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.TouchManager_PinchZoomEnd));
                     this.isPitchMovement = false;
+                    this.twoTouchInteractionMode = TTwoTouchIteractionMode.iddle;
+                    hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.MouseManager_CentralButtonUp));
                 }
 
             }  
@@ -99,6 +104,7 @@ public class TouchManager : MonoBehaviour
                     hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.TouchManager_DragMovementEnd));
                     this.isDragMovement = false;
                 }
+                if (this.twoTouchInteractionMode != TTwoTouchIteractionMode.iddle) { this.twoTouchInteractionMode = TTwoTouchIteractionMode.iddle; }
                 
             }
             else if (Input.GetTouch(0).phase == TouchPhase.Moved)
@@ -195,50 +201,57 @@ public class TouchManager : MonoBehaviour
         // If there are two touches on the device...
         if (Input.touchCount == 2)
         {            
-            if (this.twoTouchInteractionMode == TTwoTouchIteractionMode.iddle) {
+            if (this.twoTouchInteractionMode == TTwoTouchIteractionMode.iddle)
+            {
                 twoTouchInitialDistance = this.GetTwoTouchCurrentDistance();
                 this.twoTouchInteractionMode = TTwoTouchIteractionMode.pan_navigation;
+                hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.MouseManager_CentralButtonDown));
             }
             
-            if (this.PinchMovementDetector(twoTouchInitialDistance, this.GetTwoTouchCurrentDistance()))
+            if (this.twoTouchInteractionMode == TTwoTouchIteractionMode.pan_navigation && this.PinchMovementDetector(twoTouchInitialDistance, this.GetTwoTouchCurrentDistance()))
             {
+                hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.MouseManager_CentralButtonUp));
+
                 this.twoTouchInteractionMode = TTwoTouchIteractionMode.pinch_zoom;
                 isPitchMovement = true;
                 hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.TouchManager_PinchZoomBegin));
-            } 
+
+            }
+
+            //else if (this.twoTouchInteractionMode == TTwoTouchIteractionMode.pinch_zoom)
+            //{                
+               
+            //}
 
             if (this.twoTouchInteractionMode == TTwoTouchIteractionMode.pan_navigation)
             {
-                Debug.Log("PAN NAVIGATION");
-            } else if (this.twoTouchInteractionMode == TTwoTouchIteractionMode.pinch_zoom)
+                this.PanMovement();
+            }
+            else if (this.twoTouchInteractionMode == TTwoTouchIteractionMode.pinch_zoom)
             {
                 this.PinchMovement();
             }
-
-            //if (!isPitchMovement)
-            //{
-            //    isPitchMovement = true;
-            //    hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.TouchManager_PinchZoomBegin));
-            //}
-            
-            // Store both touches.
-            //Touch touchZero = Input.GetTouch(0);
-            //Touch touchOne = Input.GetTouch(1);
-            
-            //// Get the distance in the previous frame of each touch.
-            //Vector2 touchZeroPreviousPosition = touchZero.position - touchZero.deltaPosition;
-            //Vector2 touchOnePreviousPosition = touchOne.position - touchOne.deltaPosition;
-            //float touchesPreviousDistance = (touchOnePreviousPosition - touchZeroPreviousPosition).magnitude;
-            //// Get the distance in the current frame of each touch.
-            //float touchesCurrentDistance = (touchZero.position - touchOne.position).magnitude;
-            //// Distance change in %
-            //float distancePercentageChange = touchesCurrentDistance / touchesPreviousDistance;
-
-            //float inverseDistancePercentageChange = 1 - distancePercentageChange;
-            //Debug.Log("hom3r: " + inverseDistancePercentageChange);
-            //hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.TouchManager_PinchZoom, inverseDistancePercentageChange));            
+          
         }
     }
+
+    private void PanMovement() {
+
+        Touch touchZero = Input.GetTouch(0);
+        Vector2 touchZeroPreviousPosition = touchZero.position - touchZero.deltaPosition;
+        Vector2 touchZeroPosition = touchZero.position;
+
+        float touchMovementX;
+        float touchMovementY;
+        
+        touchMovementX = (touchZeroPosition.x - touchZeroPreviousPosition.x) / Screen.width;     // Get mouse x movement in screen %
+        touchMovementY = (touchZeroPosition.y - touchZeroPreviousPosition.y) / Screen.height;    // Get mouse y movement in screen %
+        // previousMousePosition = currentMousePosition;                                           // Save current mouse position in pixels
+        hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.MouseManager_CentralButtonDragMovement, touchZeroPosition, touchMovementX, touchMovementY));
+
+    }
+
+
     private void PinchMovement()
     {
         Touch touchZero = Input.GetTouch(0);
@@ -254,13 +267,15 @@ public class TouchManager : MonoBehaviour
         float distancePercentageChange = touchesCurrentDistance / touchesPreviousDistance;
 
         float inverseDistancePercentageChange = 1 - distancePercentageChange;
-        Debug.Log("hom3r: " + inverseDistancePercentageChange);
+        Debug.Log("hom3r - inverseDistancePercentageChange: " + inverseDistancePercentageChange);
         hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.TouchManager_PinchZoom, inverseDistancePercentageChange));
     }
     private bool PinchMovementDetector(float initialDistance, float currentDistance)
     {
-        float movement = initialDistance - currentDistance;
-        if (movement > pinchMovementDetectorMargin) { return true; }
+        if (initialDistance < 0.05f) return false;
+        float pinchMovement = Mathf.Abs((currentDistance - initialDistance)/ initialDistance);
+        Debug.Log("PinchMovementDetector: " + pinchMovement);
+        if (pinchMovement > pinchMovementDetectorMargin) { return true; }
         return false;
     }
 
@@ -270,13 +285,27 @@ public class TouchManager : MonoBehaviour
         Touch touchZero = Input.GetTouch(0);
         Touch touchOne = Input.GetTouch(1);
         // Get the distance in the previous frame of each touch.
-        Vector2 touchZeroPreviousPosition = touchZero.position - touchZero.deltaPosition;
-        Vector2 touchOnePreviousPosition = touchOne.position - touchOne.deltaPosition;
-        float touchesPreviousDistance = (touchOnePreviousPosition - touchZeroPreviousPosition).magnitude;
+        //Vector2 touchZeroPreviousPosition = touchZero.position - touchZero.deltaPosition;
+        //Vector2 touchOnePreviousPosition = touchOne.position - touchOne.deltaPosition;
+        //float touchesPreviousDistance = (touchOnePreviousPosition - touchZeroPreviousPosition).magnitude;
         // Get the distance in the current frame of each touch.
         float touchesCurrentDistance = (touchZero.position - touchOne.position).magnitude;
         return touchesCurrentDistance;
     }
+
+    private float GetTwoTouchPreviousDistance()
+    {
+        Touch touchZero = Input.GetTouch(0);
+        Touch touchOne = Input.GetTouch(1);
+
+        // Get the distance in the previous frame of each touch.
+        Vector2 touchZeroPreviousPosition = touchZero.position - touchZero.deltaPosition;
+        Vector2 touchOnePreviousPosition = touchOne.position - touchOne.deltaPosition;
+        float touchesPreviousDistance = (touchOnePreviousPosition - touchZeroPreviousPosition).magnitude;
+
+        return touchesPreviousDistance;
+    }
+
 
 
     public IEnumerator StartCountdown(float countdownValue = 10)
