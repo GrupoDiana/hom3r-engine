@@ -53,6 +53,7 @@ public enum TModelCommands
 {
     LoadProductModel, ResetProductModel, ModifyProductModel,
     Load3DFiles,
+    SetNavigationAxis,
     SetModelScale
 }
 
@@ -61,10 +62,11 @@ public class CModelCommandData
 {
     public TModelCommands command;
 
-    public string productModelURL { get; set; }
+    public string productModelURL { get; set; }    
     public string explosionModelURL { get; set; }
     public List<CIO3DFileData> listOfFiles { get; set; }
     public float scale { get; set; }
+    public string navigationAxis { get; set; }
     public CIOEditProductModel editProductModelData { get; set; }
 
     public CModelCommandData(TModelCommands _command)
@@ -89,7 +91,14 @@ public class CModelCommand : CCoreCommand
         data = new CModelCommandData(_command);
         data.scale = _scale;
     }
-    public CModelCommand(TModelCommands _command, string _productModelURL, string _explosionModelURL = "")
+    public CModelCommand(TModelCommands _command, string _navigationAxis)
+    {
+        data = new CModelCommandData(_command);
+
+        data.navigationAxis = _navigationAxis;        
+    }
+
+    public CModelCommand(TModelCommands _command, string _productModelURL, string _explosionModelURL)
     {
         data = new CModelCommandData(_command);
 
@@ -132,7 +141,9 @@ public class CModelCommand : CCoreCommand
                 case TModelCommands.Load3DFiles:
                     hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().Load3DFilesWithOutProductModel(data.listOfFiles);
                     break;
-
+                case TModelCommands.SetNavigationAxis:
+                    hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().SetNavigationAxis(data.navigationAxis);
+                    break;
                 case TModelCommands.SetModelScale:
                     hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().Set3DModelScale(data.scale);
                     break;

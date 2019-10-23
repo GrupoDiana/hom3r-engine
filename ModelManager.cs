@@ -576,12 +576,17 @@ public class ModelManager : MonoBehaviour {
         return false;
     }
 
+    public void SetNavigationAxis(string _navigationAxis)
+    {
+        bool temp = this.ChangeNavigationAxis(_navigationAxis);
+    }
+
     private bool ChangeNavigationAxis(string newNavigationAxis)
     {
         if ((productModelLoaded) && newNavigationAxis != null && newNavigationAxis != "")
-        {
+        {            
             productModel.SetNavigationAxis(newNavigationAxis);            
-            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.ModelManagement_NavigationAxisChanged, newNavigationAxis));
+            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.ModelManagement_NavigationAxisChange_Success, newNavigationAxis));
             return true;
         }
         return false;

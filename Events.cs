@@ -16,7 +16,7 @@ public enum TCoreEvent
     ModelManagement_FileDownloadBegin, ModelManagement_FileDownloadEnd,
     ModelManagement_ModelReset_Success,
     ModelManagement_ProductModelEditOk, ModelManagement_ProductModelEditError,
-    ModelManagement_NavigationAxisChanged,
+    ModelManagement_NavigationAxisChange_Success,
 
     _3DFileManager_ShowMessage, _3DFileManager_ShowMessageConsole,
 
