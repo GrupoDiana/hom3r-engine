@@ -479,6 +479,8 @@ public class ModelManager : MonoBehaviour {
     /// <summary>Reset Product Model</summary>
     public void ResetModel()
     {
+        if (!this.productModel.isInit()) { return; }
+
         if (!IsAnyFileLoading())
         {
             SetBlockUserInterfaceDuringFileLoading();                                       // Block UI            
@@ -721,7 +723,7 @@ public class ModelManager : MonoBehaviour {
     /// <param name="target">obj to calculate bounding box</param>
     /// <returns>Target Bounding Box</returns>
     private Bounds Calculate3DModelBoundingBox(GameObject target)
-    {
+    {        
         //Initialization OBJ listBoundingBox
         List<GameObject> productTargetList = new List<GameObject>();
         productTargetList.Add(target);
