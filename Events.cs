@@ -34,7 +34,7 @@ public enum TCoreEvent
     TouchManager_OneSelectionTouch,
     TouchManager_DragMovementBegin,TouchManager_DragMovement, TouchManager_DragMovementEnd,
     TouchManager_PinchZoomBegin, TouchManager_PinchZoom, TouchManager_PinchZoomEnd,
-    TouchManager_TwoFingerMovementBegin, TouchManager_TwoFingerMovementEnd, TouchManager_TwoFingerDragMovement,
+    TouchManager_TwoFingersDragMovement_Begin, TouchManager_TwoFingerDragMovement_End, TouchManager_TwoFingerDragMovement,
 
     Selection_ShowMessage,
     Selection_IndicationOnFinished, Selection_IndicationOffFinished,
