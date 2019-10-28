@@ -32,9 +32,10 @@ public enum TCoreEvent
     MouseManager_LabelDragGesture,
 
     TouchManager_OneSelectionTouch,
-    TouchManager_DragMovementBegin,TouchManager_DragMovement, TouchManager_DragMovementEnd,
-    TouchManager_PinchZoomBegin, TouchManager_PinchZoom, TouchManager_PinchZoomEnd,
+    TouchManager_OneFingerDragMovement_Begin, TouchManager_OneFingerDragMovement_End, TouchManager_OneFingerDragMovement,
     TouchManager_TwoFingersDragMovement_Begin, TouchManager_TwoFingerDragMovement_End, TouchManager_TwoFingerDragMovement,
+    TouchManager_TwoFingersPinch_Begin, TouchManager_TwoFingersPinch_End, TouchManager_TwoFingersPinch,
+    TouchManager_ThreeFingersDragMovement_Begin, TouchManager_ThreeFingerDragMovement_End, TouchManager_ThreeFingerDragMovement,
 
     Selection_ShowMessage,
     Selection_IndicationOnFinished, Selection_IndicationOffFinished,

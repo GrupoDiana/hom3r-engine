@@ -2,16 +2,21 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum TOneTouchIteractionMode { iddle, selection, drag };
-public enum TTwoTouchIteractionMode {  began, moved };
-//public enum TTwoTouchIteractionMode { iddle, began, pinch_zoom, pan_navigation };
-public enum TThreeTouchIteractionMode { iddle, began, pan_navigation };
+public enum TTouchManagerMode       { iddle, one_finger, two_fingers, three_fingers };
+public enum TOneTouchIteractionMode { iddle, selection, drag_movement };
+public enum TTwoTouchIteractionMode { began, moved };
+public enum TThreeTouchIteractionMode { began, moved };
 
 public class TouchManager : MonoBehaviour
 {
-    private int     selectionTouchId;
-    private bool    isDragMovement;
-    private bool    twoTouchGesture;
+    // General
+    private TTouchManagerMode touchManagerMode;
+    private TTouchManagerMode lastTouchManagerMode;
+    private List<int> initialTouchsId;
+
+
+    // private int     selectionTouchId;
+    // private bool    isDragMovement;    
     private float   currentCountdownValue;
     private int     movementCounter;
     private int     movementDetector;    
@@ -23,7 +28,7 @@ public class TouchManager : MonoBehaviour
     // Two Touches gestures vars
     private TTwoTouchIteractionMode twoTouchInteractionMode;
     private float twoTouchInitialDistance;
-    private List<int> initialTwoTouchsId;
+    
     List<Vector2> previousTouchPositions;
 
     private TThreeTouchIteractionMode threeTouchInteractionMode;
@@ -42,21 +47,19 @@ public class TouchManager : MonoBehaviour
 
     // Others    
     void Awake()
-    {        
-        this.selectionTouchId = -1;
-        this.isDragMovement = false;
-        this.twoTouchGesture = false;
+    {
+        touchManagerMode = TTouchManagerMode.iddle;
+        lastTouchManagerMode = TTouchManagerMode.iddle;
+        this.InitGestureModes();        
+                
         this.movementCounter = 0;
         this.movementDetector = 5;              // TODO do this in a different way ?
         this.pinchMovementDetectorMargin = 0.25f;
         this.panMovementDetectorMargin = 0.35f;
         this.touchMovementDetectorMargin = 7f;
 
-        this.oneTouchIteractionMode = TOneTouchIteractionMode.iddle;
-        this.twoTouchInteractionMode = TTwoTouchIteractionMode.began;
-        this.threeTouchInteractionMode = TThreeTouchIteractionMode.iddle;
-
-
+        
+       
         //this.lowPassFilter = new LowpassFilterButterworthImplementation(40f, 4, 120f);
         ////////////////////////////////////////
         // Initialize Ray-casting variables
@@ -77,77 +80,153 @@ public class TouchManager : MonoBehaviour
     {
         if (hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetActiveTouchInteration())
         {
-            OneTouchManager(); 
-            TwoTouchManager();
-            ThreeTouchManager();
+            this.lastTouchManagerMode = touchManagerMode;
+            this.touchManagerMode = GetTouchManagerMode(Input.touchCount);
+
+            if (this.touchManagerMode != this.lastTouchManagerMode) { this.InitLastTouchMode(); }
+
+            if (this.touchManagerMode == TTouchManagerMode.one_finger) { OneTouchManager(); }
+            else if (this.touchManagerMode == TTouchManagerMode.two_fingers) { TwoTouchManager(); }
+            else if (this.touchManagerMode == TTouchManagerMode.three_fingers) { ThreeTouchManager(); }
+            else { this.InitLastTouchMode(); }
         }
     }
 
     ////////////////////////
+    //  MODE MANAGER
+    ////////////////////////
+    private TTouchManagerMode GetTouchManagerMode(int touchCount)
+    {
+        TTouchManagerMode currentTouchManagerMode = TTouchManagerMode.iddle;
+        switch (touchCount)
+        {
+            case 1:
+                currentTouchManagerMode = TTouchManagerMode.one_finger;
+                break;
+            case 2:
+                currentTouchManagerMode = TTouchManagerMode.two_fingers;
+                break;
+            case 3:
+                currentTouchManagerMode = TTouchManagerMode.three_fingers;
+                break;
+            default:
+                currentTouchManagerMode = TTouchManagerMode.iddle;
+                break;
+        }
+        return currentTouchManagerMode;
+    }
+
+    private void InitLastTouchMode()
+    {
+        if (this.lastTouchManagerMode == TTouchManagerMode.iddle) { return; }
+        switch (this.lastTouchManagerMode)
+        {
+            case TTouchManagerMode.one_finger:
+                this.InitOneTouchMode();
+                break;
+            case TTouchManagerMode.two_fingers:
+                this.InitTwoTouchsMode();
+                break;
+            case TTouchManagerMode.three_fingers:
+                this.InitThreeTouchsMode();
+                break;
+        }
+        this.lastTouchManagerMode = TTouchManagerMode.iddle;
+    }
+
+    private void InitGestureModes()
+    {
+        this.oneTouchIteractionMode = TOneTouchIteractionMode.iddle;
+        this.twoTouchInteractionMode = TTwoTouchIteractionMode.began;
+        this.threeTouchInteractionMode = TThreeTouchIteractionMode.began;
+        this.initialTouchsId = new List<int>();        
+    }
+
+    private void InitOneTouchMode()
+    {
+        if (this.oneTouchIteractionMode != TOneTouchIteractionMode.iddle)
+        {
+            this.initialTouchsId = new List<int>();
+            this.oneTouchIteractionMode = TOneTouchIteractionMode.iddle;
+            this.movementCounter = 0;
+            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.TouchManager_OneFingerDragMovement_End));
+        }        
+    }
+
+    private void InitTwoTouchsMode()
+    {
+        if (this.twoTouchInteractionMode != TTwoTouchIteractionMode.began)
+        {
+            this.initialTouchsId = new List<int>();
+            this.twoTouchInteractionMode = TTwoTouchIteractionMode.began;
+            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.TouchManager_TwoFingersPinch_End));
+            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.TouchManager_TwoFingerDragMovement_End));
+        }        
+    }
+
+
+    private void InitThreeTouchsMode()
+    {
+        if (this.threeTouchInteractionMode != TThreeTouchIteractionMode.began)
+        {            
+            this.initialTouchsId = new List<int>();
+            this.threeTouchInteractionMode = TThreeTouchIteractionMode.began;            
+            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.TouchManager_ThreeFingerDragMovement_End));
+        }
+    }
+    ////////////////////////
     //  ONE TOUCH MANAGER
     ////////////////////////
 
-    /// <summary>One Touch Manager, this method manages the one touch interaction.</summary>
+    /// <summary>One Touch Manager, this method manages the one touch interaction/gestures.</summary>
     private void OneTouchManager()
     {
-        if (Input.touchCount == 1)
-        {
-            //Debug.Log("hom3r - one touch");
-            if (Input.GetTouch(0).phase == TouchPhase.Began)
-            {
-                Debug.Log(" TouchPhase.Began ");                
-                this.selectionTouchId = Input.GetTouch(0).fingerId;
-                this.oneTouchIteractionMode = TOneTouchIteractionMode.selection;
+        // Just in case
+        if (this.touchManagerMode != TTouchManagerMode.one_finger) { return; }
 
+        // If there are one touch on the device                    
+        if (Input.GetTouch(0).phase == TouchPhase.Began)
+        {            
+            initialTouchsId = new List<int>() { Input.GetTouch(0).fingerId };            
+            this.oneTouchIteractionMode = TOneTouchIteractionMode.selection;           
+        }  
+        else if (Input.GetTouch(0).phase == TouchPhase.Ended)
+        {            
+            if ((this.oneTouchIteractionMode == TOneTouchIteractionMode.selection)  && (Input.GetTouch(0).fingerId == this.initialTouchsId[0]))
+            {                         
+                SelectionManager(Input.GetTouch(0).position);
+            }
+            else if (this.oneTouchIteractionMode == TOneTouchIteractionMode.drag_movement) {
+                hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.TouchManager_OneFingerDragMovement_End));                
+            }
 
-                if (this.isDragMovement)
-                {
-                    hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.TouchManager_DragMovementEnd));
-                    this.isDragMovement = false;                    
-                }
-                if (this.twoTouchGesture)
-                {
-                    this.twoTouchGesture = false;
-                    this.twoTouchInteractionMode = TTwoTouchIteractionMode.began;
-                    this.threeTouchInteractionMode = TThreeTouchIteractionMode.iddle;
-                    hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.TouchManager_PinchZoomEnd));                                                            
-                    hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.TouchManager_TwoFingerDragMovement_End));
-                }
-
-            }  
-            else if (Input.GetTouch(0).phase == TouchPhase.Ended)
-            {
-                if (!isDragMovement  && (Input.GetTouch(0).fingerId == this.selectionTouchId))
-                {
-                    //SelectionManager(Input.GetTouch(0).position);
-                    Debug.Log("hom3r - selection");
-                    SelectionManager(Input.GetTouch(0).position);
-                }
-                this.selectionTouchId = -1;
-                this.movementCounter = 0;
-                if (this.isDragMovement) {
-                    hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.TouchManager_DragMovementEnd));
-                    this.isDragMovement = false;
-                }
-                if (this.twoTouchInteractionMode != TTwoTouchIteractionMode.began) { this.twoTouchInteractionMode = TTwoTouchIteractionMode.began; }
-                
+            this.InitOneTouchMode();
+            if (this.twoTouchInteractionMode != TTwoTouchIteractionMode.began) {
+                this.InitTwoTouchsMode();
             }
-            else if (Input.GetTouch(0).phase == TouchPhase.Moved)
+            if (this.threeTouchInteractionMode != TThreeTouchIteractionMode.began)
             {
-                movementCounter++;
-                this.Movement_Manager();
-            }
-            else if (Input.GetTouch(0).phase == TouchPhase.Stationary)
-            {
-                // DO NOTHING
-            }
-            else if (Input.GetTouch(0).phase == TouchPhase.Canceled)
-            {
-                this.selectionTouchId = -1;
-                this.movementCounter = 0;
-                this.isDragMovement = false;
+                this.InitThreeTouchsMode();
             }
         }
+        else if (Input.GetTouch(0).phase == TouchPhase.Moved)
+        {            
+            movementCounter++;
+            this.Movement_Manager();
+        }
+        else if (Input.GetTouch(0).phase == TouchPhase.Stationary)
+        {
+            // DO NOTHING
+        }
+        else if (Input.GetTouch(0).phase == TouchPhase.Canceled)
+        {            
+            this.InitOneTouchMode();
+            if (this.oneTouchIteractionMode == TOneTouchIteractionMode.drag_movement)
+            {
+                hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.TouchManager_OneFingerDragMovement_End));
+            }
+        }
+        
     }
 
     private void SelectionManager(Vector3 currentTouchPosition)
@@ -202,14 +281,12 @@ public class TouchManager : MonoBehaviour
     {
         if (movementCounter > movementDetector)
         {
-            isDragMovement = true;
-            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.TouchManager_DragMovementBegin));
+            this.oneTouchIteractionMode = TOneTouchIteractionMode.drag_movement;
+            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.TouchManager_OneFingerDragMovement_Begin));
         }
-        if (isDragMovement)
+        if (this.oneTouchIteractionMode == TOneTouchIteractionMode.drag_movement)
         {
             movementCounter = 0;
-            //Debug.Log("hom3r - Movement");
-            //TODO DO SOMETHING
             Touch touch = Input.GetTouch(0);
 
             float xMovement = touch.deltaPosition.x;
@@ -217,50 +294,62 @@ public class TouchManager : MonoBehaviour
 
             float touchMovementX = xMovement / Screen.width;     // Get touch x movement in screen %
             float touchMovementY = yMovement / Screen.height;    // Get mouse y movement in screen %   
-            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.TouchManager_DragMovement, touchMovementX, touchMovementY));
+            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.TouchManager_OneFingerDragMovement, touchMovementX, touchMovementY));
         }
     }
 
+    /// <summary>
+    /// Manage gestures that use two fingers
+    /// </summary>
     private void TwoTouchManager()
     {
-        // If there are two touches on the device...
-        if (Input.touchCount == 2)
-        {
-            if (this.twoTouchInteractionMode == TTwoTouchIteractionMode.began)
-            {
-                twoTouchGesture = true;
-                twoTouchInitialDistance = this.GetTwoTouchCurrentDistance();
-                this.twoTouchInteractionMode = TTwoTouchIteractionMode.moved;
-                hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.TouchManager_TwoFingersDragMovement_Begin));
+        // Just in case
+        if (this.touchManagerMode != TTouchManagerMode.two_fingers) { return; }
+        
+        // If there are two touches on the device        
+        if (this.twoTouchInteractionMode == TTwoTouchIteractionMode.began)
+        {            
+            twoTouchInitialDistance = this.GetTwoTouchCurrentDistance();                                    // get initial fingers distance
+            this.twoTouchInteractionMode = TTwoTouchIteractionMode.moved;                                   // start move mode
+            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.TouchManager_TwoFingersDragMovement_Begin)); // emit initial
 
-                initialTwoTouchsId = new List<int> { Input.GetTouch(0).fingerId, Input.GetTouch(1).fingerId };
-                previousTouchPositions = new List<Vector2>() { Input.GetTouch(0).position, Input.GetTouch(1).position };
-            }
-            else if (this.twoTouchInteractionMode == TTwoTouchIteractionMode.moved)
-            {
-                if (!IsSameTwoTouchesId()) { return; }
-                List<Vector2> newPosition = new List<Vector2>() { Input.GetTouch(0).position, Input.GetTouch(1).position };
-                // Check both fingers have moved        
-                bool bothTouchMoves = this.HasTheTouchMoved(Input.GetTouch(0)) && HasTheTouchMoved(Input.GetTouch(1));
-                if (bothTouchMoves) { this.PanMovement(); }
-                //// Check both fingers have moved
-                bool anyTouchMoves = this.HasTheTouchMoved(Input.GetTouch(0)) || HasTheTouchMoved(Input.GetTouch(1));
-                if (anyTouchMoves) { this.PinchMovement(); }                
-            }            
+            initialTouchsId = new List<int> { Input.GetTouch(0).fingerId, Input.GetTouch(1).fingerId };
+            previousTouchPositions = new List<Vector2>() { Input.GetTouch(0).position, Input.GetTouch(1).position };
         }
+        else if (this.twoTouchInteractionMode == TTwoTouchIteractionMode.moved)
+        {
+            if (!IsSameTwoTouchesId()) { return; }
+            List<Vector2> newPosition = new List<Vector2>() { Input.GetTouch(0).position, Input.GetTouch(1).position };
+            
+            // If both fingers have moved, it is a PAN movement
+            bool bothTouchMoves = this.HasTheTouchMoved(Input.GetTouch(0)) && HasTheTouchMoved(Input.GetTouch(1));
+            if (bothTouchMoves) { this.TwoFingersDragMovementGesture(); }
+
+            // If any of the finge fingers have moved, it is a PINCH gesture
+            bool anyTouchMoves = this.HasTheTouchMoved(Input.GetTouch(0)) || HasTheTouchMoved(Input.GetTouch(1));
+            if (anyTouchMoves) { this.TwoFingersPinchGesture(); }                
+        }            
+        
     }
 
-   private bool IsSameTwoTouchesId()
+    /// <summary>
+    /// Check touches id, to avoid mistake fingers
+    /// </summary>
+    /// <returns></returns>
+    private bool IsSameTwoTouchesId()
     {
         List<int> currentTouchesId = new List<int> { Input.GetTouch(0).fingerId, Input.GetTouch(1).fingerId };
 
-        if ((initialTwoTouchsId[0] == currentTouchesId[0]) && (initialTwoTouchsId[1] == currentTouchesId[1])) { return true; }
+        if ((initialTouchsId[0] == currentTouchesId[0]) && (initialTouchsId[1] == currentTouchesId[1])) { return true; }
 
         return false;
     }
 
-    // Pan
-    private void PanMovement() {
+
+    /// <summary>
+    /// Calculate the Drag-Movement Gesture and send the data - PAN 
+    /// </summary>
+    private void TwoFingersDragMovementGesture() {
         Touch touchZero = Input.GetTouch(0);
         Touch touchOne = Input.GetTouch(1);
 
@@ -271,8 +360,7 @@ public class TouchManager : MonoBehaviour
         Vector2 touchZeroPosition = touchZero.position;
         Vector2 touchOnePosition = touchOne.position;
         Vector2 currentIntermediateTwoTouchposition = 0.5f * (touchZeroPosition + touchOnePosition);
-                                      
-        // Vector2 touchZeroPosition = GetPositionBetweenTwoTouches();
+                                              
         float touchMovementX;
         float touchMovementY;
         
@@ -280,36 +368,13 @@ public class TouchManager : MonoBehaviour
         touchMovementY = (currentIntermediateTwoTouchposition.y - previousIntermediateTwoTouchposition.y) / Screen.height;    // Get mouse y movement in screen %
         
         hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.TouchManager_TwoFingerDragMovement, touchZeroPosition, touchMovementX, touchMovementY));
-
     }
 
     /// <summary>
-    /// Checks whether a touch pan movement has occurred or not
+    /// Check if one touch has moved between one frame and the previous one
     /// </summary>
-    /// <param name="originPosition"></param>
-    /// <param name="currentPosition"></param>
+    /// <param name="touch">True if yes</param>
     /// <returns></returns>
-    private bool PanMovementDetector()
-    {
-        // Check both fingers have moved        
-        bool bothTouchMoves = this.HasTheTouchMoved(Input.GetTouch(0)) && HasTheTouchMoved(Input.GetTouch(1));
-        if (!bothTouchMoves) { return false; }
-        // Check distance between fingers have 
-        //bool distanceChange = this.HasChangedTouchsDistance(twoTouchInitialDistance, this.GetTwoTouchCurrentDistance());
-        bool distanceChange = this.HasChangedTouchsDistance(this.GetTwoTouchPreviousDistance(), this.GetTwoTouchCurrentDistance(), panMovementDetectorMargin);
-
-
-        return !distanceChange;
-    }
-
-    private bool HasChangedTouchsDistance(float initialDistance, float currentDistance, float marginDetector)
-    {
-        if (initialDistance < 0.05f) return false;
-        float pinchMovement = Mathf.Abs((currentDistance - initialDistance) / initialDistance);
-        if (pinchMovement > marginDetector) { return true; }
-        return false;
-    }
-
     private bool HasTheTouchMoved(Touch touch) {
 
         Vector2 touchPreviousPosition = touch.position - touch.deltaPosition;
@@ -320,34 +385,26 @@ public class TouchManager : MonoBehaviour
         return false;
     }
     
-    //private Vector2 GetPositionBetweenTwoTouches()
-    //{        
-    //    Touch touchZero = Input.GetTouch(0);
-    //    Touch touchOne = Input.GetTouch(1);
-
-    //    Vector2 touchZeroPosition = touchZero.position;
-    //    Vector2 touchOnePosition = touchOne.position;
-
-    //    Vector2 twoTouchposition = 0.5f *(touchZeroPosition + touchOnePosition);
-    //    return twoTouchposition;
-    //}
-
-
-    // Pinch
-
-    private void PinchMovement()
+    /// <summary>
+    ///  Calculate the Pinch Gesture and send the data - ZOOM
+    /// </summary>
+    private void TwoFingersPinchGesture()
     {
-        Touch touchZero = Input.GetTouch(0);
-        Touch touchOne = Input.GetTouch(1);        
-        // Get the distance in the previous frame of each touch.
-        Vector2 touchZeroPreviousPosition = touchZero.position - touchZero.deltaPosition;
-        Vector2 touchOnePreviousPosition = touchOne.position - touchOne.deltaPosition;
-        float touchesPreviousDistance = (touchOnePreviousPosition - touchZeroPreviousPosition).magnitude;
-        // Get the distance in the current frame of each touch.
-        float touchesCurrentDistance = (touchZero.position - touchOne.position).magnitude;
-        
-        
+        //Touch touchZero = Input.GetTouch(0);
+        //Touch touchOne = Input.GetTouch(1);        
+        //// Get the distance in the previous frame of each touch.
+        ////Vector2 touchZeroPreviousPosition = touchZero.position - touchZero.deltaPosition;
+        ////Vector2 touchOnePreviousPosition = touchOne.position - touchOne.deltaPosition;
+        ////float touchesPreviousDistance = (touchOnePreviousPosition - touchZeroPreviousPosition).magnitude;
+        //// Get the distance in the current frame of each touch.
+        //float touchesCurrentDistance = (touchZero.position - touchOne.position).magnitude;
+
+        float touchesCurrentDistance = this.GetTwoTouchCurrentDistance();
+
+        // If the distance between fingers is to small with quick. To avoid strange data comming from the android screen
         if (touchesCurrentDistance < 300f) { return; } 
+        
+        
         // Distance change in %
         //float distancePercentageChange = touchesCurrentDistance / touchesPreviousDistance;
         float distancePercentageChange = touchesCurrentDistance / twoTouchInitialDistance;
@@ -356,60 +413,29 @@ public class TouchManager : MonoBehaviour
         //Testing
         this.twoTouchInitialDistance = touchesCurrentDistance;
 
-        if (Mathf.Abs(inverseDistancePercentageChange) > 0.05f)
-        {
-            Debug.Log("touchesCurrentDistance: " + touchesCurrentDistance);
-            Debug.Log("touchesPreviousDistance: " + touchesPreviousDistance);
-            Debug.Log("hom3r - inverseDistancePercentageChange: " + inverseDistancePercentageChange);
-        }
+        //if (Mathf.Abs(inverseDistancePercentageChange) > 0.05f)
+        //{
+        //    Debug.Log("touchesCurrentDistance: " + touchesCurrentDistance);
+        //    Debug.Log("touchesPreviousDistance: " + touchesPreviousDistance);
+        //    Debug.Log("hom3r - inverseDistancePercentageChange: " + inverseDistancePercentageChange);
+        //}
 
         //Clamp
         float temp = Mathf.Clamp(inverseDistancePercentageChange, -0.08f, 0.08f);                
 
-        // Filter
-        //float temp = (float) this.lowPassFilter.compute( (double) inverseDistancePercentageChange);
-
-
-        Debug.Log("Input: " + inverseDistancePercentageChange + "  output: " + temp);
-        hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.TouchManager_PinchZoom, temp));
-
-
-
+        //Debug.Log("Input: " + inverseDistancePercentageChange + "  output: " + temp);
+        hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.TouchManager_TwoFingersPinch, temp));
     }
 
-    //private bool PinchMovementDetector(float initialDistance, float currentDistance)
-    //{
-    //    if (initialDistance < 0.05f) return false;
-    //    float pinchMovement = Mathf.Abs((currentDistance - initialDistance)/ initialDistance);        
-    //    if (pinchMovement > pinchMovementDetectorMargin) { return true; }
-    //    return false;
-    //}
-
-
-    //private bool PinchMovementDetector_new()
-    //{
-    //    // Debug.Log(twoTouchInitialDistance);
-    //    if (twoTouchInitialDistance < 0.05f) return false;
-    //    // Check both fingers have moved        
-    //    bool anyTouchMoves = this.HasTheTouchMoved(Input.GetTouch(0)) || HasTheTouchMoved(Input.GetTouch(1));
-    //    if (!anyTouchMoves) { return false; }
-    //    // Check distance between fingers have 
-    //    bool distanceChange = this.HasChangedTouchsDistance(twoTouchInitialDistance, this.GetTwoTouchCurrentDistance(), pinchMovementDetectorMargin);
-    //    //bool distanceChange = this.HasChangedTouchsDistance(this.GetTwoTouchPreviousDistance(), this.GetTwoTouchCurrentDistance());
-
-    //    return distanceChange;      
-    //}
-
+    /// <summary>
+    /// Calculate two touches current distance
+    /// </summary>
+    /// <returns></returns>
     private float GetTwoTouchCurrentDistance()
     {
         // Store both touches.
         Touch touchZero = Input.GetTouch(0);
-        Touch touchOne = Input.GetTouch(1);
-        // Get the distance in the previous frame of each touch.
-        //Vector2 touchZeroPreviousPosition = touchZero.position - touchZero.deltaPosition;
-        //Vector2 touchOnePreviousPosition = touchOne.position - touchOne.deltaPosition;
-        //float touchesPreviousDistance = (touchOnePreviousPosition - touchZeroPreviousPosition).magnitude;
-        // Get the distance in the current frame of each touch.
+        Touch touchOne = Input.GetTouch(1);        
         float touchesCurrentDistance = (touchZero.position - touchOne.position).magnitude;
         return touchesCurrentDistance;
     }
@@ -427,44 +453,69 @@ public class TouchManager : MonoBehaviour
         return touchesPreviousDistance;
     }
 
-    private void ThreeTouchManager()
-    {      
-        // If there are two touches on the device...
-        if (Input.touchCount == 3)
-        {
-            if (threeTouchInteractionMode == TThreeTouchIteractionMode.iddle)
-            {                
-                threeTouchInteractionMode = TThreeTouchIteractionMode.began;
-            }
-            else if (this.threeTouchInteractionMode == TThreeTouchIteractionMode.began)
-            {
-                if (this.PanMovementDetector())
-                {
-                    this.threeTouchInteractionMode = TThreeTouchIteractionMode.pan_navigation;
-                    hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.TouchManager_TwoFingersDragMovement_Begin));
-                }               
-            }
 
-            if (this.threeTouchInteractionMode == TThreeTouchIteractionMode.pan_navigation)
-            {
-                this.PanMovement();
-            }
+    /// <summary>
+    /// Manage gestures that use three fingers
+    /// </summary>
+    private void ThreeTouchManager()
+    {
+        // Just in case
+        if (this.touchManagerMode != TTouchManagerMode.three_fingers) { return; }
+
+        // If there are three touches on the device  
+      
+        if (threeTouchInteractionMode == TThreeTouchIteractionMode.began)
+        {                
+            threeTouchInteractionMode = TThreeTouchIteractionMode.moved;
+            initialTouchsId = new List<int> { Input.GetTouch(0).fingerId, Input.GetTouch(1).fingerId, Input.GetTouch(2).fingerId };
+            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.TouchManager_ThreeFingersDragMovement_Begin)); // emit initial
         }
+        else if (this.threeTouchInteractionMode == TThreeTouchIteractionMode.moved)
+        {
+            if (!IsSameThreeTouchesId()) { return; }
+
+            // If both fingers have moved, it is a PAN movement
+            bool threeTouchMoves = this.HasTheTouchMoved(Input.GetTouch(0)) && HasTheTouchMoved(Input.GetTouch(1)) && HasTheTouchMoved(Input.GetTouch(2));
+            if (threeTouchMoves) { this.ThreeFingersDragMovementGesture(); }                         
+        }                
     }
 
+    /// <summary>
+    /// Check touches id, to avoid mistake fingers
+    /// </summary>
+    /// <returns></returns>
+    private bool IsSameThreeTouchesId()
+    {
+        List<int> currentTouchesId = new List<int> { Input.GetTouch(0).fingerId, Input.GetTouch(1).fingerId, Input.GetTouch(2).fingerId };
 
+        if ((initialTouchsId[0] == currentTouchesId[0]) && (initialTouchsId[1] == currentTouchesId[1]) && (initialTouchsId[2] == currentTouchesId[2])) { return true; }
 
+        return false;
+    }
 
+    /// <summary>
+    /// Calculate the Drag-Movement Gesture and send the data - PAN 
+    /// </summary>
+    private void ThreeFingersDragMovementGesture()
+    {
+        Touch touchZero = Input.GetTouch(0);
+        Touch touchOne = Input.GetTouch(1);
 
-            //public IEnumerator StartCountdown(float countdownValue = 10)
-            //{
-            //    currentCountdownValue = countdownValue;
-            //    while (currentCountdownValue > 0)
-            //    {
-            //        Debug.Log("Countdown: " + currentCountdownValue);
-            //        yield return new WaitForSeconds(1.0f);
+        Vector2 touchZeroPreviousPosition = touchZero.position - touchZero.deltaPosition;
+        Vector2 touchOnePreviousPosition = touchOne.position - touchOne.deltaPosition;
+        Vector2 previousIntermediateTwoTouchposition = 0.5f * (touchZeroPreviousPosition + touchOnePreviousPosition);
 
-            //        currentCountdownValue--;
-            //    }
-            //}
-        }
+        Vector2 touchZeroPosition = touchZero.position;
+        Vector2 touchOnePosition = touchOne.position;
+        Vector2 currentIntermediateTwoTouchposition = 0.5f * (touchZeroPosition + touchOnePosition);
+
+        float touchMovementX;
+        float touchMovementY;
+
+        touchMovementX = (currentIntermediateTwoTouchposition.x - previousIntermediateTwoTouchposition.x) / Screen.width;     // Get mouse x movement in screen %
+        touchMovementY = (currentIntermediateTwoTouchposition.y - previousIntermediateTwoTouchposition.y) / Screen.height;    // Get mouse y movement in screen %
+
+        hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.TouchManager_ThreeFingerDragMovement, touchZeroPosition, touchMovementX, touchMovementY));
+    }
+
+}
