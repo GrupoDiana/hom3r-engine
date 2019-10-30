@@ -9,17 +9,21 @@ public class PanNavigatioMangager
     Vector2 fielOfViewVector;
     float cameraMinimumDistance;
 
-    public void Init(Vector3 _extentsVector, Vector2 _fielOfViewVector, float _cameraMinimumDistance)
+    public void Init(Vector3 _extentsVector, /*Vector2 _fielOfViewVector,*/ float _cameraMinimumDistance)
     {
         this.extentsVector = _extentsVector;
-        this.fielOfViewVector = _fielOfViewVector;
+        //this.fielOfViewVector = _fielOfViewVector;
         this.cameraMinimumDistance = _cameraMinimumDistance;
     }
 
 
-    public Vector3 CalculatePlanePosition(float pseudoMouseMovementX, float pseudoMouseMovementY, Vector3 currentPlanePosition)
+    public Vector3 CalculatePlanePosition(float pseudoMouseMovementX, float pseudoMouseMovementY, Vector3 currentPlanePosition, Vector2 _fielOfViewVector)
     {
         Vector3 newPlanePosition;
+
+        // Update field of view
+        this.fielOfViewVector = _fielOfViewVector;     
+
         ///////
         // X
         ///////

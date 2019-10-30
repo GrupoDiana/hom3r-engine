@@ -76,11 +76,11 @@ public class NavigationManager : MonoBehaviour {
         InitHelpPlaneSize(modelBoundingBox);
         cameraInitialPosition = CalculateInitialCameraPosition();           // Calculate the initial Camera position
         Vector3 extentsVector = Get3DModelExtentsVector(modelBoundingBox);  // Get extents vector from bounding box in terms of main axis
-        Vector2 fielOfViewVector = GetFieldOfView();
+        //Vector2 fielOfViewVector = GetFieldOfView();
         Vector3 pointToLook;    //Vector to store direction in which the camera has to look
-        if (navigationSystem.Init(extentsVector, cameraInitialPosition, fielOfViewVector, out cameraMinimumDistance, out pointToLook))
+        if (navigationSystem.Init(extentsVector, cameraInitialPosition,/* fielOfViewVector,*/ out cameraMinimumDistance, out pointToLook))
         {
-            panNavigationSystem.Init(extentsVector, fielOfViewVector, cameraMinimumDistance);
+            panNavigationSystem.Init(extentsVector, /*fielOfViewVector,*/ cameraMinimumDistance);
             navigationInitialized = true;            
             MoveCameraWithinThePlane(cameraInitialPosition);        // Move camera to the initial position
             InitPseudoRadioCorrection();
@@ -215,8 +215,9 @@ public class NavigationManager : MonoBehaviour {
     /// If the main axis is vertical the x coordinates correspond with the camera vertical field of view angle
     /// </summary>
     /// <returns>The field of view taking into account the navigation axis</returns>
-    private Vector2 GetFieldOfView()
+    private Vector2 GetFieldOfView(bool force = false)
     {
+        if (force) { this.CalculateFielOfView();}
         if (mainAxis == TMainAxis.Horizontal)
         {
             return new Vector2(horizontalFieldOfView_rad, verticalFieldOfView_rad);
@@ -323,9 +324,10 @@ public class NavigationManager : MonoBehaviour {
             Vector3 newCameraPosition = new Vector3();
             float planeRotation;
             Vector3 pointToLook;
+            Vector2 fielOfViewVector = GetFieldOfView(true);    // Get current field of view
 
             //Calculate movement
-            navigationSystem.CalculateCameraPosition(pseudoLatitude, pseudoLongitude, pseudoRadio, out newCameraPosition, out planeRotation, out pointToLook);            
+            navigationSystem.CalculateCameraPosition(pseudoLatitude, pseudoLongitude, pseudoRadio, fielOfViewVector, out newCameraPosition, out planeRotation, out pointToLook);            
             //Apply movement
             RotateCameraPlane(planeRotation);
             MoveCameraWithinThePlane(newCameraPosition);
@@ -341,8 +343,9 @@ public class NavigationManager : MonoBehaviour {
     /// <param name="mouseMovementY">Movement of the mouse in Y axis, % of the screen size</param>
     /// <param name="mouseWhellMovement">Movement of the whell mouse, % of the screen size</param>
     private void SetMouseMovementPanNavigation(float mouseMovementX, float mouseMovementY, float mouseWhellMovement)
-    {             
-        Vector3 newPlanePosition = panNavigationSystem.CalculatePlanePosition(mouseMovementX, mouseMovementY, this.transform.position);        
+    {
+        Vector2 fielOfViewVector = GetFieldOfView(true);    // Get current field of view
+        Vector3 newPlanePosition = panNavigationSystem.CalculatePlanePosition(mouseMovementX, mouseMovementY, this.transform.position, fielOfViewVector);        
         this.MovePlane(newPlanePosition);
     }
 
@@ -402,9 +405,10 @@ public class NavigationManager : MonoBehaviour {
             Vector3 newCameraPosition = new Vector3();
             float planeRotation;
             Vector3 pointToLook;
+            Vector2 fielOfViewVector = GetFieldOfView(true);    // Get current field of view
 
             //Calculate movement
-            navigationSystem.CalculateCameraPosition(pseudoLatitude, pseudoLongitude, 0.0f, out newCameraPosition, out planeRotation, out pointToLook);
+            navigationSystem.CalculateCameraPosition(pseudoLatitude, pseudoLongitude, 0.0f, fielOfViewVector, out newCameraPosition, out planeRotation, out pointToLook);
             //Apply movement
             RotateCameraPlane(planeRotation);
             MoveCameraWithinThePlane(newCameraPosition);
@@ -433,9 +437,10 @@ public class NavigationManager : MonoBehaviour {
         Vector3 newCameraPosition = new Vector3();
         float planeRotation;
         Vector3 pointToLook;
+        Vector2 fielOfViewVector = GetFieldOfView(true);    // Get current field of view
 
         //Calculate movement
-        navigationSystem.CalculateCameraPosition(0.0f, 0.0f, pseudoRadio, out newCameraPosition, out planeRotation, out pointToLook);
+        navigationSystem.CalculateCameraPosition(0.0f, 0.0f, pseudoRadio, fielOfViewVector, out newCameraPosition, out planeRotation, out pointToLook);
         //Apply movement
         RotateCameraPlane(planeRotation);
         MoveCameraWithinThePlane(newCameraPosition);

@@ -22,7 +22,7 @@ public interface CCoordinateSystemManager
     /// the distance between the object's intrinsic rotation axis and the point Zo, which is the closest allowed position in the Z axis </param>
     /// <param name="pointToLook">Out parameter that indicated the direction in which the camera has to look</param>
     /// <returns>Returns true if the initial position proposed for the camera is possible</returns>
-    bool Init(Vector3 extents, Vector3 cameraInitialPosition, Vector2 fieldOfView, out float minimumCameraDistance, out Vector3 pointToLook);
+    bool Init(Vector3 extents, Vector3 cameraInitialPosition, /*Vector2 fieldOfView,*/ out float minimumCameraDistance, out Vector3 pointToLook);
 
     /// <summary>Calculate the new camera position in terms of pseudoLatitude, pseudoLongitude and pseusoRadio</summary>
     /// <param name="pseudoLatitude">Incremental translation movements inside of the camera plane. A value of 2·PI corresponds to a complete revolution.
@@ -35,7 +35,7 @@ public interface CCoordinateSystemManager
     /// to the object's intrinsic rotation axis). </param>
     /// <param name="planeRotation">Out parameter that contains the rotation that has to be applied to the plane. Expressed in radians.</param>
     /// <param name="pointToLook">Out parameter that indicated the direction in which the camera has to look</param>
-    void CalculateCameraPosition(float pseudoLatitude, float pseudoLongitude, float pseudoRadio, out Vector3 cameraPlanePosition, out float planeRotation, out Vector3 pointToLook);
+    void CalculateCameraPosition(float pseudoLatitude, float pseudoLongitude, float pseudoRadio, Vector2 fieldOfView, out Vector3 cameraPlanePosition, out float planeRotation, out Vector3 pointToLook);
 }
 
 
@@ -58,13 +58,13 @@ public class CSphericalCoordinatesManager : CCoordinateSystemManager
     Vector3 extents;            // Store the product bounding box extents
     Vector2 fieldOfView;        // Store the camera field of View
 
-    public bool Init(Vector3 _extents, Vector3 cameraInitialPosition, Vector2 _fieldOfView, out float minimumCameraDistance, out Vector3 pointToLook)
+    public bool Init(Vector3 _extents, Vector3 cameraInitialPosition, /*Vector2 _fieldOfView,*/ out float minimumCameraDistance, out Vector3 pointToLook)
     {
         /////////////////////
         // Save parameters 
         /////////////////////
         extents = _extents;
-        fieldOfView = _fieldOfView;
+        //fieldOfView = _fieldOfView;
         
 
         /////////////////////////////////////////////////////////////////
@@ -118,7 +118,7 @@ public class CSphericalCoordinatesManager : CCoordinateSystemManager
         
     }
 
-    public void CalculateCameraPosition(float pseudoLatitudeVariation, float pseudoLongitudeVariation, float pseudoRadio, out Vector3 cameraPlanePosition, out float planeRotation, out Vector3 pointToLook)
+    public void CalculateCameraPosition(float pseudoLatitudeVariation, float pseudoLongitudeVariation, float pseudoRadio, Vector2 fieldOfView, out Vector3 cameraPlanePosition, out float planeRotation, out Vector3 pointToLook)
     {
         cameraPlanePosition = Vector3.zero;
         planeRotation = 0.0f;
@@ -220,7 +220,7 @@ public class CLimitedSphericalCoordinatesManager : CCoordinateSystemManager
     //Control variables
     bool navigationInitialized = false;
 
-    public bool Init(Vector3 extents, Vector3 cameraInitialPosition, Vector2 _fieldOfView, out float minimumCameraDistance, out Vector3 pointToLook)    
+    public bool Init(Vector3 extents, Vector3 cameraInitialPosition, /*Vector2 _fieldOfView,*/ out float minimumCameraDistance, out Vector3 pointToLook)    
     {
         
         /////////////////////////////////////////////////////////////////
@@ -264,7 +264,7 @@ public class CLimitedSphericalCoordinatesManager : CCoordinateSystemManager
         }
     }
         
-    public void CalculateCameraPosition(float pseudoLatitude, float pseudoLongitude, float pseudoRadio, out Vector3 cameraPlanePosition, out float planeRotation, out Vector3 pointToLook)
+    public void CalculateCameraPosition(float pseudoLatitude, float pseudoLongitude, float pseudoRadio, Vector2 fieldOfView, out Vector3 cameraPlanePosition, out float planeRotation, out Vector3 pointToLook)
     {
         cameraPlanePosition = Vector3.zero;
         planeRotation = 0.0f;
@@ -344,13 +344,13 @@ public class CEllipticalCoordinatesManager : CCoordinateSystemManager
     Vector3 extents;            // Store the product bounding box extents
     Vector2 fieldOfView;        // Store the camera field of View
 
-    public bool Init(Vector3 _extents, Vector3 cameraInitialPosition, Vector2 _fieldOfView, out float minimumCameraDistance, out Vector3 pointToLook)
+    public bool Init(Vector3 _extents, Vector3 cameraInitialPosition,/* Vector2 _fieldOfView,*/ out float minimumCameraDistance, out Vector3 pointToLook)
     {
         /////////////////////
         // Save parameters 
         /////////////////////
         extents = _extents;
-        fieldOfView = _fieldOfView;
+        //fieldOfView = _fieldOfView;
 
         //////////////////////////////////////////////////
         // Identify object geometry type. Long or flat
@@ -405,7 +405,7 @@ public class CEllipticalCoordinatesManager : CCoordinateSystemManager
 
     }
 
-    public void CalculateCameraPosition(float pseudoLatitudeVariation, float pseudoLongitudeVariation, float pseudoRadio, out Vector3 cameraPlanePosition, out float planeRotation, out Vector3 pointToLook)
+    public void CalculateCameraPosition(float pseudoLatitudeVariation, float pseudoLongitudeVariation, float pseudoRadio, Vector2 _fieldOfView, out Vector3 cameraPlanePosition, out float planeRotation, out Vector3 pointToLook)
     {
         cameraPlanePosition = Vector3.zero;
         planeRotation = 0.0f;
@@ -413,6 +413,9 @@ public class CEllipticalCoordinatesManager : CCoordinateSystemManager
 
         if (navigationInitialized)
         {
+            // Update field of view
+            fieldOfView = _fieldOfView;
+
             /////////////////////////////////////////////////////////
             // Apply pseudoLatitude and pseudoLongitude correction
             /////////////////////////////////////////////////////////
