@@ -659,6 +659,18 @@ public class ModelManager : MonoBehaviour {
     //////////////////////
     // 3D Model Scale   //
     //////////////////////
+
+    /// <summary>
+    /// Reset scale to unit
+    /// </summary>
+    public void Reset3DModelScale()
+    {
+        hom3r.quickLinks._3DModelRoot.transform.localScale =  Vector3.one;
+        Invoke("Calculate3DModelBoundingBox", 0.2f);
+
+    }
+   
+
     public void Set3DModelScale(float _modelScale)
     {
         if (modelScale != _modelScale)

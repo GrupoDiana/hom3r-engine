@@ -54,7 +54,8 @@ public enum TModelCommands
     LoadProductModel, ResetProductModel, ModifyProductModel,
     Load3DFiles,
     SetNavigationAxis,
-    SetModelScale
+    SetModelScale,
+    ResetModelScale
 }
 
 /// <summary>Model data</summary>
@@ -146,6 +147,9 @@ public class CModelCommand : CCoreCommand
                     break;
                 case TModelCommands.SetModelScale:
                     hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().Set3DModelScale(data.scale);
+                    break;
+                case TModelCommands.ResetModelScale:
+                    hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().Reset3DModelScale();
                     break;
                 default:
                     Debug.LogError("Error: This command " + data.command + " is not valid.");
