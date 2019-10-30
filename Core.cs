@@ -219,7 +219,8 @@ public class Core : MonoBehaviour {
         GameObject newPrefabGO = Instantiate(newPrefab, new Vector3(0f, 0f, 0f), new Quaternion(0f, 0f, 0f, 0f));
         if (newPrefabGO != null)
         {
-            newPrefabGO.transform.parent = _parent.transform;
+            //newPrefabGO.transform.parent = _parent.transform;
+            newPrefabGO.transform.SetParent(_parent.transform, false);
             Debug.Log("InstantiatePrefab: " + newPrefabGO.name);
         } else
         {

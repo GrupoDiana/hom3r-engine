@@ -112,9 +112,11 @@ public class Label2 : MonoBehaviour
         boardGO.transform.position = this.labelTransform.boardPosition;     // Emplace position
 
         // BOARD Rotation                
-        boardGO.transform.rotation = this.labelTransform.boardRotation;     // Apply orientation        
-        float angleY = Vector3.Angle(hom3r.quickLinks._3DModelRoot.transform.forward, new Vector3(0f, 0f, 1f));         // Calculate deviation from "normal" forward vector in Y axis. TODO currently just taking into account the Y rotation of the 3D model forward vector
-        boardGO.transform.Rotate(-1.0f * boardGO.transform.rotation.eulerAngles.x, angleY, 0f);                         // Force just vertical board and compensate Y axis deviation
+        
+        boardGO.transform.localRotation = this.labelTransform.boardRotation;     // Apply orientation  
+        //boardGO.transform.rotation = this.labelTransform.boardRotation;     // Apply orientation in globals    
+        //float angleY = Vector3.Angle(hom3r.quickLinks._3DModelRoot.transform.forward, new Vector3(0f, 0f, 1f));         // Calculate deviation from "normal" forward vector in Y axis. TODO currently just taking into account the Y rotation of the 3D model forward vector
+        //boardGO.transform.Rotate(-1.0f * boardGO.transform.rotation.eulerAngles.x, angleY, 0f);                         // Force just vertical board and compensate Y axis deviation
 
         boardGO.transform.localScale = this.scaleFactor * this.GetDefaultScaleLabelFactor() * defaultBoardGOScale;    // Size
         
