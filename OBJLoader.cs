@@ -176,6 +176,7 @@ public class OBJLoader : MonoBehaviour
 
     System.Diagnostics.Stopwatch stopwatch;
 
+
     void Awake()
     {
         //Initialize variables
@@ -190,7 +191,7 @@ public class OBJLoader : MonoBehaviour
         triangVertexUvNormalDictionary = new Dictionary<TVertexUvNormal, int>();
         triangVertexDictionary = new Dictionary<int, int>();
         multiplePartObjectPrefix = "part";                              // Part of the name of each object son   
-        error = false;                                                  // Initialize to false
+        error = false;                                                  // Initialize to false        
     }
    
     
@@ -869,11 +870,11 @@ public class OBJLoader : MonoBehaviour
         }
         else if (row.StartsWith("v ")) //vertex
         {
-            mymesh.vertices.Add(ConVec3(row.Replace("v ", "").Trim())); //converts the line to Vec3 and add the coordinates
+            mymesh.vertices.Add(ConVec3(row.Replace("v ", "").Trim(), file.invertZAxis)); //converts the line to Vec3 and add the coordinates
         }
         else if (row.StartsWith("vn ")) //normal
         {
-            mymesh.normals.Add(ConVec3(row.Replace("vn ", "").Trim())); //converts the line to Vec3 and add the coordinates
+            mymesh.normals.Add(ConVec3(row.Replace("vn ", "").Trim(), file.invertZAxis)); //converts the line to Vec3 and add the coordinates
         }
         else if (row.StartsWith("vt ")) //texture
         {
@@ -1260,7 +1261,7 @@ public class OBJLoader : MonoBehaviour
         stopwatch.Start();
 
         file = _file;                           //Store locally the file info
-
+        
         fileOrigin = fileOrigin_type.web;                   // OBJ loader script implements read from file and from URL. We are going to use URL download methods
         fullFileUrl = file.fileUrl;                         // Save file URL 
         baseUrlOBJFile = GetOBJFileBaseURL(fullFileUrl);    // Get the object file base URL
@@ -1315,7 +1316,7 @@ public class OBJLoader : MonoBehaviour
     /// <summary>Converter string to vector3 </summary>
     /// <param name="str"></param>
     /// <returns></returns>    
-    Vector3 ConVec3(string str)
+    Vector3 ConVec3(string str, bool _invertZAxis = false)
     {
         string[] vect = str.Split(null); //converts the string in array of string
         Vector3 v = new Vector3(); //saves the coordinates
@@ -1323,6 +1324,11 @@ public class OBJLoader : MonoBehaviour
         float.TryParse(vect[0], NumberStyles.Number, CultureInfo.InvariantCulture, out v.x); //converts the string in float, coordinate x
         float.TryParse(vect[1], NumberStyles.Number, CultureInfo.InvariantCulture, out v.y); //converts the string in float, coordinate y
         float.TryParse(vect[2], NumberStyles.Number, CultureInfo.InvariantCulture, out v.z); //converts the string in float, coordinate z
+
+        if (_invertZAxis) {
+            v.x = -v.x;
+            v.z = -v.z;
+        }
 
         return v; //returns the coordinates
     }

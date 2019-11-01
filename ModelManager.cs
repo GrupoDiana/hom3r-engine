@@ -355,7 +355,7 @@ public class ModelManager : MonoBehaviour {
         listOfGeometryData = new List<CGeometryFileData>();
         C3DFileData fileData = Get3DFileData(fileID);
         string fileName = System.IO.Path.GetFileNameWithoutExtension(fileData.fileName);        
-        geometryData = new CGeometryFileData(fileData.fileName, fileData.fileUrl, fileData.fileType, 1, fileName, true, 0d, 0d, 0d, 0d, 0d, 0d, 0d);
+        geometryData = new CGeometryFileData(fileData.fileName, fileData.fileUrl, fileData.fileType, 1, fileName, true, false, 0d, 0d, 0d, 0d, 0d, 0d, 0d);
         listOfGeometryData.Add(geometryData);
     }
 
@@ -887,6 +887,7 @@ public class ModelManager : MonoBehaviour {
     /// </summary>
     /// <returns>string that contains "vertical" or "horizontal"</returns>
     public string GetModelNavigationAxis() { return productModel.navigation_axis; }
+    
 
     /// <summary>Get the full description of a node by its ID. Full description contains its description plus its parent description.</summary>
     /// <param name="nodeID">ID of the node</param>

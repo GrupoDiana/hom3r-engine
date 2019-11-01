@@ -31,6 +31,7 @@ public class C3DFileData : CGeometryFileData
         this.crc = _fileData.crc;
         this.assetName = _fileData.assetName;
         this.active = _fileData.active;
+        this.invertZAxis = _fileData.invertZAxis;
         this.position_x = _fileData.position_x;
         this.position_y = _fileData.position_y;
         this.position_z = _fileData.position_z;

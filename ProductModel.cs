@@ -89,6 +89,7 @@ public class CGeometryFileData
     public string   crc;
     public string   assetName;
     public bool     active;
+    public bool     invertZAxis;
     public double   position_x;
     public double   position_y;
     public double   position_z;
@@ -99,7 +100,7 @@ public class CGeometryFileData
 
 
     public CGeometryFileData() { }
-    public CGeometryFileData(string _fileName, string _fileUrl, string _fileType, int _version, string _assetName, bool _active, double _position_x, double _position_y, double _position_z, double _rotation_w, double _rotation_x, double _rotation_y, double _rotation_z)
+    public CGeometryFileData(string _fileName, string _fileUrl, string _fileType, int _version, string _assetName, bool _active, bool _invertZAxis, double _position_x, double _position_y, double _position_z, double _rotation_w, double _rotation_x, double _rotation_y, double _rotation_z)
     {        
         this.fileName = _fileName;
         this.fileUrl = _fileUrl;
@@ -107,6 +108,7 @@ public class CGeometryFileData
         this.version = _version;
         this.assetName = _assetName;
         this.active = _active;
+        this.invertZAxis = _invertZAxis;
         this.position_x = _position_x;
         this.position_y = _position_y;
         this.position_z = _position_z;
