@@ -98,7 +98,7 @@ public class HiddenManager : MonoBehaviour {
 	{
 	    //Move in the list of objects and make Hidden
 	    foreach (GameObject obj in listObj) {            
-            obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Hidden_On, duration);
+            //obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateCommands.Hidden_On, duration);
 	    }
 	}//END GameObjectListHideOn
 	
@@ -109,7 +109,7 @@ public class HiddenManager : MonoBehaviour {
 		//Move in the list of objects and make transparent
 		foreach (GameObject obj in listObj)
         {		
-            obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Hidden_Off, duration);
+            //obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateCommands.Hidden_Off, duration);
         }
 	}//END GameObjectListHideOff
 
@@ -120,8 +120,8 @@ public class HiddenManager : MonoBehaviour {
         //Reveal all hidden objects
         List<GameObject> temp = new List<GameObject>(gameObjectHiddenList);
 		foreach (GameObject obj in temp) { 
-			if (obj.GetComponent<ObjectStateManager> ()!=null)
-				obj.GetComponent<ObjectStateManager> ().SendEvent(TObjectVisualStateEvents.Hidden_Off, duration);
+			//if (obj.GetComponent<ObjectStateManager> ()!=null)
+				//obj.GetComponent<ObjectStateManager> ().SendEvent(TObjectVisualStateCommands.Hidden_Off, duration);
 		}
 		//Empty the list of hidden objects
 		gameObjectHiddenList.Clear (); 
@@ -273,7 +273,7 @@ public class HiddenManager : MonoBehaviour {
                 if (IsHiddenGameObject(area))
                 {
                     //GameObjectHiddenOff(area, duration);
-                    area.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Hidden_Off);
+                    //area.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateCommands.Hidden_Off);
                     needFocus = true;
                 }
             }
@@ -281,7 +281,7 @@ public class HiddenManager : MonoBehaviour {
             {
                 if (!this.GetComponent<SelectionManager>().IsConfirmedNodeLeaf(area))
                 {                    
-                    area.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Hidden_On, duration);
+                   // area.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateCommands.Hidden_On, duration);
                     needFocus = true;
                 }               
             }

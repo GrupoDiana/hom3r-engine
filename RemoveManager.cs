@@ -61,7 +61,8 @@ public class RemoveManager : MonoBehaviour {
         List<string> areaIdList = new List<string>();
         foreach (GameObject obj in temp) {
             if (obj.GetComponent<ObjectStateManager>() != null) {
-                obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Remove_Off, duration);
+                //obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateCommands.Remove_Off, duration);
+                obj.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Remove_Off, duration));
                 areaIdList.Add(obj.GetComponent<ObjectStateManager>().areaID);
             }                
         }
@@ -94,7 +95,12 @@ public class RemoveManager : MonoBehaviour {
             {
                 //if (!this.GetComponent<SinglePointManager>().IsASinglePoint(obj))
                 //{
-                obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Remove_On, duration);
+                if (obj.GetComponent<ObjectStateManager>().areaID == "238")
+                {
+                    Debug.Log("238");
+                }
+                // obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateCommands.Remove_On, duration);
+                obj.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Remove_On, duration));
                 _removedAreas.Add(obj);
                 return _removedAreas;
                 //}

@@ -62,7 +62,8 @@ public class OcclusionEventReceiver : MonoBehaviour {
                         {
                             if (hom3r.quickLinks.scriptsObject.GetComponent<RemoveManager>().IsRemovedGameObject(go))
                             {
-                                go.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Remove_Off);
+                                // go.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateCommands.Remove_Off);
+                                go.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Remove_Off));
                             }
                         }
                     }

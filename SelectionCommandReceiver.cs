@@ -238,7 +238,7 @@ public class SelectionCommandReceiver : MonoBehaviour {
 public enum TSelectionCommands
 {
     ChangeHierarchyOfSelectionMode,
-    IndicateByMouse, IndicateOffByMouse,
+    IndicateByMouse, IndicateAllOff,
     SingleConfirmationByMouse, ConfirmationOff,
     MultipleConfirmation, Multiple_Confirmation_Desconfirmation,
     SelectPart, DeselectPart, DeselectAllParts, ClearSelectionColour,
@@ -318,12 +318,9 @@ public class CSelectionCommand : CCoreCommand
                     }
 
                     break;
-                case TSelectionCommands.IndicateOffByMouse:
-                    if (!hom3r.state.selectionBlocked)
-                    {
-                        m.GetComponent<SelectionManager>().IndicationGameObjectAllOFF();                        
-                        hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Selection_IndicationOffFinished));
-                    }
+                case TSelectionCommands.IndicateAllOff:                                        
+                    hom3r.quickLinks.scriptsObject.GetComponent<SelectionManager>().IndicationGameObjectAllOFF();                        
+                    hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Selection_IndicationOffFinished));                    
                     break;
 
                 case TSelectionCommands.SingleConfirmationByMouse:
@@ -377,7 +374,8 @@ public class CSelectionCommand : CCoreCommand
                                 //Deselect into the 3D                                                                 
                                 foreach (var item in _areaList)
                                 {
-                                    item.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Confirmation_Off);
+                                    // item.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateCommands.Confirmation_Off);
+                                    item.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Confirmation_Off));
                                 }
                                 // Update the list of component selected
                                 m.GetComponent<SelectionManager>().RemoveAllConfirmedSpecialNode();
@@ -417,7 +415,8 @@ public class CSelectionCommand : CCoreCommand
                                     //Deselect into the 3D                                                                 
                                     foreach (var item in _areaList)
                                     {
-                                        item.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Confirmation_Off);
+                                        //item.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateCommands.Confirmation_Off);
+                                        item.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Confirmation_Off));
                                     }
                                     //Update the list of component selected 
                                     m.GetComponent<SelectionManager>().RemoveAllConfirmedSpecialNode();
@@ -585,8 +584,9 @@ public class CSelectionCommand : CCoreCommand
             if (hom3r.quickLinks.scriptsObject.GetComponent<SelectionManager>().IsConfirmedGameObject(objectArea1))
             {
                 //Is an AREA - select only that area                                                                               
-                objectArea1.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Confirmation_Off);    //Deselect the part
-                                                                                                                        //Deselect Special Node
+                // objectArea1.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateCommands.Confirmation_Off);    //Deselect the part
+                objectArea1.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Confirmation_Off));
+                //Deselect Special Node
                 string _specialNodeID = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetSpecialAncestorID_ByAreaID(areaID);
                 hom3r.quickLinks.scriptsObject.GetComponent<SelectionManager>().RemoveConfirmedSpecialNode(_specialNodeID);
             }
@@ -616,7 +616,8 @@ public class CSelectionCommand : CCoreCommand
         //Deselect the list of objects
         foreach (var obj in objectAreaList)
         {
-            obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Confirmation_Off);
+            //obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateCommands.Confirmation_Off);
+            obj.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Confirmation_Off));
         }        
     }
 }

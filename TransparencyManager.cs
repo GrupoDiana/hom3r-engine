@@ -118,9 +118,9 @@ public class TransparencyManager : MonoBehaviour {
 		foreach (GameObject obj in temp)
         {
             if (obj != null)
-            {
-                //obj.GetComponent<ObjectState_Script> ().GameObjectTransparencyOff ();
-                obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Transparency_Off, 0.5f);
+            {           
+                // obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateCommands.Transparency_Off, 0.5f);
+                obj.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Transparency_Off, 0.5f));
             }
         }
 		//Empty the list of hidden objects
@@ -136,8 +136,9 @@ public class TransparencyManager : MonoBehaviour {
 		//Move in the list of objects and make transparent
 		foreach (GameObject obj in listObj)
         {
-            obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Transparency_On, duration);
-		}
+            //obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateCommands.Transparency_On, duration);
+            obj.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Transparency_On, duration));
+        }
 	}
 	
 	////////////////////////////////////////////////////////////////////////////
@@ -147,7 +148,9 @@ public class TransparencyManager : MonoBehaviour {
 	{
 		//Move in the list of objects and make transparent
 		foreach (GameObject obj in listObj) {
-            obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Transparency_Off, duration);
+            // obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateCommands.Transparency_Off, duration);
+            obj.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Transparency_Off, duration));
+
         }
 	}
 

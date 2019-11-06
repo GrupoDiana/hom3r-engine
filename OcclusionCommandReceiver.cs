@@ -48,7 +48,8 @@ public class OcclusionCommandReceiver : MonoBehaviour {
                     foreach (GameObject go in areasOfaLeaf)
                     {
                         //Change the state of the object to hide (this method will be in charge of changing the object material)
-                        go.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Remove_Off);
+                        //go.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateCommands.Remove_Off);
+                        go.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Remove_Off));
                     }
 
                     // Send list of areas to WebApp
@@ -64,7 +65,8 @@ public class OcclusionCommandReceiver : MonoBehaviour {
                 _areaList = this.GetComponent<ModelManager>().GetAreaGameObjectList_BySpecialAncestorID(_specialNodeID);
                 foreach (var item in _areaList)
                 {
-                    item.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Remove_Off);
+                    //item.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateCommands.Remove_Off);
+                    item.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Remove_Off));
                 }
                 // Send list of areas to WebApp
                 List<string> areaIDList = this.GetComponent<ModelManager>().GetAreaIDList_BySpecialAncestorID(_specialNodeID);
@@ -320,7 +322,8 @@ public class COcclusionCommand : CCoreCommand
                         toMakeVisibleList = listRemovedObjets.FindAll(x => !data.listRemovedObjets.Contains(x));
                         foreach (var obj in toMakeVisibleList)
                         {
-                            obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Remove_Off);
+                            // obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateCommands.Remove_Off);
+                            obj.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Remove_Off));
                         }
                         //3. Update Modes
                         if (hom3r.quickLinks.scriptsObject.GetComponent<RemoveManager>().GetRemovedList().Count > 0)
@@ -353,7 +356,8 @@ public class COcclusionCommand : CCoreCommand
                         //2. Execute Remove of previously removed nodes
                         foreach (GameObject goToRemove in data.listRemovedObjets)
                         {
-                            goToRemove.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Remove_On);
+                            // goToRemove.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateCommands.Remove_On);
+                            goToRemove.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Remove_On));
                         }
                     }
                     break;

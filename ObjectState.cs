@@ -13,7 +13,7 @@ abstract class State
 
 
 ////////////////////////////////////////////////////////////////////////
-/////////////      AREA VISUAL STATE MACHINE   /////////////////////////
+/////////////      AREA VISUAL STATES          /////////////////////////
 ////////////////////////////////////////////////////////////////////////
 /// <summary> Idle State class</summary>
 class Idle_State : State
@@ -116,7 +116,6 @@ class TransparentIndicated_State : State
     }
     public override void StateOut(VisualStateContext context, float duration) { }
 }
-
 /// <summary> HiddenCollider State class</summary>
 class HiddenColliderOn_State : State
 {
@@ -162,6 +161,10 @@ class RemoveIdle_State : State
     }
 }
 
+
+////////////////////////////////////////////////////////////////////////
+/////////////      AREA VISUAL STATE MACHINE   /////////////////////////
+////////////////////////////////////////////////////////////////////////
 /// <summary> The 'Context' class </summary>
 class VisualStateContext
 {
@@ -285,7 +288,7 @@ class VisualStateContext
 
     public void ChangeState_toRemove(float duration)
     {
-        if (this.state.GetType().Name == "Idle_State" || this.state.GetType().Name == "Confirmed_State" || this.state.GetType().Name == "TransparentIdle_State")
+        if (this.state.GetType().Name == "Idle_State" || this.state.GetType().Name == "Indicated_State" || this.state.GetType().Name == "Confirmed_State" || this.state.GetType().Name == "TransparentIdle_State")
         {
             //Finish current state
             state.StateOut(this);
@@ -298,8 +301,7 @@ class VisualStateContext
 
 /// <summary> Enum to return the current visual state of the area </summary>
 public enum TObjectVisualStates { Idle, Indicated, Confirmed, Transparent_Idle, Transparent_Indicated, Hidden_Idle, Hidden_Collider_On, Remove_Idle };
-/// <summary> Enum to get events and change the state. </summary>
-public enum TObjectVisualStateEvents { Indication_On, Indication_Off, Indication_Multiple_On, Confirmation_On, Confirmation_Off, Confirmation_Multiple_On, Transparency_On, Transparency_Off, Hidden_On, Hidden_Off, Collider_On, Collider_Off, Remove_On, Remove_Off };
+
 
 
 

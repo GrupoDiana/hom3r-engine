@@ -8,9 +8,12 @@ public class ObjectStateManager : MonoBehaviour {
     VisualStateContext objectVisualState;               //To store the object visual state    
     ObjectExplosionState_Type objectExplosionState;     //To store the object explosion state 
 
-    
+    Queue<CObjectVisualStateCommand> commandsQueue;
+    bool doCommandCoroutineStarted;
+    bool commandExecuting;
+
     //public List<string> areaID { get; set; }      //To store model information, area_id    
-    public string areaID { get; set; }              //To store model information, area_id        
+    public string areaID;// { get; set; }              //To store model information, area_id        
 
     Color32 confirmedDefaultColor;                  //To store the default colour for confirmation;
     Color32 indicatedDefaultColor;                  //To store the default colour for indication;
@@ -27,12 +30,15 @@ public class ObjectStateManager : MonoBehaviour {
         initialColor = ObjectStateMaterialUtils.GetColourOfMaterial(this.GetComponent<Renderer>().material);
         objectVisualState = new VisualStateContext(this, new Idle_State()); //Initialize the object visual state
         objectExplosionState = ObjectExplosionState_Type.No_Explode;        //Initialize the object explosion state
-        //this.InitializeAreaID();
-        //areaID = new List<string>();    //Initialize the list
+        
         areaID = null;
-    }
- 
 
+        commandsQueue = new Queue<CObjectVisualStateCommand>();
+        doCommandCoroutineStarted = false;
+        commandExecuting = false;
+    }
+
+    
     /// <summary>Get the state of the area</summary>
     /// <returns>Area state</returns>
     public TObjectVisualStates GetVisualState()
@@ -75,160 +81,153 @@ public class ObjectStateManager : MonoBehaviour {
         return objectExplosionState;
     }
 
-    
-  
 
-   
-
-    /// <summary>Set a new state to this area</summary>
-    /// <param name="newEvent">Event that has to be processed</param>    
-    public void SendEvent(TObjectVisualStateEvents newEvent, string colour="")
+    /// <summary>
+    /// Excute Object actions
+    /// </summary>
+    /// <param name="_command"></param>
+    public void Do(CObjectVisualStateCommand _command)
     {
-        this.SetColour(colour);          //Colour management
-      
-        //Get current State
+        //Enqueue 3D file and start download
+        commandsQueue.Enqueue(_command); 
+
+
+        if (!doCommandCoroutineStarted)
+        {
+            doCommandCoroutineStarted = true;
+            StartCoroutine(Coroutine_ExecuteCommandQueue());
+        }
+    }
+
+    /// <summary>Load 3D file one by one</summary>
+    IEnumerator Coroutine_ExecuteCommandQueue()
+    {
+        CObjectVisualStateCommand _command;
+        while (commandsQueue.Count > 0)
+        {
+            _command = commandsQueue.Dequeue();
+
+            _command.Do(this);  // Execute the command
+            
+            //We exceute the commands one by one, so we wait until the current one have been finished
+            while (commandExecuting) { yield return new WaitForSeconds(1.0f); }
+        }
+        doCommandCoroutineStarted = false;
+    }
+
+    //////////////
+    // INDICATE
+    //////////////
+    public void Goto_Indication_State(bool _multiple)
+    {       
         TObjectVisualStates currentState = this.GetVisualState();
-        switch (newEvent)
-        {            
-            case TObjectVisualStateEvents.Indication_On:
-                if (currentState == TObjectVisualStates.Idle)
-                {
-                    objectVisualState.ChangeState_toIndicate(false);
-                }         
-                else if (currentState == TObjectVisualStates.Transparent_Idle)
-                {
-                   objectVisualState.ChangeState_toTransparentIndicated();
-                }
-                break;
-
-            case TObjectVisualStateEvents.Indication_Off:
-                if (currentState == TObjectVisualStates.Indicated)
-                {
-                    objectVisualState.ChangeState_toIdle();
-                }
-                else if (currentState == TObjectVisualStates.Transparent_Indicated)
-                {
-                    objectVisualState.ChangeState_toTransparentIdle();
-                }
-                break;
-
-            case TObjectVisualStateEvents.Indication_Multiple_On:
-                if (currentState == TObjectVisualStates.Idle)
-                {
-                    objectVisualState.ChangeState_toIndicate(true);
-                }
-                else if (currentState == TObjectVisualStates.Transparent_Idle)
-                {
-                    objectVisualState.ChangeState_toTransparentIndicated();
-                }
-                break;
-
-            case TObjectVisualStateEvents.Confirmation_On:
-                if (currentState == TObjectVisualStates.Idle || currentState == TObjectVisualStates.Indicated || currentState == TObjectVisualStates.Transparent_Idle || currentState == TObjectVisualStates.Transparent_Indicated || currentState == TObjectVisualStates.Hidden_Idle || currentState == TObjectVisualStates.Remove_Idle)
-                {
-                    objectVisualState.ChangeState_toConfirmed(false);
-                }
-                break;
-            case TObjectVisualStateEvents.Confirmation_Multiple_On:
-                if (currentState == TObjectVisualStates.Idle || currentState == TObjectVisualStates.Indicated || currentState == TObjectVisualStates.Transparent_Idle || currentState == TObjectVisualStates.Transparent_Indicated || currentState == TObjectVisualStates.Hidden_Idle || currentState == TObjectVisualStates.Remove_Idle)
-                {
-                    objectVisualState.ChangeState_toConfirmed(true);
-                }
-                break;
-            case TObjectVisualStateEvents.Confirmation_Off:
-                objectVisualState.ChangeState_toIdle();
-                break;
-            case TObjectVisualStateEvents.Collider_On:
-                if (currentState == TObjectVisualStates.Hidden_Idle)
-                {
-                    objectVisualState.ChangeState_toColliderOn();
-                }
-                break;            
-            case TObjectVisualStateEvents.Remove_Off:
-                if (currentState == TObjectVisualStates.Remove_Idle)
-                {
-                    objectVisualState.ChangeState_toIdle();
-                }
-                break;
-            default:
-                SendEvent(newEvent, 0.0f);
-                break;
-        }
-    }
-
-    public void SendEvent(TObjectVisualStateEvents newEvent, float duration, string colour = "")
-    {
-        this.SetColour(colour);                                         //Colour management                                         
-        TObjectVisualStates currentState = this.GetVisualState();       //Get current State
-        switch (newEvent)
+        if (currentState == TObjectVisualStates.Idle)
         {
-            case TObjectVisualStateEvents.Confirmation_Multiple_On:
-                if (currentState == TObjectVisualStates.Idle || currentState == TObjectVisualStates.Indicated || currentState == TObjectVisualStates.Transparent_Idle || currentState == TObjectVisualStates.Transparent_Indicated || currentState == TObjectVisualStates.Hidden_Idle || currentState == TObjectVisualStates.Remove_Idle)
-                {
-                    objectVisualState.ChangeState_toConfirmed(true, duration);
-                }
-                break;
+            objectVisualState.ChangeState_toIndicate(_multiple);
         }
-    }
-
-    public void SendEvent(TObjectVisualStateEvents newEvent, float duration)
+        else if (currentState == TObjectVisualStates.Transparent_Idle)
+        {
+            objectVisualState.ChangeState_toTransparentIndicated();
+        }
+    }    
+    public void Quit_Indication_State()
     {
-        //Get current State
         TObjectVisualStates currentState = this.GetVisualState();
-        switch (newEvent)
+        if (currentState == TObjectVisualStates.Indicated)
         {
-            case TObjectVisualStateEvents.Transparency_On:
-                if (currentState == TObjectVisualStates.Idle || currentState == TObjectVisualStates.Hidden_Idle)
-                {
-                    objectVisualState.ChangeState_toTransparent(duration);
-                }
-                break;
-            case TObjectVisualStateEvents.Transparency_Off:
-                if (currentState == TObjectVisualStates.Transparent_Idle)
-                {
-                    objectVisualState.ChangeState_toIdle(duration);
-                }
-                break;            
-            case TObjectVisualStateEvents.Remove_On:
-                if (currentState == TObjectVisualStates.Idle || currentState == TObjectVisualStates.Confirmed || currentState == TObjectVisualStates.Transparent_Idle)
-                {
-                    objectVisualState.ChangeState_toRemove(duration);
-                }                                    
-                break;
-            case TObjectVisualStateEvents.Remove_Off:
-                if (currentState == TObjectVisualStates.Remove_Idle)
-                {
-                    objectVisualState.ChangeState_toIdle(duration);
-                }
-                break;
-            default:
-                break;
+            objectVisualState.ChangeState_toIdle();
+        }
+        else if (currentState == TObjectVisualStates.Transparent_Indicated)
+        {
+            objectVisualState.ChangeState_toTransparentIdle();
         }
     }
 
-    public void SendEvent(ObjectExplosionStateEvents_Type newEvent)
+    //////////////////
+    // CONFIRMATION
+    ///////////////////
+    public void Goto_Confirmation_State(bool _multiple, float _duration, string _colour = "")
     {
-        if (newEvent == ObjectExplosionStateEvents_Type.Explode)
+        this.SetColour(_colour);                                    //Colour management
+
+        TObjectVisualStates currentState = this.GetVisualState();
+        if (currentState == TObjectVisualStates.Idle || currentState == TObjectVisualStates.Indicated || currentState == TObjectVisualStates.Transparent_Idle || currentState == TObjectVisualStates.Transparent_Indicated || currentState == TObjectVisualStates.Hidden_Idle || currentState == TObjectVisualStates.Remove_Idle)
         {
-            //First, check if the area is imploded
-            if (objectExplosionState == ObjectExplosionState_Type.No_Explode)
-            {
-                //Update explosion state
-                objectExplosionState = ObjectExplosionState_Type.Explode;                
-            }            
+            objectVisualState.ChangeState_toConfirmed(_multiple, _duration);
         }
-        else if (newEvent == ObjectExplosionStateEvents_Type.Implode)
+    }
+    public void Quit_Confirmation_State()
+    {
+        TObjectVisualStates currentState = this.GetVisualState();
+        if (currentState == TObjectVisualStates.Confirmed) { objectVisualState.ChangeState_toIdle(); }
+    }
+
+    //////////////////
+    // REMOVE
+    ///////////////////
+    public void Goto_Remove_State(float _duration)
+    {     
+        TObjectVisualStates currentState = this.GetVisualState();
+        if (currentState == TObjectVisualStates.Idle || currentState == TObjectVisualStates.Indicated || currentState == TObjectVisualStates.Confirmed || currentState == TObjectVisualStates.Transparent_Idle)
+        {     
+            objectVisualState.ChangeState_toRemove(_duration);
+        }
+    }
+    public void Quit_Remove_State(float _duration)
+    {
+        TObjectVisualStates currentState = this.GetVisualState();        
+        if (currentState == TObjectVisualStates.Remove_Idle)
         {
-            //First, check if the area is exploded
-            if (objectExplosionState == ObjectExplosionState_Type.Explode) 
-            {
-                //Update explosion state
-                objectExplosionState = ObjectExplosionState_Type.No_Explode;
-            }
+            objectVisualState.ChangeState_toIdle(_duration);
+        }
+    }
+
+    //////////////////
+    // TRANSPARENCY
+    ///////////////////
+    public void Goto_Transparency_State(float _duration)
+    {
+        TObjectVisualStates currentState = this.GetVisualState();
+        if (currentState == TObjectVisualStates.Idle || currentState == TObjectVisualStates.Hidden_Idle)
+        {
+            objectVisualState.ChangeState_toTransparent(_duration);
+        }
+    }
+    public void Quit_Transparency_State(float _duration)
+    {
+        TObjectVisualStates currentState = this.GetVisualState();
+        if (currentState == TObjectVisualStates.Transparent_Idle)
+        {
+            Debug.Log("to idle");
+            objectVisualState.ChangeState_toIdle(_duration);
+        }
+    }
+
+    //////////////////
+    // EXPLODE
+    ///////////////////
+    public void Goto_Explosion_State()
+    {
+        if (objectExplosionState == ObjectExplosionState_Type.No_Explode)
+        {
+            //Update explosion state
+            objectExplosionState = ObjectExplosionState_Type.Explode;
+        }
+    }
+    public void Quit_Explosion_State()
+    {
+        if (objectExplosionState == ObjectExplosionState_Type.Explode)
+        {
+            //Update explosion state
+            objectExplosionState = ObjectExplosionState_Type.No_Explode;
         }
     }
 
 
+    /// <summary>    
+    /// 
+    /// </summary>
+    /// <param name="colour"></param>
     /////////////////////
     // Colour Methods
     /////////////////////    
@@ -313,11 +312,13 @@ public class ObjectStateManager : MonoBehaviour {
     }
 
     IEnumerator CoroutineFadeInEffect(float delayTime, float durationTime, float targetAlpha)
-    {       
+    {
+        this.commandExecuting = true;
         //Start the FadeIn
         if (durationTime != 0) { yield return StartCoroutine(FadeAlpha(delayTime, durationTime, targetAlpha)); }            //Make the fade In effect       
         else { ObjectStateMaterialUtils.SetAlphaColorToMaterial(this.GetComponent<Renderer>().material, 1.0f); }
         ObjectStateMaterialUtils.SetMaterialRenderingMode(this.GetComponent<Renderer>().material, ObjectStateMaterialUtils.TBlendMode.Opaque);    //Change Rendering mode to opaque                       
+        this.commandExecuting = false;
     }
 
     public void ProcessFadeOutEffect(float delayTime, float durationTime, ObjectStateMaterialUtils.TMaterialState newState)
@@ -336,7 +337,8 @@ public class ObjectStateManager : MonoBehaviour {
     }    
 
     IEnumerator CoroutineFadeOutEffect(float delayTime, float durationTime, float targetAlpha)
-    {        
+    {
+        this.commandExecuting = true;
         if (durationTime != 0) { yield return StartCoroutine(FadeAlpha(delayTime, durationTime, targetAlpha)); }
         else { ObjectStateMaterialUtils.SetAlphaColorToMaterial(this.GetComponent<Renderer>().material, targetAlpha); }
 
@@ -346,6 +348,7 @@ public class ObjectStateManager : MonoBehaviour {
         {
             this.GetComponent<MeshCollider>().enabled = false;  //We deactivate the mesh collider, we cant select any more
         }
+        this.commandExecuting = false;
     }
     
     /// <summary>Function that fades alpha for a game object up or down with a start delay and duration of fade</summary>

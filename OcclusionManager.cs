@@ -56,7 +56,8 @@ public class OcclusionManager : MonoBehaviour
                         //Desconfirm the area if it's confirmed
                         hom3r.coreLink.Do(new CSelectionCommand(TSelectionCommands.ConfirmationOff, go), Constants.undoNotAllowed);
                         //Change the state of the object to hide (this method will be in charge of changing the object material)
-                        go.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Remove_On, 0.8f);
+                        // go.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateCommands.Remove_On, 0.8f);
+                        go.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Remove_On, 0.8f));
                     }
                     // Send list of areas to WebApp only if the action starts in the UserInterface
                     if (_origin == THom3rCommandOrigin.ui)
@@ -74,7 +75,8 @@ public class OcclusionManager : MonoBehaviour
                 List<GameObject> _areaList = this.GetComponent<ModelManager>().GetAreaGameObjectList_BySpecialAncestorID(_specialNodeID);
                 foreach (var item in _areaList)
                 {
-                    item.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Remove_On, 0.8f);
+                    // item.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateCommands.Remove_On, 0.8f);
+                    item.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Remove_On, 0.8f));
                 }
 
                 // Send list of areas to WebApp
@@ -99,7 +101,8 @@ public class OcclusionManager : MonoBehaviour
 
             if (obj.GetComponent<ObjectStateManager>() != null)
             {
-                obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Remove_Off, duration);
+                //obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateCommands.Remove_Off, duration);
+                obj.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Remove_Off, duration));
                 areaIdList.Add(obj.GetComponent<ObjectStateManager>().areaID);
             }
 
@@ -149,7 +152,7 @@ public class OcclusionManager : MonoBehaviour
     {
         //Reset objects materials
         hom3r.quickLinks.scriptsObject.GetComponent<TransparencyManager>().AllGameObjectTransparencyOff();
-        hom3r.quickLinks.scriptsObject.GetComponent<HiddenManager>().RevealAllHiddenGameObjects();
+        //hom3r.quickLinks.scriptsObject.GetComponent<HiddenManager>().RevealAllHiddenGameObjects();
         //Execute stop tranparency algorithms
         hom3r.state.smartTransparencyModeActive = false;
         ExecuteSmartTransparency(false);

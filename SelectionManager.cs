@@ -92,7 +92,8 @@ public class SelectionManager : MonoBehaviour
             List<GameObject> temp = new List<GameObject>(gameObjectIndicatedList);            
             foreach (GameObject obj in temp)
             {            
-                obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Indication_Off);
+                // obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateCommands.Indication_Off);
+                obj.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Indication_Off));
             }
             
         }
@@ -204,7 +205,8 @@ public class SelectionManager : MonoBehaviour
             {                
                 if (go!=null && go.GetComponent<ObjectStateManager>() != null)
                 {
-                    go.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Confirmation_Off);
+                    //go.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateCommands.Confirmation_Off);
+                    go.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Confirmation_Off));
                 }
             }
             //Clean the List
@@ -408,7 +410,8 @@ public class SelectionManager : MonoBehaviour
                 // If it is now hidden we have to do it with a delay
                 if (hom3r.quickLinks.scriptsObject.GetComponent<RemoveManager>().IsRemovedGameObject(objectArea)) { duration = 1.5f; }
                 //Select that area.                            
-                objectArea.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Confirmation_Multiple_On, duration, colour);
+                // objectArea.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateCommands.Confirmation_Multiple_On, duration, colour);
+                objectArea.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Confirmation_Multiple_On, duration, colour));
 
                 //Add component to the list if is apropiate                            
                 string _specialNodeID = hom3r.coreLink.GetComponent<ModelManager>().GetSpecialAncestorID_ByAreaID(areaID);
@@ -464,7 +467,8 @@ public class SelectionManager : MonoBehaviour
         //Select the list of objects
         foreach (var obj in objectAreaList)
         {
-            obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Confirmation_Multiple_On, colour);
+            // obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateCommands.Confirmation_Multiple_On, colour);
+            obj.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Confirmation_Multiple_On, colour));
         }
     }
 
@@ -513,7 +517,8 @@ public class SelectionManager : MonoBehaviour
 
                 if (hom3r.state.currentSelectionMode == THom3rSelectionMode.AREA)
                 {
-                    obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Indication_On);                    
+                    // obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateCommands.Indication_On);
+                    obj.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Indication_On));
                 }
                 else if (hom3r.state.currentSelectionMode == THom3rSelectionMode.SPECIAL_NODE)
                 {
@@ -524,7 +529,8 @@ public class SelectionManager : MonoBehaviour
                     //Multiple indication
                     foreach (var item in _areaList)
                     {
-                        item.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Indication_Multiple_On);
+                        // item.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateCommands.Indication_Multiple_On);
+                        item.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Indication_Multiple_On));
                     }
                 }
                 hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Selection_IndicationOnFinished, obj));
@@ -585,7 +591,8 @@ public class SelectionManager : MonoBehaviour
                     //Confirm all the areas 
                     foreach (var item in _areaList)
                     {
-                        item.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Confirmation_Multiple_On);
+                        // item.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateCommands.Confirmation_Multiple_On);
+                        item.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Confirmation_Multiple_On));
                     }
 
                     //Update the list of component selected 
@@ -667,7 +674,8 @@ public class SelectionManager : MonoBehaviour
                 //Desconfirm in the 3D Scenario  
                 foreach (var item in _areaList)
                 {
-                    item.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Confirmation_Off);
+                    // item.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateCommands.Confirmation_Off);
+                    item.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Confirmation_Off));
                 }
                 this.GetComponent<SelectionManager>().RemoveConfirmedSpecialNode(_specialNodeID);
             }
@@ -681,8 +689,8 @@ public class SelectionManager : MonoBehaviour
             //    //Remove the label of the desconfirmed object
             //    hom3r.coreLink.Do(new CLabelCommand(TLabelCommands.RemoveAllLabelOfConfirmedObjects), Constants.undoNotAllowed);                
             //}            
-            obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Confirmation_Off);        //Desconfirm every object
-
+            // obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateCommands.Confirmation_Off);        //Desconfirm every object
+            obj.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Confirmation_Off));
             hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Selection_ConfirmationOffFinished, _areaIDList));    //I emit an event warning that the desconfirmation has ended
         }
 
@@ -715,7 +723,8 @@ public class SelectionManager : MonoBehaviour
                 //Deselect into the 3D                                                                 
                 foreach (var item in _areaList)
                 {
-                    item.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Confirmation_Off);
+                    //item.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateCommands.Confirmation_Off);
+                    item.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Confirmation_Off));
                 }
                 this.GetComponent<SelectionManager>().RemoveAllConfirmedSpecialNode();      //Update the list of component selected 
 
@@ -737,7 +746,8 @@ public class SelectionManager : MonoBehaviour
             //Deselect into the 3D                                                                 
             foreach (var item in listOfConfirmedObjects)
             {
-                item.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Confirmation_Off);
+                //item.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateCommands.Confirmation_Off);
+                item.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Confirmation_Off));
                 listOfConfirmedAreasID.Add(item.GetComponent<ObjectStateManager>().areaID);
             }
 

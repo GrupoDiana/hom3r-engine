@@ -49,13 +49,15 @@ public class SelectionEventReceiver : MonoBehaviour {
                 case TCoreEvent.Occlusion_ExplodingAreas:
                     foreach (GameObject go in _event.data.gameObjectList)
                     {
-                        go.GetComponent<ObjectStateManager>().SendEvent(ObjectExplosionStateEvents_Type.Explode);
+                        //go.GetComponent<ObjectStateManager>().SendEvent(ObjectExplosionStateEvents_Type.Explode);
+                        go.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Explode));
                     }
                     break;
                 case TCoreEvent.Occlusion_ImplodingAreas:
                     foreach (GameObject go in _event.data.gameObjectList)
                     {
-                        go.GetComponent<ObjectStateManager>().SendEvent(ObjectExplosionStateEvents_Type.Implode);
+                        //go.GetComponent<ObjectStateManager>().SendEvent(ObjectExplosionStateEvents_Type.Implode);
+                        go.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Implode));
                     }
                     break;
                 case TCoreEvent.ModelManagement_FileDownloadBegin:

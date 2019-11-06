@@ -27,7 +27,8 @@ public class IsolateManager : MonoBehaviour
         //Remove the object of the given list
         foreach (var obj in goToRemoveList)
         {
-            obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateEvents.Remove_On);
+            // obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateCommands.Remove_On);
+            obj.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Remove_On));
         }
         //Focus the visible objects
         ReFocusIsolatedGO();
