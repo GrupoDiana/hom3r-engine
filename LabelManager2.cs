@@ -622,7 +622,7 @@ public class LabelManager2 : MonoBehaviour
     /// <summary>
     /// Remove all the labels from the scene
     /// </summary>
-    public void RemoveAllLabel()
+    public void RemoveAllLabels()
     {
         // Close label edition to avoid conflicts, just in case
         if (this.selectedLabel) { this.CloseEditMode(); }

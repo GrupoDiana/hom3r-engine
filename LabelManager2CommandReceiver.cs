@@ -143,7 +143,7 @@ public class CLabelManager2Command : CCoreCommand
                         hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().RemoveAllBoardLabel();
                         break;
                     case TLabelManager2Commands.RemoveAllLabel:
-                        hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().RemoveAllLabel();
+                        hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().RemoveAllLabels();
                         break;
                     case TLabelManager2Commands.UpdateAnchoredLabelView:
                         hom3r.quickLinks.scriptsObject.GetComponent<LabelManager2>().UpdateAnchoredLabelsOrientationAndPole();
