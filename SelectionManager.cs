@@ -27,13 +27,22 @@ public class SelectionManager : MonoBehaviour
     /////////////////////////////////////////////////////////////////////////// 
     /// <summary> Start this instance. Use this for initialization.</summary> //
     ///////////////////////////////////////////////////////////////////////////
-    void Start () 
+    void Awake () 
 	{
         //We create a new blank list
         gameObjectIndicatedList = new List<GameObject>();       //Initially the list is empty
         gameObjectConfirmedList = new List<GameObject>();       //Initially the list is empty
         nodeLeafID_ConfirmedList = new List<string>();          //Initially the list is empty
         specialNodeID_ConfirmedList = new List<string>();       //Initially the list is empty       
+    }
+
+
+    public void ResetSelectionLists()
+    {        
+        gameObjectIndicatedList.Clear();
+        gameObjectConfirmedList.Clear();
+        nodeLeafID_ConfirmedList.Clear();
+        specialNodeID_ConfirmedList.Clear();
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -48,7 +57,7 @@ public class SelectionManager : MonoBehaviour
 
     /// <summary>Method to know the number of indicated game objects.</summary>
     /// <returns>The number of confirmed game objects.</returns>
-    public int NumberOfIndicatedGameObjects()
+    public int GetNumberOfIndicatedGameObjects()
     {
         return gameObjectIndicatedList.Count;
     }
@@ -87,19 +96,31 @@ public class SelectionManager : MonoBehaviour
     /// <summary> Remove the indication state of all the objects.</summary>	    
     public void IndicationGameObjectAllOFF()
     {
-        if (NumberOfIndicatedGameObjects() > 0)
+        bool controlNull = false;
+        if (GetNumberOfIndicatedGameObjects() > 0)
         {
-            List<GameObject> temp = new List<GameObject>(gameObjectIndicatedList);            
+            List<GameObject> temp = new List<GameObject>(gameObjectIndicatedList);
             foreach (GameObject obj in temp)
-            {            
-                // obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateCommands.Indication_Off);
-                obj.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Indication_Off));
-            }
-            
+            {
+                if (obj != null) {                 
+                    obj.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Indication_Off));
+                } else
+                {
+                    controlNull = true;
+                }
+            }            
         }
+        if (controlNull) { RemoveNullFromIndicationList(); }
     }
     
-   
+    private void RemoveNullFromIndicationList()
+    {
+        List<GameObject> temp = gameObjectIndicatedList.FindAll(item => item == null);        
+        foreach (GameObject item in temp)
+        {
+            gameObjectIndicatedList.Remove(item);
+        }            
+    }
 
     
     /////////////////////////////////////////////////////////////////////////
@@ -197,7 +218,6 @@ public class SelectionManager : MonoBehaviour
                 List<string> _deselectAreaIDList = this.GetListOfConfirmedObjectsIDs();
                 //this.GetComponent<IO_Script>().ToWebApp_DeselectPart(_deselectAreaIDList);
                 hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Selection_ConfirmationOffFinished, _deselectAreaIDList));
-
             }            
             //Desconfirm all objects
             List<GameObject> temp = new List<GameObject>(gameObjectConfirmedList);
@@ -215,7 +235,7 @@ public class SelectionManager : MonoBehaviour
             specialNodeID_ConfirmedList.Clear();
             hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Selection_AllPartsDeselected));
         }
-    }//ConfirmALLGameObjectOFF
+    }
 
     
     //////////////////////////////////////////////////

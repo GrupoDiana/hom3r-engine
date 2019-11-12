@@ -246,9 +246,10 @@ public class TransparencyManager : MonoBehaviour {
                 //If not we make it transparent
                 toMakeList = distractorList.FindAll(x => !gameObjectTransparentList.Contains(x));                                
                 GameObjectListTransparencyOn(toMakeList, duration);
-            }//END if
-            distractorList.Clear();
-            toMakeList.Clear();
+
+                distractorList.Clear();
+                toMakeList.Clear();
+            }          
             //Execute just 3 time per second
             yield return new WaitForSeconds(0.3f);
         }//END while
@@ -303,7 +304,7 @@ public class TransparencyManager : MonoBehaviour {
         }
 
         else {
-            Debug.LogError("ERROR << No GameObject in the listConfirmedObjets");
+            Debug.Log("ERROR << No GameObject in the listConfirmedObjets");
             return null;
         }
     }

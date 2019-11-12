@@ -52,7 +52,7 @@ public enum TCoreEvent
     ObjectState_AreaRemoveOn, ObjectState_AreaRemoveOff,
 
     UI_SmartTransparency_AlphaLevelUpdated, UI_SmartTransparency_Enabled, UI_SmartTransparency_Disabled,
-
+    
     Navigation_NavigationInitiaded,
     Navigation_PanNavigation_Enabled, Navigation_PanNavigation_Disabled,
     Navigation_NavigationToFocusEnd, Navigation_ApproximationEnd,

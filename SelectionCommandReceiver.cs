@@ -237,6 +237,8 @@ public class SelectionCommandReceiver : MonoBehaviour {
 /// <summary>Selection Command</summary>
 public enum TSelectionCommands
 {
+    Reset,
+    ClearScene,
     ChangeHierarchyOfSelectionMode,
     IndicateByMouse, IndicateAllOff,
     SingleConfirmationByMouse, ConfirmationOff,
@@ -299,6 +301,14 @@ public class CSelectionCommand : CCoreCommand
         {
             switch (data.commandEvent)
             {
+                case TSelectionCommands.Reset:
+                    // hom3r.quickLinks.scriptsObject.GetComponent<SelectionManager>().ResetSelectionLists();
+                    break;
+                case TSelectionCommands.ClearScene:
+                    hom3r.quickLinks.scriptsObject.GetComponent<SelectionManager>().IndicationGameObjectAllOFF();
+                    hom3r.quickLinks.scriptsObject.GetComponent<SelectionManager>().ConfirmALLGameObjectOFF(false);
+                    hom3r.quickLinks.scriptsObject.GetComponent<SelectionManager>().ClearSelectionColour();
+                    break;
                 case TSelectionCommands.ChangeHierarchyOfSelectionMode:
                     if (hom3r.state.currentSelectionMode == THom3rSelectionMode.AREA)
                     {

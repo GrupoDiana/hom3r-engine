@@ -81,6 +81,7 @@ public class OcclusionCommandReceiver : MonoBehaviour {
 /// <summary>Occlusions commands</summary>
 public enum TOcclusionCommands
 {
+    ResetScene,
     EnableSmartTransparency, DisableSmartTransparency, ResetSmartTransparency, SetSmartTransparencyAlphaLevel,
     Isolate,
     RemoveGameObject, ShowRemovedGameObject, RemoveArea, ShowRemovedArea,
@@ -174,6 +175,9 @@ public class COcclusionCommand : CCoreCommand
             switch (data.command)
             {
 
+                case TOcclusionCommands.ResetScene:
+                    hom3r.quickLinks.scriptsObject.GetComponent<OcclusionManager>().ShowAll();
+                    break;
                 ////////  SMART TRANSPARENCY  //////////////
                 case TOcclusionCommands.SetSmartTransparencyAlphaLevel:
                     hom3r.quickLinks.scriptsObject.GetComponent<TransparencyManager>().SetSmartTransparencyAlphaLevel(data.alphaLevel, data.origin);

@@ -260,6 +260,7 @@ public class ModelManager : MonoBehaviour {
     {
         hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.ModelManagement_FileDownloadEnd));        
     }
+    
   
     /// <summary>Start the download of the 3D files received in the product model</summary>
     private void Load3DFilesFromProductModel()
@@ -485,22 +486,24 @@ public class ModelManager : MonoBehaviour {
         {
             SetBlockUserInterfaceDuringFileLoading();                                       // Block UI            
                         
+
             for (int i = 0; i < hom3r.quickLinks._3DModelRoot.transform.childCount; i++)
             {
                 GameObject child = hom3r.quickLinks._3DModelRoot.transform.GetChild(i).gameObject;
                 Destroy(child);
             }
+
+            Resources.UnloadUnusedAssets();
             
+
             list3DFiles.Clear();
             productModelLoaded = false;
             productModel.Clear();
-
             InitVars();     // Initialize all the variables
 
-            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.ModelManagement_ModelReset_Success));
-            Resources.UnloadUnusedAssets();
-                                  
-            SetUnblockUserInterfaceAfterFileLoading();          // UnBlock UI
+            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.ModelManagement_ModelReset_Success), 1.0f);
+                                              
+            // SetUnblockUserInterfaceAfterFileLoading();          // UnBlock UI
         }        
     }
 

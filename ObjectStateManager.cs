@@ -197,8 +197,7 @@ public class ObjectStateManager : MonoBehaviour {
     {
         TObjectVisualStates currentState = this.GetVisualState();
         if (currentState == TObjectVisualStates.Transparent_Idle)
-        {
-            Debug.Log("to idle");
+        {            
             objectVisualState.ChangeState_toIdle(_duration);
         }
     }

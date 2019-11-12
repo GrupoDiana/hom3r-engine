@@ -65,7 +65,8 @@ public class NavigationEventReceiver : MonoBehaviour {
                     hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().InitNavigation(_event.data.text);
                     break;                
                 case TCoreEvent.ModelManagement_ModelReset_Success:
-                    hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().InitNavigation(_event.data.text);
+                    //hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().InitNavigation(_event.data.text);
+                    hom3r.coreLink.Do(new CNavigationCommand(TNavigationCommands.StopNavigation));
                     break;
                 case TCoreEvent.ModelManagement_NavigationAxisChange_Success:
                     hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().InitNavigation();
@@ -81,6 +82,12 @@ public class NavigationEventReceiver : MonoBehaviour {
                     break;
                 case TCoreEvent.Occlusion_Isolate_Disabled:
                     hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().InitNavigation();
+                    break;
+                case TCoreEvent.ModelManagement_FileDownloadBegin:
+                    hom3r.state.navigationBlocked = true;
+                    break;
+                case TCoreEvent.ModelManagement_FileDownloadEnd:
+                    hom3r.state.navigationBlocked = false;
                     break;
                 default:
                     break;

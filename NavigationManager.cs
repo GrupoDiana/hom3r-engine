@@ -33,7 +33,31 @@ public class NavigationManager : MonoBehaviour {
     private void Awake()
     {
         hom3r.quickLinks.navigationSystemObject = GameObject.FindGameObjectWithTag("NavigationSystem_tag");       //Initialize the quick link to the orbit plane object
-        
+
+        this.InitializeVariables();
+        //cameraInitialPosition = Vector3.zero;       // Initialize Scene parameters 
+        //cameraMinimumDistance = 0.0f;               // Initialize Scene parameters
+        //CalculateFielOfView();                      // Initialize Scene parameters               
+
+        //mainAxis = TMainAxis.Vertical;              // Initialize Navigation mode parameters
+
+        //pseudoRadioCorrection = 100f;               // Initialize Correction Parameters
+        //pseudoRadioScale = 5f;                      //
+
+        ////Navigation System
+        ////navigationSystem = new CSphericalCoordinatesManager();
+        ////navigationSystem = new CLimitedSphericalCoordinatesManager();     
+        //navigationSystem = new CEllipticalCoordinatesManager();
+        //panNavigationSystem = new PanNavigatioMangager();
+        //hom3r.state.navigationMode = THom3rNavigationMode.regular;
+
+        //navigationInitialized = false;       // This parameter controls when the navigation has been initialized
+    }
+
+    private void InitializeVariables()
+    {
+        navigationInitialized = false;       // This parameter controls when the navigation has been initialized
+
         cameraInitialPosition = Vector3.zero;       // Initialize Scene parameters 
         cameraMinimumDistance = 0.0f;               // Initialize Scene parameters
         CalculateFielOfView();                      // Initialize Scene parameters               
@@ -48,14 +72,17 @@ public class NavigationManager : MonoBehaviour {
         //navigationSystem = new CLimitedSphericalCoordinatesManager();     
         navigationSystem = new CEllipticalCoordinatesManager();
         panNavigationSystem = new PanNavigatioMangager();
-        hom3r.state.navigationMode = THom3rNavigationMode.regular;
-
-        navigationInitialized = false;       // This parameter controls when the navigation has been initialized
+        hom3r.state.navigationMode = THom3rNavigationMode.regular;        
     }
 
     ////////////////////////////////////
     // Initialize Navigation methods
     ////////////////////////////////////
+    public void StopNavigation()
+    {
+        this.InitializeVariables();
+    }
+        
     /// <summary>Initialize Navigation</summary>
     public void InitNavigation()
     {
@@ -71,6 +98,7 @@ public class NavigationManager : MonoBehaviour {
         SetNavigationAxis(newMainAxis);                             // Change main axis            
 
         this.modelBoundingBox = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().Get3DModelBoundingBox(true); //Get model bounding box        
+        if (this.modelBoundingBox.size == Vector3.zero) { return; }
         InitOrbitPlanePosition();                                   // Initialize Orbit Plane position
         InitCameraRotation();                                       // Initialize Camera rotation
         InitHelpPlaneSize(modelBoundingBox);

@@ -32,7 +32,7 @@ public class NavigationCommandReceiver : MonoBehaviour {
 /// <summary>Navigation Commands</summary>
 public enum TNavigationCommands
 {
-    InitializeNavigation,
+    InitializeNavigation, StopNavigation,
     MouseMovement
 }
 
@@ -83,8 +83,10 @@ public class CNavigationCommand : CCoreCommand
             switch (data.commandEvent)
             {
                 case TNavigationCommands.InitializeNavigation:                   
-                    hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().InitNavigation();
-                    //hom3r.coreLink.Do(new CLabelManager2Command(TLabelManager2Commands.UpdateAnchoredLabelView)); //Needed for label face to camera before starting the navigation
+                    hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().InitNavigation();                    
+                    break;
+                case TNavigationCommands.StopNavigation:
+                    hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().StopNavigation();
                     break;
                 case TNavigationCommands.MouseMovement:                        
                     hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().SetMouseMovement(data.mouseX, data.mouseY, data.mouseWheel);
