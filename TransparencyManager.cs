@@ -118,9 +118,10 @@ public class TransparencyManager : MonoBehaviour {
 		foreach (GameObject obj in temp)
         {
             if (obj != null)
-            {           
+            {
                 // obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateCommands.Transparency_Off, 0.5f);
-                obj.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Transparency_Off, 0.5f));
+                float duration = hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetDurationTransparencyAnimation();
+                obj.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Transparency_Off, duration));
             }
         }
 		//Empty the list of hidden objects
@@ -224,6 +225,10 @@ public class TransparencyManager : MonoBehaviour {
         //Calculate rays destination points and save them in a class parameter: RayDestinationPoints_List. This method will be also called  from the Core when the area selectiopn change.
         SetRayDestinationPoints_AllSelectedAreas();
 
+        // Set animation effect duration
+        //float duration = 0.5f;
+        float duration = hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetDurationTransparencyAnimation();
+
         //Check if the smartTransparency is activate
         while (smartTransparencyState)
         {
@@ -236,11 +241,11 @@ public class TransparencyManager : MonoBehaviour {
                 //If a object is not a distractor we make it visible. 
                 toMakeList = gameObjectTransparentList.FindAll(x => !distractorList.Contains(x));
                 //Make visible objects that are not a distractor now					
-                GameObjectListTransparencyOff(toMakeList, 0.5f);
+                GameObjectListTransparencyOff(toMakeList, duration);
                 //Move in the list of distractor and check if it is already transparent
                 //If not we make it transparent
-                toMakeList = distractorList.FindAll(x => !gameObjectTransparentList.Contains(x));
-                GameObjectListTransparencyOn(toMakeList, 0.5f);
+                toMakeList = distractorList.FindAll(x => !gameObjectTransparentList.Contains(x));                                
+                GameObjectListTransparencyOn(toMakeList, duration);
             }//END if
             distractorList.Clear();
             toMakeList.Clear();

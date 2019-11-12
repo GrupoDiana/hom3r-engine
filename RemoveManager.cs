@@ -54,11 +54,14 @@ public class RemoveManager : MonoBehaviour {
     }
 
     /// <summary>Reveals all hidden game objects.</summary>
-	public void RevealAllRemovedGameObjects(float duration = 0.0f)
+	public void RevealAllRemovedGameObjects()
     {
         //Reveal all hidden objects
         List<GameObject> temp = new List<GameObject>(gameObjectRemoveList);
         List<string> areaIdList = new List<string>();
+
+        float duration = hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetDurationRemoveAnimation();
+
         foreach (GameObject obj in temp) {
             if (obj.GetComponent<ObjectStateManager>() != null) {
                 //obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateCommands.Remove_Off, duration);
@@ -73,33 +76,28 @@ public class RemoveManager : MonoBehaviour {
     }
 
     /// <summary>Make hidden all the objects not confirmed.</summary>    
-    public void RemoveNotCorfirmedNodes(float duration = 0.0f)
+    public void RemoveNotCorfirmedNodes()
     {
         List<GameObject> removedAreas = new List<GameObject>();
 
         //Call the recursive algorithm with the Turbine Father		
-        removedAreas = RemoveNotCorfirmedNodesRecursive(hom3r.quickLinks._3DModelRoot, duration);
+        removedAreas = RemoveNotCorfirmedNodesRecursive(hom3r.quickLinks._3DModelRoot);
 
         //Emit event with removes areas
         this.EmitRemovedAreaEvent(removedAreas);        
     }
 
     /// <summary>Recursively runs through the turbine and becomes transparent objects that are unconfirmed     
-    private List<GameObject> RemoveNotCorfirmedNodesRecursive(GameObject obj, float duration = 0.0f)
+    private List<GameObject> RemoveNotCorfirmedNodesRecursive(GameObject obj)
     {
         List<GameObject> _removedAreas = new List<GameObject>();
+        float duration = hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetDurationRemoveAnimation();
+
         //If the object is not in the list of confirmed we make it transparent
         if (obj.GetComponent<Renderer>())
         {
             if (!this.GetComponent<SelectionManager>().IsConfirmedNodeLeaf(obj))
-            {
-                //if (!this.GetComponent<SinglePointManager>().IsASinglePoint(obj))
-                //{
-                if (obj.GetComponent<ObjectStateManager>().areaID == "238")
-                {
-                    Debug.Log("238");
-                }
-                // obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateCommands.Remove_On, duration);
+            {                
                 obj.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Remove_On, duration));
                 _removedAreas.Add(obj);
                 return _removedAreas;
@@ -110,7 +108,7 @@ public class RemoveManager : MonoBehaviour {
         for (int i = obj.transform.childCount - 1; i >= 0; i--)
         {
             GameObject newChild = obj.transform.GetChild(i).gameObject;
-            _removedAreas.AddRange(RemoveNotCorfirmedNodesRecursive(newChild, duration));
+            _removedAreas.AddRange(RemoveNotCorfirmedNodesRecursive(newChild));
         }
         return _removedAreas;
     }

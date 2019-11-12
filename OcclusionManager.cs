@@ -56,8 +56,8 @@ public class OcclusionManager : MonoBehaviour
                         //Desconfirm the area if it's confirmed
                         hom3r.coreLink.Do(new CSelectionCommand(TSelectionCommands.ConfirmationOff, go), Constants.undoNotAllowed);
                         //Change the state of the object to hide (this method will be in charge of changing the object material)
-                        // go.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateCommands.Remove_On, 0.8f);
-                        go.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Remove_On, 0.8f));
+                        float duration = hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetDurationRemoveAnimation();
+                        go.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Remove_On, duration));
                     }
                     // Send list of areas to WebApp only if the action starts in the UserInterface
                     if (_origin == THom3rCommandOrigin.ui)
@@ -75,8 +75,8 @@ public class OcclusionManager : MonoBehaviour
                 List<GameObject> _areaList = this.GetComponent<ModelManager>().GetAreaGameObjectList_BySpecialAncestorID(_specialNodeID);
                 foreach (var item in _areaList)
                 {
-                    // item.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateCommands.Remove_On, 0.8f);
-                    item.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Remove_On, 0.8f));
+                    float duration = hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetDurationRemoveAnimation();
+                    item.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Remove_On, duration));
                 }
 
                 // Send list of areas to WebApp
@@ -86,14 +86,13 @@ public class OcclusionManager : MonoBehaviour
         }
     }
 
-    public void ShowRemovedArea(string areaID, THom3rCommandOrigin _origin, float duration = 0.0f)
-    {
+    public void ShowRemovedArea(string areaID, THom3rCommandOrigin _origin)
+    {        
         GameObject objToShow = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetAreaGameObject_ByAreaID(areaID);
-        this.ShowRemovedGameObject(objToShow, duration, _origin);
-
+        this.ShowRemovedGameObject(objToShow, _origin);
     }
 
-    public void ShowRemovedGameObject(GameObject obj, float duration = 0.0f, THom3rCommandOrigin _origin = THom3rCommandOrigin.ui)
+    public void ShowRemovedGameObject(GameObject obj, THom3rCommandOrigin _origin = THom3rCommandOrigin.ui)
     {
         List<string> areaIdList = new List<string>();
 
@@ -101,7 +100,7 @@ public class OcclusionManager : MonoBehaviour
 
             if (obj.GetComponent<ObjectStateManager>() != null)
             {
-                //obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateCommands.Remove_Off, duration);
+                float duration = hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetDurationRemoveAnimation();                
                 obj.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Remove_Off, duration));
                 areaIdList.Add(obj.GetComponent<ObjectStateManager>().areaID);
             }
@@ -296,8 +295,8 @@ public class OcclusionManager : MonoBehaviour
         {
             //1. Update Core mode
             hom3r.state.currentIsolateMode = THom3rIsolationMode.idle;
-            //2. Execute algorithms
-            hom3r.quickLinks.scriptsObject.GetComponent<RemoveManager>().RevealAllRemovedGameObjects(1.0f);
+            //2. Execute algorithms            
+            hom3r.quickLinks.scriptsObject.GetComponent<RemoveManager>().RevealAllRemovedGameObjects();
         }
     }
 

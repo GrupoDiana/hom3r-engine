@@ -239,10 +239,11 @@ public class COcclusionCommand : CCoreCommand
                     hom3r.quickLinks.scriptsObject.GetComponent<OcclusionManager>().RemoveArea(data.areaId, data.origin);                    
                     break;
                 case TOcclusionCommands.ShowRemovedGameObject:
-                    hom3r.quickLinks.scriptsObject.GetComponent<OcclusionManager>().ShowRemovedGameObject(data.obj, 1.0f);
+                    hom3r.quickLinks.scriptsObject.GetComponent<OcclusionManager>().ShowRemovedGameObject(data.obj);
                     break;
                 case TOcclusionCommands.ShowRemovedArea:
-                    hom3r.quickLinks.scriptsObject.GetComponent<OcclusionManager>().ShowRemovedArea(data.areaId, data.origin, 1.0f);
+                    
+                    hom3r.quickLinks.scriptsObject.GetComponent<OcclusionManager>().ShowRemovedArea(data.areaId, data.origin);
                     break;
                 ////////  EXPLOSION  //////////////
                 case TOcclusionCommands.StartStopGlobalExplosion:

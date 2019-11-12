@@ -15,7 +15,7 @@ public class IsolateManager : MonoBehaviour
         //1. Update Core mode
         hom3r.state.currentIsolateMode = THom3rIsolationMode.ISOLATE;
 
-        hom3r.quickLinks.scriptsObject.GetComponent<RemoveManager>().RemoveNotCorfirmedNodes(1.5f);       //Remove all not confirmed objects
+        hom3r.quickLinks.scriptsObject.GetComponent<RemoveManager>().RemoveNotCorfirmedNodes();       //Remove all not confirmed objects
         //this.FocusIsolatedGameObjects();               //Focus the list of confirmed objects objects
         this.GetComponent<Core>().EmitEvent(new CCoreEvent(TCoreEvent.Occlusion_Isolate_Enabled), 1.6f);
 
@@ -117,8 +117,8 @@ public class IsolateManager : MonoBehaviour
         //1. Reset View
         // hom3r.quickLinks.orbitPlane.GetComponent<NavigationManager>().ResetView_BothNavSystems();  //FIXME after Navigation Refactoring
         //2. Reset object materials (show every components)
-        this.GetComponent<TransparencyManager>().AllGameObjectTransparencyOff();
-        this.GetComponent<RemoveManager>().RevealAllRemovedGameObjects(1.5f);
+        this.GetComponent<TransparencyManager>().AllGameObjectTransparencyOff();        
+        this.GetComponent<RemoveManager>().RevealAllRemovedGameObjects();
         // Launch command to core
         this.GetComponent<Core>().EmitEvent(new CCoreEvent(TCoreEvent.Occlusion_Isolate_Disabled), 0.1f);
     }

@@ -25,6 +25,9 @@ public class ConfigurationManager : MonoBehaviour
 
     private bool explosionEnabled;              // This control if the explosion is enabled or not
 
+    private float durationTransparencyAnimation;    // This control the duration of the fade-in, fade-out animation effect of the transparency 
+    private float durationRemoveAnimation;          // This control the duration of the fade-in, fade-out animation effect of the remove
+
     private void Awake()
     {
         UIEnabled                   = true;     // Initially the UI is activated
@@ -46,7 +49,9 @@ public class ConfigurationManager : MonoBehaviour
 
         labelEditionEnabled         = true;
 
-        
+        durationTransparencyAnimation   = 0.75f;
+        durationRemoveAnimation         = 0.75f;
+
         Debug.Log("Configuration Manager Awake");     
     } 
 
@@ -293,8 +298,52 @@ public class ConfigurationManager : MonoBehaviour
     {
         return explosionEnabled;
     }
+
+
+    /////////////////////
+    // Transparency Effect
+    /////////////////////
+    /// <summary>
+    /// Set if the explosion is activated or not. 
+    /// </summary>
+    /// <param name="_duration">true activate the mouse interaction</param>
+    public void SetDurationTransparencyAnimation(float _duration)
+    {
+        durationTransparencyAnimation = _duration;
+        this.SendUpdateEvent();
+    }
+    /// <summary>
+    /// Get if the explosion is activated or not. 
+    /// </summary>
+    /// <returns>True if mouse interaction is activated</returns>
+    public float GetDurationTransparencyAnimation()
+    {
+        return durationTransparencyAnimation;
+    }
+
+    /////////////////////
+    // Remove Effect
+    /////////////////////
+    /// <summary>
+    /// Set if the explosion is activated or not. 
+    /// </summary>
+    /// <param name="_duration">true activate the mouse interaction</param>
+    public void SetDurationRemoveAnimation(float _duration)
+    {
+        durationRemoveAnimation = _duration;
+        this.SendUpdateEvent();
+    }
     
-    
+    /// <summary>
+    /// Get if the explosion is activated or not. 
+    /// </summary>
+    /// <returns>True if mouse interaction is activated</returns>
+    public float GetDurationRemoveAnimation()
+    {
+        return durationRemoveAnimation;
+    }
+
+
     // Other
     private void SendUpdateEvent()
     {
