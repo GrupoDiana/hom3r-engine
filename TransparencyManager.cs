@@ -111,16 +111,24 @@ public class TransparencyManager : MonoBehaviour {
 	///////////////////////////////////////////////////////////////////////
 	/// <summary> Remove the transparency of all the objects.</summary>	 //
 	///////////////////////////////////////////////////////////////////////
-	public void AllGameObjectTransparencyOff()
+	public void AllGameObjectTransparencyOff(bool _instanlly = false)
 	{
+        float duration;
+        
+        // Get duration value
+        if (_instanlly) {
+            duration = 0.0f;
+        } else
+        {
+            duration = hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetDurationTransparencyAnimation();
+        }        
         //Make not transparent one by one
         List<GameObject> temp = new List<GameObject>(gameObjectTransparentList);
 		foreach (GameObject obj in temp)
         {
             if (obj != null)
-            {
-                // obj.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateCommands.Transparency_Off, 0.5f);
-                float duration = hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetDurationTransparencyAnimation();
+            {                
+                
                 obj.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Transparency_Off, duration));
             }
         }

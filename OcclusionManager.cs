@@ -147,10 +147,10 @@ public class OcclusionManager : MonoBehaviour
     }
 
 
-    public void StopSmartTransparency(THom3rCommandOrigin _origin)
+    public void StopSmartTransparency(THom3rCommandOrigin _origin, bool _instanlly = false )
     {
         //Reset objects materials
-        hom3r.quickLinks.scriptsObject.GetComponent<TransparencyManager>().AllGameObjectTransparencyOff();
+        hom3r.quickLinks.scriptsObject.GetComponent<TransparencyManager>().AllGameObjectTransparencyOff(_instanlly);
         //hom3r.quickLinks.scriptsObject.GetComponent<HiddenManager>().RevealAllHiddenGameObjects();
         //Execute stop tranparency algorithms
         hom3r.state.smartTransparencyModeActive = false;
