@@ -1285,10 +1285,10 @@ public class OBJLoader : MonoBehaviour
             stopwatch.Stop();
             Debug.Log("Time taken: " + (stopwatch.Elapsed));
             stopwatch.Reset();            
-            this.GetComponent<_3DFileManager>().ProcessAfterOBJLoad(file, defaultParent);            
+            this.GetComponent<_3DFileManager>().ProcessAfterOBJLoad(file, defaultParent);
         //}       
+        Debug.Log("Total allocated memory after paint objects : " + System.GC.GetTotalMemory(true) + " bytes");        
         this.GetComponent<_3DFileManager>().SetFileDownloadFinished(file.fileID, error);
-        Debug.Log("Total allocated memory after paint objects : " + System.GC.GetTotalMemory(true) + " bytes");
         file.Clear();
     }
 

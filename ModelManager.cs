@@ -503,7 +503,7 @@ public class ModelManager : MonoBehaviour {
 
             hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.ModelManagement_ModelReset_Success), 1.0f);
                                               
-            // SetUnblockUserInterfaceAfterFileLoading();          // UnBlock UI
+            SetUnblockUserInterfaceAfterFileLoading();          // UnBlock UI
         }        
     }
 
