@@ -80,6 +80,7 @@ public class NavigationManager : MonoBehaviour {
     ////////////////////////////////////
     public void StopNavigation()
     {
+        Debug.Log("Stop Navigation");
         this.InitializeVariables();
     }
         
@@ -93,7 +94,9 @@ public class NavigationManager : MonoBehaviour {
     /// <summary>Initialize Navigation</summary>
     /// <param name="newMainAxis">3D model Main axis of navigation</param>
     public void InitNavigation(string newMainAxis_text)
-    {                        
+    {
+        Debug.Log("Init Navigation");
+
         TMainAxis newMainAxis = ParseMainAxis(newMainAxis_text);    // Parse input main Axis
         SetNavigationAxis(newMainAxis);                             // Change main axis            
 
@@ -305,7 +308,7 @@ public class NavigationManager : MonoBehaviour {
         float pseudoLatitude;
         float pseudoLongitude;
         float pseudoRadio;
-
+                
         // Check if the navigation is activated or not        
         if (!hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetActiveNavigation()) { return;  }
         if (hom3r.state.navigationBlocked) { return; }

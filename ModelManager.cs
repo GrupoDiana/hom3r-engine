@@ -479,14 +479,13 @@ public class ModelManager : MonoBehaviour {
     //////////////////////////
     /// <summary>Reset Product Model</summary>
     public void ResetModel()
-    {
+    {        
         if (!this.productModel.isInit()) { return; }
 
         if (!IsAnyFileLoading())
         {
             SetBlockUserInterfaceDuringFileLoading();                                       // Block UI            
-                        
-
+            
             for (int i = 0; i < hom3r.quickLinks._3DModelRoot.transform.childCount; i++)
             {
                 GameObject child = hom3r.quickLinks._3DModelRoot.transform.GetChild(i).gameObject;
@@ -499,9 +498,8 @@ public class ModelManager : MonoBehaviour {
             list3DFiles.Clear();
             productModelLoaded = false;
             productModel.Clear();
-            InitVars();     // Initialize all the variables
-
-            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.ModelManagement_ModelReset_Success), 1.0f);
+            InitVars();     // Initialize all the variables            
+            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.ModelManagement_ModelReset_Success));
                                               
             SetUnblockUserInterfaceAfterFileLoading();          // UnBlock UI
         }        

@@ -66,7 +66,8 @@ public class NavigationEventReceiver : MonoBehaviour {
                     break;                
                 case TCoreEvent.ModelManagement_ModelReset_Success:
                     //hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().InitNavigation(_event.data.text);
-                    hom3r.coreLink.Do(new CNavigationCommand(TNavigationCommands.StopNavigation));
+                    //hom3r.coreLink.Do(new CNavigationCommand(TNavigationCommands.StopNavigation));
+                    hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().StopNavigation();
                     break;
                 case TCoreEvent.ModelManagement_NavigationAxisChange_Success:
                     hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().InitNavigation();
