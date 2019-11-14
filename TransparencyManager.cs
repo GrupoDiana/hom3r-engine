@@ -249,12 +249,12 @@ public class TransparencyManager : MonoBehaviour {
                 //If a object is not a distractor we make it visible. 
                 toMakeList = gameObjectTransparentList.FindAll(x => !distractorList.Contains(x));
                 //Make visible objects that are not a distractor now					
-                GameObjectListTransparencyOff(toMakeList, duration);
+                if (smartTransparencyState) { GameObjectListTransparencyOff(toMakeList, duration); }                
                 //Move in the list of distractor and check if it is already transparent
                 //If not we make it transparent
-                toMakeList = distractorList.FindAll(x => !gameObjectTransparentList.Contains(x));                                
-                GameObjectListTransparencyOn(toMakeList, duration);
-
+                toMakeList = distractorList.FindAll(x => !gameObjectTransparentList.Contains(x));
+                if (smartTransparencyState) { GameObjectListTransparencyOn(toMakeList, duration); }
+                    
                 distractorList.Clear();
                 toMakeList.Clear();
             }          
