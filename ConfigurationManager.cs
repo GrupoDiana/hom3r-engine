@@ -49,7 +49,7 @@ public class ConfigurationManager : MonoBehaviour
 
         labelEditionEnabled         = true;
 
-        durationTransparencyAnimation   = 0.75f;
+        durationTransparencyAnimation   = 0.4f;
         durationRemoveAnimation         = 0.75f;
 
         Debug.Log("Configuration Manager Awake");     

@@ -400,8 +400,10 @@ public class ObjectStateManager : MonoBehaviour {
             
             //Assing the alpha value to the object material 
             currentColor.a = alpha;
-            this.GetComponent<Renderer>().material.SetColor("_Color", currentColor);
-
+            if (this.gameObject.activeSelf)
+            {
+                this.GetComponent<Renderer>().material.SetColor("_Color", currentColor);
+            }
             //Wait until the next frame to continue
             yield return true;
         }
