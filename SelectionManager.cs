@@ -833,37 +833,43 @@ public class SelectionManager : MonoBehaviour
                 //If is only one we deselect this one                    )
                 if (onlyOneComponentOrArea)
                 {
-                    this.GetComponent<Core>().Do((new CSelectionCommand(TSelectionCommands.ConfirmationOff, obj)), Constants.undoNotAllowed);
+                    // this.GetComponent<Core>().Do((new CSelectionCommand(TSelectionCommands.ConfirmationOff, obj)), Constants.undoNotAllowed);
+                    ExecuteDesconfirmation(obj);
                 }
                 else 
                 {
                     if (keyControlPressed)
                     {
                         //Multiple Confirmation, des-confirm one by one
-                        this.GetComponent<Core>().Do((new CSelectionCommand(TSelectionCommands.ConfirmationOff, obj)), Constants.undoNotAllowed);
+                        // this.GetComponent<Core>().Do((new CSelectionCommand(TSelectionCommands.ConfirmationOff, obj)), Constants.undoNotAllowed);
+                        ExecuteDesconfirmation(obj);
                     }
                     else
                     {
                         //Multiple Des-confirmation, des-confirm all except the selected one
                         this.GetComponent<Core>().Do((new CSelectionCommand(TSelectionCommands.Multiple_Confirmation_Desconfirmation, obj)), Constants.undoNotAllowed);
+
                     }
                 }
             }            
             else
             {
                 // Debug.Log("hom3r: CONFIRM the ray-cast object: " + obj.name);
+                this.RemoveFromIndicatedList(obj);
                 //CONFIRM the ray-cast object
-                //Multiple CONFIRMATION
+                //Multiple CONFIRMATION                
                 if (keyControlPressed)
                 {
-                    //Debug.Log("MULTIPLE Selection Active");                                            
-                    this.GetComponent<Core>().Do((new CSelectionCommand(TSelectionCommands.MultipleConfirmation, obj)), Constants.undoNotAllowed);
+                    // Debug.Log("MULTIPLE Selection Active");                                            
+                    // this.GetComponent<Core>().Do((new CSelectionCommand(TSelectionCommands.MultipleConfirmation, obj)), Constants.undoNotAllowed);
+                    this.ExecuteConfirmation(obj, true);
                 }
                 //Single CONFIRMATION
                 else
                 {
-                    //Debug.Log("SINGLE Selection Active");                                            
-                    this.GetComponent<Core>().Do((new CSelectionCommand(TSelectionCommands.SingleConfirmationByMouse, obj)), Constants.undoNotAllowed);
+                    // Debug.Log("SINGLE Selection Active");                                            
+                    // this.GetComponent<Core>().Do((new CSelectionCommand(TSelectionCommands.SingleConfirmationByMouse, obj)), Constants.undoNotAllowed);
+                    this.ExecuteConfirmation(obj, false);
                 }
             }
 
