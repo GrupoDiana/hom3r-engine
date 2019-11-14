@@ -111,11 +111,11 @@ public class ObjectStateManager : MonoBehaviour {
         while (commandsQueue.Count > 0)
         {
             commandRunning = commandsQueue.Dequeue();
-
+            //Debug.Log("AreaID: " + this.areaID + " command: " + commandRunning.data.commandEvent);
             commandRunning.Do(this);  // Execute the command
             
             //We exceute the commands one by one, so we wait until the current one have been finished
-            while (commandExecuting) { yield return new WaitForSeconds(1.0f); }
+            while (commandExecuting) { yield return new WaitForSeconds(0.1f); }
         }
         doCommandCoroutineStarted = false;
     }
@@ -400,7 +400,7 @@ public class ObjectStateManager : MonoBehaviour {
             
             //Assing the alpha value to the object material 
             currentColor.a = alpha;
-            if (this.gameObject.activeSelf)
+            //if (this.gameObject.activeSelf)
             {
                 this.GetComponent<Renderer>().material.SetColor("_Color", currentColor);
             }
