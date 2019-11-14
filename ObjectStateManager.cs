@@ -9,9 +9,10 @@ public class ObjectStateManager : MonoBehaviour {
     ObjectExplosionState_Type objectExplosionState;     //To store the object explosion state 
 
     Queue<CObjectVisualStateCommand> commandsQueue;
+    CObjectVisualStateCommand commandRunning;
     bool doCommandCoroutineStarted;
     bool commandExecuting;
-
+    bool abortCommandExecuting;
     //public List<string> areaID { get; set; }      //To store model information, area_id    
     public string areaID;// { get; set; }              //To store model information, area_id        
 
@@ -34,8 +35,10 @@ public class ObjectStateManager : MonoBehaviour {
         areaID = null;
 
         commandsQueue = new Queue<CObjectVisualStateCommand>();
+        commandRunning = null;
         doCommandCoroutineStarted = false;
         commandExecuting = false;
+        abortCommandExecuting = false;
     }
 
     
@@ -96,18 +99,20 @@ public class ObjectStateManager : MonoBehaviour {
         {
             doCommandCoroutineStarted = true;
             StartCoroutine(Coroutine_ExecuteCommandQueue());
+        } else {
+            commandRunning.AbortCommand(this);            
         }
     }
 
     /// <summary>Load 3D file one by one</summary>
     IEnumerator Coroutine_ExecuteCommandQueue()
     {
-        CObjectVisualStateCommand _command;
+        //CObjectVisualStateCommand _command;
         while (commandsQueue.Count > 0)
         {
-            _command = commandsQueue.Dequeue();
+            commandRunning = commandsQueue.Dequeue();
 
-            _command.Do(this);  // Execute the command
+            commandRunning.Do(this);  // Execute the command
             
             //We exceute the commands one by one, so we wait until the current one have been finished
             while (commandExecuting) { yield return new WaitForSeconds(1.0f); }
@@ -220,6 +225,11 @@ public class ObjectStateManager : MonoBehaviour {
             //Update explosion state
             objectExplosionState = ObjectExplosionState_Type.No_Explode;
         }
+    }
+
+    public void AbortCommandExecution()
+    {
+        this.abortCommandExecuting = true;
     }
 
 
@@ -378,11 +388,16 @@ public class ObjectStateManager : MonoBehaviour {
         //Lerp interpolate the value of alpha between current and target en funciton of t.
         //t=0 --> curret, t=1 --> target
         while (t <= 1)
-        {
-            //Calculate the new alpha value in function of deltaTime
-            alpha = Mathf.Lerp(currentAlpha, targetAlpha, t);
-            t += Time.deltaTime / durationTime;
-
+        {            
+            if (abortCommandExecuting) {
+                abortCommandExecuting = false;
+                t = 1;
+                // Debug.Log("Aborting: " + this.areaID);             
+            }
+            alpha = Mathf.Lerp(currentAlpha, targetAlpha, t);   // Calculate the new alpha value in function of deltaTime            
+            t += Time.deltaTime / durationTime;                 // Calculare new t
+            
+            
             //Assing the alpha value to the object material 
             currentColor.a = alpha;
             this.GetComponent<Renderer>().material.SetColor("_Color", currentColor);

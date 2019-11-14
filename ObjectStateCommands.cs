@@ -106,6 +106,6 @@ public class CObjectVisualStateCommand
         }
 
     }
-
+    public void AbortCommand(ObjectStateManager objManager) { objManager.AbortCommandExecution(); }
 }
 
