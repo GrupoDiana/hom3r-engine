@@ -527,12 +527,18 @@ public class SelectionManager : MonoBehaviour
     /// <param name="obj">Area GameObject to indicate</param>
     public void ExecuteIndication(GameObject obj)
     {
+        if (IsConfirmedGameObject(obj)) {
+            this.GetComponent<SelectionManager>().IndicationGameObjectAllOFF();
+            return;
+        }
+        if (IsIndicatedGameObject(obj)) { return; }
         //Get the areaIDs of the area selected        
         string areaID = obj.GetComponent<ObjectStateManager>().areaID;
         if (areaID != null)
         {
             if (hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().IsAreaSelectable(areaID))
             {
+               
                 List<GameObject> _areaList = new List<GameObject>();                
 
                 if (hom3r.state.currentSelectionMode == THom3rSelectionMode.AREA)

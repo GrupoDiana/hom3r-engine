@@ -139,9 +139,8 @@ public class OcclusionManager : MonoBehaviour
     //////////////////////////////
     
     public void StartSmartTransparency(THom3rCommandOrigin _origin)
-    {        
-        hom3r.state.smartTransparencyModeActive = true;     // Start transparency
-        ExecuteSmartTransparency(true);                     //Execute algorithms                
+    {                
+        this.GetComponent<TransparencyManager>().SmartTransparencyStart();      // Start transparency
         // Indicate to others
         hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Occlusion_SmartTransparency_Enabled, _origin));      
     }
@@ -149,31 +148,33 @@ public class OcclusionManager : MonoBehaviour
 
     public void StopSmartTransparency(THom3rCommandOrigin _origin, bool _instanlly = false )
     {
+        //Execute stop tranparency algorithms        
+        this.GetComponent<TransparencyManager>().SmartTransparencyStop();
         //Reset objects materials
         hom3r.quickLinks.scriptsObject.GetComponent<TransparencyManager>().AllGameObjectTransparencyOff(_instanlly);
         //hom3r.quickLinks.scriptsObject.GetComponent<HiddenManager>().RevealAllHiddenGameObjects();
         //Execute stop tranparency algorithms
-        hom3r.state.smartTransparencyModeActive = false;
-        ExecuteSmartTransparency(false);
+        //hom3r.state.smartTransparencyModeActive = false;
+        //ExecuteSmartTransparency(false);
         // Indicate to others
         hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Occlusion_SmartTransparency_Disabled, _origin));
     }
 
     /// <summary>Execute SmartTransaprency</summary>
     /// <param name="status">true=start, false = stop</param>    
-    private void ExecuteSmartTransparency(bool status)
-    {
-        if (status)
-        {
-            //Start Smart Transparency
-            this.GetComponent<TransparencyManager>().SmartTransparencyStart();
-        }
-        else
-        {
-            //Stop Smart Transparency
-            this.GetComponent<TransparencyManager>().SmartTransparencyStop();
-        }
-    }
+    //private void ExecuteSmartTransparency(bool status)
+    //{
+    //    if (status)
+    //    {
+    //        //Start Smart Transparency
+    //        this.GetComponent<TransparencyManager>().SmartTransparencyStart();
+    //    }
+    //    else
+    //    {
+    //        //Stop Smart Transparency
+    //        this.GetComponent<TransparencyManager>().SmartTransparencyStop();
+    //    }
+    //}
 
 
     //////////////////////////////
@@ -314,10 +315,8 @@ public class OcclusionManager : MonoBehaviour
         hom3r.quickLinks.scriptsObject.GetComponent<TransparencyManager>().AllGameObjectTransparencyOff();        
         hom3r.quickLinks.scriptsObject.GetComponent<HiddenManager>().RevealAllHiddenGameObjects();
         
-        //Execute stop tranparency algorithms
-        hom3r.state.smartTransparencyModeActive = false;
-        ExecuteSmartTransparency(false);
-        
+        //Execute stop tranparency algorithms       
+        this.GetComponent<TransparencyManager>().SmartTransparencyStop();
         // Update Isolate state
         hom3r.state.currentIsolateMode = THom3rIsolationMode.idle;        
     }

@@ -17,7 +17,7 @@ public class TransparencyManager : MonoBehaviour {
 
 	//Variables
 	List<GameObject> gameObjectTransparentList;                 //List of transparent gameobjects
-    public bool smartTransparencyState;                         //State of the smart transparency
+    // public bool smartTransparencyState;                         //State of the smart transparency
     //private GameObject goTurbine;                               //Link to the object that contain the scripts    
     //private GameObject mainCamera;                              //Link to the object that contains the main camera
     WaitForSeconds capsuleCastWait = new WaitForSeconds(1.0f);  //Smart transparency corutine wait time
@@ -38,7 +38,7 @@ public class TransparencyManager : MonoBehaviour {
     {                
         gameObjectTransparentList = new List<GameObject>();     //We create a new blank list        
         RayDestinationPoints_List = new List<Vector3>();        //Destination points for rays        
-        smartTransparencyState = false;                         //Initialize smart transperency state
+        // smartTransparencyState = false;                         //Initialize smart transperency state
     }
 
 	///////////////////////////////////////////////////////////////
@@ -117,7 +117,7 @@ public class TransparencyManager : MonoBehaviour {
         
         // Get duration value
         if (_instanlly) {
-            duration = 0.0f;
+            duration = 0.1f;
         } else
         {
             duration = hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetDurationTransparencyAnimation();
@@ -200,22 +200,22 @@ public class TransparencyManager : MonoBehaviour {
 	/// <summary> Start the smart transparency.</summary>
 	/////////////////////////////////////////////////////////
 	public void SmartTransparencyStart()
-	{
-		if (!smartTransparencyState) {
-			//Change the boolean value that control when is on this mode
-			smartTransparencyState = true;
+	{        
+        if (!hom3r.state.smartTransparencyModeActive) {
+            //Change the boolean value that control when is on this mode
+            hom3r.state.smartTransparencyModeActive = true;
 			//Excute the smartTrsnaparency
 			StartCoroutine (SmartTransparency ());	
 		}
-	}//END smartTransparencyStart
+	}
 
 	/////////////////////////////////////////////////////
 	/// <summary> Stop the Smart transparency.</summary>
 	///////////////////////////////////////////////////// 
 	public void SmartTransparencyStop()
 	{
-		smartTransparencyState = false;
-	}//END smartTransparencyStop
+        hom3r.state.smartTransparencyModeActive = false;
+	}
 
 
     /// <summary> Corutine to perform the smart transperency doing a multiple ray cast each 0.3 ms </summary>
@@ -238,7 +238,7 @@ public class TransparencyManager : MonoBehaviour {
         float duration = hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetDurationTransparencyAnimation();
 
         //Check if the smartTransparency is activate
-        while (smartTransparencyState)
+        while (hom3r.state.smartTransparencyModeActive)
         {
             //Execute the "MultipleRaysCast" algorithm to determine the list of objects to make transparent (distractors)
             distractorList = OcclusionDetection_RayCast();
@@ -249,11 +249,11 @@ public class TransparencyManager : MonoBehaviour {
                 //If a object is not a distractor we make it visible. 
                 toMakeList = gameObjectTransparentList.FindAll(x => !distractorList.Contains(x));
                 //Make visible objects that are not a distractor now					
-                if (smartTransparencyState) { GameObjectListTransparencyOff(toMakeList, duration); }                
+                if (hom3r.state.smartTransparencyModeActive) { GameObjectListTransparencyOff(toMakeList, duration); }                
                 //Move in the list of distractor and check if it is already transparent
                 //If not we make it transparent
                 toMakeList = distractorList.FindAll(x => !gameObjectTransparentList.Contains(x));
-                if (smartTransparencyState) { GameObjectListTransparencyOn(toMakeList, duration); }
+                if (hom3r.state.smartTransparencyModeActive) { GameObjectListTransparencyOn(toMakeList, duration); }
                     
                 distractorList.Clear();
                 toMakeList.Clear();
