@@ -92,33 +92,51 @@ public class ObjectStateManager : MonoBehaviour {
     public void Do(CObjectVisualStateCommand _command)
     {
         //Enqueue 3D file and start download
-        commandsQueue.Enqueue(_command); 
+        commandsQueue.Enqueue(_command);        
+        this.Do_Next();
 
-
-        if (!doCommandCoroutineStarted)
-        {
-            doCommandCoroutineStarted = true;
-            StartCoroutine(Coroutine_ExecuteCommandQueue());
-        } else {
-            commandRunning.AbortCommand(this);            
-        }
+        //if (!doCommandCoroutineStarted)
+        //{
+        //    doCommandCoroutineStarted = true;
+        //    StartCoroutine(Coroutine_ExecuteCommandQueue());
+        //}
+        //else
+        //{
+        //    commandRunning.AbortCommand(this);
+        //}
     }
 
     /// <summary>Load 3D file one by one</summary>
-    IEnumerator Coroutine_ExecuteCommandQueue()
+    //IEnumerator Coroutine_ExecuteCommandQueue()
+    //{
+    //    //CObjectVisualStateCommand _command;
+    //    while (commandsQueue.Count > 0)
+    //    {            
+    //        commandRunning = commandsQueue.Dequeue();
+    //        //Debug.Log("AreaID: " + this.areaID + " command: " + commandRunning.data.commandEvent);
+    //        commandRunning.Do(this);  // Execute the command
+    //        this.commandExecuting = true;
+    //        //We exceute the commands one by one, so we wait until the current one have been finished
+    //        while (commandExecuting) { yield return new WaitForSeconds(0.2f); }
+    //    }
+    //    doCommandCoroutineStarted = false;
+    //}
+
+    private void Do_Next()
     {
-        //CObjectVisualStateCommand _command;
-        while (commandsQueue.Count > 0)
+        if (commandExecuting) {
+            commandRunning.AbortCommand(this);
+            //Debug.Log("AreaID: " + this.areaID + " command aborting: " + commandRunning.data.commandEvent);
+            return;
+        }        
+        if (commandsQueue.Count > 0)
         {
             commandRunning = commandsQueue.Dequeue();
+            commandRunning.Do(this);  // Execute the command    
             //Debug.Log("AreaID: " + this.areaID + " command: " + commandRunning.data.commandEvent);
-            commandRunning.Do(this);  // Execute the command
-            
-            //We exceute the commands one by one, so we wait until the current one have been finished
-            while (commandExecuting) { yield return new WaitForSeconds(0.1f); }
         }
-        doCommandCoroutineStarted = false;
     }
+
 
     //////////////
     // INDICATE
@@ -328,6 +346,7 @@ public class ObjectStateManager : MonoBehaviour {
         else { ObjectStateMaterialUtils.SetAlphaColorToMaterial(this.GetComponent<Renderer>().material, 1.0f); }
         ObjectStateMaterialUtils.SetMaterialRenderingMode(this.GetComponent<Renderer>().material, ObjectStateMaterialUtils.TBlendMode.Opaque);    //Change Rendering mode to opaque                       
         this.commandExecuting = false;
+        this.Do_Next();
     }
 
     public void ProcessFadeOutEffect(float delayTime, float durationTime, ObjectStateMaterialUtils.TMaterialState newState)
@@ -358,6 +377,7 @@ public class ObjectStateManager : MonoBehaviour {
             this.GetComponent<MeshCollider>().enabled = false;  //We deactivate the mesh collider, we cant select any more
         }
         this.commandExecuting = false;
+        this.Do_Next();
     }
     
     /// <summary>Function that fades alpha for a game object up or down with a start delay and duration of fade</summary>

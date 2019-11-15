@@ -20,11 +20,14 @@ class Idle_State : State
 {
     public override void StateIn(VisualStateContext context)
     {
-        StateIn(context, 0.0f);
+        // StateIn(context, 0.0f);
+        context.parent.SetMaterialInitialColor();      //Init material
     }
     public override void StateIn(VisualStateContext context, float duration)
     {
-        context.parent.SetMaterialInitialConditions(duration);      //Init material                
+        //context.parent.SetMaterialInitialColor();      //Init material
+        //context.parent.SetMaterialInitialConditions(duration);      //Init material       
+        //context.parent.ProcessFadeInEffect(0, duration, ObjectStateMaterialUtils.TMaterialState.Visible);                      //Make the material visible
     }
 
     public override void StateOut(VisualStateContext context) { }
@@ -42,6 +45,7 @@ class Indicated_State : State
     public override void StateOut(VisualStateContext context)
     {        
         hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.ObjectState_AreaIndicateOff, context.parent.gameObject));    //Emit and event: I'm not indicated anymore
+        context.parent.ProcessFadeInEffect(0, 0.0f, ObjectStateMaterialUtils.TMaterialState.Visible);        
     }
     public override void StateOut(VisualStateContext context, float duration) { }
 }
@@ -193,7 +197,7 @@ class VisualStateContext
 
     public void ChangeState_toIdle(float duration)
     {
-        if (this.state.GetType().Name == "TransparentIdle_State" || this.state.GetType().Name == "HiddenIdle_State" || this.state.GetType().Name == "RemoveIdle_State")
+        if (this.state.GetType().Name == "TransparentIdle_State" || this.state.GetType().Name == "RemoveIdle_State")
         {
             //Finish current state
             state.StateOut(this, duration);
