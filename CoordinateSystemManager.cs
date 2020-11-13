@@ -1005,6 +1005,11 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
     {
         return 0.5f * (c + Mathf.Sqrt(MathHom3r.Pow2(c) + 4 * MathHom3r.Pow2(b)));
     }
+    private float CalculateB(float a, float c)
+    {
+        return Mathf.Sqrt(MathHom3r.Pow2(a) - c*a);
+
+    }
     private float CalculateC(float a, float b)
     {
         return a - (MathHom3r.Pow2(b) / a);
@@ -1019,10 +1024,11 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
             horizontalFrameworkEllipse.b = Mathf.Abs(cameraInitialPosition.z);
             horizontalFrameworkEllipse.a = CalculateA(horizontalFrameworkEllipse.c, horizontalFrameworkEllipse.b);
             //XY Plane
-            float y0 = extents.y * ((Mathf.Abs(cameraInitialPosition.z) - extents.z)/ extents.z);
+            float y0 = extents.y + (extents.y * ((Mathf.Abs(cameraInitialPosition.z) - extents.z)/ extents.z));
             verticalFrameworkEllipse.b = y0;
             verticalFrameworkEllipse.a = horizontalFrameworkEllipse.a;
             verticalFrameworkEllipse.c = CalculateC(verticalFrameworkEllipse.a, verticalFrameworkEllipse.b);
+            
         }        
     }
 
