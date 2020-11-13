@@ -214,12 +214,12 @@ public class ExplosionManager : MonoBehaviour
     float explosionSpeed = 200;                    // Explosion speed, set in the Inspector
 
     // Global attributes
-    private Tree<ProductNode> productTree;
+    private TreeHom3r<ProductNode> productTree;
 
     // Explosion attributes
     private Texplosion currentExplosion;        // Current explosion type and parameters
     private bool exploding;                     // The product is currently exploding/imploding
-    private Tree<ProductNode> explodingParent;  // Currently exploding subtree
+    private TreeHom3r<ProductNode> explodingParent;  // Currently exploding subtree
 
     // Explosion queue
     private Queue<Texplosion> explosionQueue;       // Simple queue to avoid overlapping two explosions/implosions. 
@@ -434,7 +434,7 @@ public class ExplosionManager : MonoBehaviour
         var container = ProductContainer.Load(filename);
 
         // Create product tree
-        productTree = new Tree<ProductNode>(new ProductNode("root"));
+        productTree = new TreeHom3r<ProductNode>(new ProductNode("root"));
         CreateChildrenFromXML(productTree, container.nodes[0]);
 
         // Provisional solution: set now the blocking constraints in the specific case of nodes with explode direction equal to (0,0,0)
@@ -457,7 +457,7 @@ public class ExplosionManager : MonoBehaviour
             container = ProductContainer.Load(xmlFile);
             
             // Create product tree
-            productTree = new Tree<ProductNode>(new ProductNode("root"));
+            productTree = new TreeHom3r<ProductNode>(new ProductNode("root"));
             CreateChildrenFromXML(productTree, container.nodes[0]);
 
             // Provisional solution: set now the blocking constraints in the specific case of nodes with explode direction equal to (0,0,0)
@@ -476,7 +476,7 @@ public class ExplosionManager : MonoBehaviour
     // METHOD CreateChildrenFromXML:
     // Recursive method, for creating a subtree with all children of the parent node, based on info from a container deserialized from XML
     // PRECONDITION: explosion sequence is implicit in the order in which the children are described in the XML file
-    public void CreateChildrenFromXML(Tree<ProductNode> parent, XMLNode container)
+    public void CreateChildrenFromXML(TreeHom3r<ProductNode> parent, XMLNode container)
     {
         // Create children 
         foreach (XMLNode Nxml in container.nodes)
@@ -576,7 +576,7 @@ public class ExplosionManager : MonoBehaviour
     //********************************************
     // METHOD PropagateOneBlock:
     // Sets a blocking relation, propagating the "blocks" from the blocking node to all its children
-    public void PropagateOneBlock(Tree<ProductNode> blocker, ProductNode blocked)
+    public void PropagateOneBlock(TreeHom3r<ProductNode> blocker, ProductNode blocked)
     {
         //blocked.blockedBy.Add (blocker.GetData ());
         //blocker.GetData ().blocks.Add (blocked);
@@ -585,7 +585,7 @@ public class ExplosionManager : MonoBehaviour
         // boB = blocker of blocker
         for (int boB = 0; boB < blocker.GetData().blockedBy.Count; boB++)
         {
-            Tree<ProductNode> boBSubtree = FindSubtreeByName(blocker.GetData().blockedBy[boB].name); // Not very efficient...
+            TreeHom3r<ProductNode> boBSubtree = FindSubtreeByName(blocker.GetData().blockedBy[boB].name); // Not very efficient...
             PropagateOneBlock(boBSubtree, blocked);
         }
     }
@@ -599,7 +599,7 @@ public class ExplosionManager : MonoBehaviour
     //********************************************
     // METHOD FindSubtreeByName:
     // Returns the subtree whose name matches the provided string
-    public Tree<ProductNode> FindSubtreeByName(string name)
+    public TreeHom3r<ProductNode> FindSubtreeByName(string name)
     {
         ProductNode nodeName = new ProductNode(name);
         return productTree.GetIf(productTree, new TreeNodeCompare<ProductNode>(NamesAreEqual), nodeName);
@@ -685,7 +685,7 @@ public class ExplosionManager : MonoBehaviour
     //********************************************
     // METHOD PropagateBlocksToChildren:
     // Auxiliary method, propagating blocks to the direct children of a subtree. Used only for the specific case of container with (0,0,0) explodeDir
-    public void PropagateBlocksToChildren(Tree<ProductNode> subtree)
+    public void PropagateBlocksToChildren(TreeHom3r<ProductNode> subtree)
     {
         int child;
         for (child = 0; child < subtree.GetChildCount(); child++)
@@ -966,7 +966,7 @@ public class ExplosionManager : MonoBehaviour
     //********************************************
     // METHOD ContainsExplodable:
     // Checks if a given subtree contains any explodable nodes
-    public bool ContainsExplodable(Tree<ProductNode> subtree)
+    public bool ContainsExplodable(TreeHom3r<ProductNode> subtree)
     {
         return subtree.MeetsCondition(productTree, new TreeNodeCondition<ProductNode>(IsExplodable));
     }
@@ -1202,7 +1202,7 @@ public class ExplosionManager : MonoBehaviour
     // Move one subtree along a given explosion direction.
     // This will be called from the other version of IntegrateSubtreeExplosion, where the parent explode direction is passed.
     // We assume that nodes without associated gameobjects have children with associated gameobjects.
-    public void IntegrateSubtreeExplosion(Tree<ProductNode> subtree, float increment, Vector3 explodeDirection)
+    public void IntegrateSubtreeExplosion(TreeHom3r<ProductNode> subtree, float increment, Vector3 explodeDirection)
     {
         ProductNode node = subtree.GetData();
 
@@ -1229,7 +1229,7 @@ public class ExplosionManager : MonoBehaviour
     // Move one subtree along its explosion direction.
     // This is called from IntegrateExplosion.
     // We assume that nodes without associated gameobjects have children with associated gameobjects.
-    public void IntegrateSubtreeExplosion(Tree<ProductNode> subtree, float increment)
+    public void IntegrateSubtreeExplosion(TreeHom3r<ProductNode> subtree, float increment)
     {
         ProductNode node = subtree.GetData();
 
@@ -1276,7 +1276,7 @@ public class ExplosionManager : MonoBehaviour
         if (changeSubtree)
         {
             // Select grandpa as the new parent
-            Tree<ProductNode> newParent = explodingParent.GetParent();
+            TreeHom3r<ProductNode> newParent = explodingParent.GetParent();
 
             // Check if we are done
             if (newParent == null)
@@ -1371,7 +1371,7 @@ public class ExplosionManager : MonoBehaviour
             explodingChild = explodingParent.GetData().explodedChild;
 
         // Easy access to the current subtree and node
-        Tree<ProductNode> subtree = explodingParent.GetChild(explodingChild);
+        TreeHom3r<ProductNode> subtree = explodingParent.GetChild(explodingChild);
         ProductNode node = subtree.GetData();
 
         // Find weighted maximum offset for this node	
@@ -1433,7 +1433,7 @@ public class ExplosionManager : MonoBehaviour
             explodingParent.SetData(parentNode);
 
             // We try first going deeper into the current node sub-tree
-            Tree<ProductNode> newParent = explodingParent.GetChild(explodingChild);
+            TreeHom3r<ProductNode> newParent = explodingParent.GetChild(explodingChild);
 
             // If the current node has children, its first child will be the new parent
             if (newParent.GetChildCount() > 0)
@@ -1456,7 +1456,7 @@ public class ExplosionManager : MonoBehaviour
     // METHOD LaunchParallelExplode:
     // Launch coroutines for all explodable and non-blocked nodes
     // Each coroutine will be responsible of checking if its blocked nodes should start exploding
-    public void StartParallelExplode(Tree<ProductNode> subtree)
+    public void StartParallelExplode(TreeHom3r<ProductNode> subtree)
     {
         subtree.DoIf(subtree, new TreeNodeCondition<ProductNode>(CanStartExplosion), new TreeNodeAction<ProductNode>(LaunchNodeExplosion));
 
