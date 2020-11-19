@@ -14,7 +14,7 @@ public class NavigationHelper : MonoBehaviour {
 
         if (hom3r.state.platform == THom3rPlatform.Editor)
         {
-            segments = 160;
+            segments = 360;
             foreach (Transform child in transform)
             {
                 if (child.name == "HelperRotationTrajectory")
@@ -33,12 +33,12 @@ public class NavigationHelper : MonoBehaviour {
             }
 
             lineTranslationEllipse.material = new Material(Shader.Find("Sprites/Default"));
-            lineTranslationEllipse.widthMultiplier = 0.2f;
+            lineTranslationEllipse.widthMultiplier = 0.5f;
             lineTranslationEllipse.positionCount = (segments + 1);
             lineTranslationEllipse.useWorldSpace = false;
 
             lineRotationEllipse.material = new Material(Shader.Find("Sprites/Default"));
-            lineRotationEllipse.widthMultiplier = 0.2f;
+            lineRotationEllipse.widthMultiplier = 0.8f;
             lineRotationEllipse.positionCount = (segments + 1);
             lineRotationEllipse.useWorldSpace = false;
 
@@ -91,7 +91,7 @@ public class NavigationHelper : MonoBehaviour {
         }        
     }
 
-    public void DrawRotationEllipse(float xRadius, float zRadius, float offset)
+    public void DrawRotationEllipse(float zRadius, float yRadius, float offset)
     {
         if (hom3r.state.platform == THom3rPlatform.Editor)
         {
@@ -105,8 +105,8 @@ public class NavigationHelper : MonoBehaviour {
 
             for (int i = 0; i < (segments + 1); i++)
             {
-                z = Mathf.Cos(Mathf.Deg2Rad * angle) * xRadius;
-                y = Mathf.Sin(Mathf.Deg2Rad * angle) * zRadius;
+                z = Mathf.Cos(Mathf.Deg2Rad * angle) * zRadius;
+                y = Mathf.Sin(Mathf.Deg2Rad * angle) * yRadius;
                 x = offset;
 
                 //line2.SetPosition(i, new Vector3(x, y, z));
@@ -115,9 +115,19 @@ public class NavigationHelper : MonoBehaviour {
             }
 
             lineRotationEllipse.SetPositions(points.ToArray());
-        }        
-    }
 
+            foreach (Transform child in transform)
+            {
+                if (child.name == "HelperRotationTrajectory")
+                {
+                    //Debug.Log(- this.transform.rotation.eulerAngles.x);                    
+                    child.transform.Rotate(new Vector3(-child.transform.rotation.eulerAngles.x, 0, 0));
+                    child.transform.rotation = Quaternion.identity;                    
+                }
+            }
+        }
+    }
+   
     public void MoveCameraHelper(Vector3 cameraPosition, Vector3 pointToLook)
     {
         if (hom3r.state.platform == THom3rPlatform.Editor)

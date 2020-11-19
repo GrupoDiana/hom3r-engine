@@ -1001,7 +1001,7 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
         return temp;
     }
 
-    private float CalculateA(float c, float b)
+    private float CalculateA(float b, float c)
     {
         return 0.5f * (c + Mathf.Sqrt(MathHom3r.Pow2(c) + 4 * MathHom3r.Pow2(b)));
     }
@@ -1022,7 +1022,7 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
             // XZ Plane
             horizontalFrameworkEllipse.c = extents.x;
             horizontalFrameworkEllipse.b = Mathf.Abs(cameraInitialPosition.z);
-            horizontalFrameworkEllipse.a = CalculateA(horizontalFrameworkEllipse.c, horizontalFrameworkEllipse.b);
+            horizontalFrameworkEllipse.a = CalculateA(horizontalFrameworkEllipse.b, horizontalFrameworkEllipse.c);
             //XY Plane
             float y0 = extents.y + (extents.y * ((Mathf.Abs(cameraInitialPosition.z) - extents.z)/ extents.z));
             verticalFrameworkEllipse.b = y0;
@@ -1163,7 +1163,9 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
         CEllipseData newEllipse = new CEllipseData();
         newEllipse.a = currentEllipse.a;
         //newEllipse.b = Mathf.Abs(horizontalFrameworkEllipse.b * Mathf.Cos(pseudoLongitude)) + Mathf.Abs(verticalFrameworkEllipse.b * Mathf.Sin(pseudoLongitude));
+
         newEllipse.b = Mathf.Sqrt(MathHom3r.Pow2(horizontalFrameworkEllipse.b * Mathf.Cos(pseudoLongitude)) + MathHom3r.Pow2(verticalFrameworkEllipse.b * Mathf.Sin(pseudoLongitude)));
+
         newEllipse.c = CalculateC(newEllipse.a, newEllipse.b);
 
         Debug.Log("Plane Angle: " + pseudoLongitude +"  b: " + newEllipse.b);
@@ -1350,16 +1352,8 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
         if (hom3r.state.platform == THom3rPlatform.Editor)
         {
             float radio = _cameraPlanePosition.magnitude;
-            hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawRotationEllipse(_cameraPlanePosition.z, _cameraPlanePosition.z, _cameraPlanePosition.x);
-            /*if (geometryType == TGeometryType.Long)
-            {                
-                hom3r.quickLinks.orbitPlane.GetComponentInChildren<NavigationHelper>().DrawRotationEllipse(radio, radio);
-            }
-            else
-            {
-                hom3r.quickLinks.orbitPlane.GetComponentInChildren<NavigationHelper>().DrawTranslationEllipse(b, a);
-            }*/
-
+            //hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawRotationEllipse(_cameraPlanePosition.z, _cameraPlanePosition.z, _cameraPlanePosition.x);
+            hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawRotationEllipse(horizontalFrameworkEllipse.b, verticalFrameworkEllipse.b, _cameraPlanePosition.x);                        
         }
     }
 
