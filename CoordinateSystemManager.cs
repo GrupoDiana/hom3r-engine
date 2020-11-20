@@ -927,6 +927,8 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
             }
             planeAngle += pseudoLongitudeVariation;
 
+            planeAngle = MathHom3r.NormalizeAngleInRad(planeAngle);
+
             translationEllipse = CalculateNewEllipseAfterLongitudeVariation(planeAngle, translationEllipse);
 
             /////////////////////////////////////////////////////
@@ -1161,10 +1163,11 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
     private CEllipseData CalculateNewEllipseAfterLongitudeVariation(float pseudoLongitude, CEllipseData currentEllipse)
     {
         CEllipseData newEllipse = new CEllipseData();
-        newEllipse.a = currentEllipse.a;
-        //newEllipse.b = Mathf.Abs(horizontalFrameworkEllipse.b * Mathf.Cos(pseudoLongitude)) + Mathf.Abs(verticalFrameworkEllipse.b * Mathf.Sin(pseudoLongitude));
+        newEllipse.a = currentEllipse.a;        
 
-        newEllipse.b = Mathf.Sqrt(MathHom3r.Pow2(horizontalFrameworkEllipse.b * Mathf.Cos(pseudoLongitude)) + MathHom3r.Pow2(verticalFrameworkEllipse.b * Mathf.Sin(pseudoLongitude)));
+        float nume = horizontalFrameworkEllipse.b * verticalFrameworkEllipse.b;
+        float deno = MathHom3r.Pow2(horizontalFrameworkEllipse.b * Mathf.Sin(pseudoLongitude)) + MathHom3r.Pow2(verticalFrameworkEllipse.b * Mathf.Cos(pseudoLongitude));
+        newEllipse.b = nume / Mathf.Sqrt(deno);
 
         newEllipse.c = CalculateC(newEllipse.a, newEllipse.b);
 
