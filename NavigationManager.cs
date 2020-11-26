@@ -100,12 +100,13 @@ public class NavigationManager : MonoBehaviour {
 
         TMainAxis newMainAxis = ParseMainAxis(newMainAxis_text);    // Parse input main Axis
         SetNavigationAxis(newMainAxis);                             // Change main axis            
-        //hom3r.quickLinks.scriptsObject.GetComponent<IOManager>().IOGetProductModel();
+        hom3r.quickLinks.scriptsObject.GetComponent<IOManager>().IOGetProductModel();       //TODO DELETE ME
         this.modelBoundingBox = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().Get3DModelBoundingBox(true); //Get model bounding box        
         if (this.modelBoundingBox.size == Vector3.zero) { return; }
         InitOrbitPlanePosition();                                   // Initialize Orbit Plane position
         InitCameraRotation();                                       // Initialize Camera rotation
-        InitHelpPlaneSize(modelBoundingBox);
+        InitHelpPlaneSize(modelBoundingBox);    // TODO maybe delete 
+        NavigationAsssitants();
         cameraInitialPosition = CalculateInitialCameraPosition();           // Calculate the initial Camera position
         Vector3 extentsVector = Get3DModelExtentsVector(modelBoundingBox);  // Get extents vector from bounding box in terms of main axis
         //Vector2 fielOfViewVector = GetFieldOfView();
@@ -277,6 +278,10 @@ public class NavigationManager : MonoBehaviour {
         }
     }
 
+    private void NavigationAsssitants()
+    {
+        hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationHelper>().InitNavigationAssistantsPosition(modelBoundingBox.center);        
+    }
 
 
     ////////////////////////////

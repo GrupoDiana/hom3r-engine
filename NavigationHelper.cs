@@ -3,24 +3,31 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class NavigationHelper : MonoBehaviour {
+
+    enum TPlanes { XZ, XY, YZ };
+
     int segments;
     LineRenderer lineTranslationEllipse;
     LineRenderer lineRotationEllipse;
+    LineRenderer lineHorizontalFrameworkEllipse;
+    LineRenderer lineVerticalFrameworkEllipse;
     GameObject helperCamera;
     LineRenderer helperCameraViewLine;
+    GameObject navigationAssistants; 
 
     // Use this for initialization
     void Awake () {
 
         if (hom3r.state.platform == THom3rPlatform.Editor)
         {
-            segments = 360;
+            
+
             foreach (Transform child in transform)
             {
-                if (child.name == "HelperRotationTrajectory")
-                {
-                    lineRotationEllipse = child.GetComponentInChildren<LineRenderer>();
-                }
+                //if (child.name == "HelperRotationTrajectory")
+                //{
+                //    lineRotationEllipse = child.GetComponentInChildren<LineRenderer>();
+                //}
                 if (child.name == "HelperTranslationTrajectory")
                 {
                     lineTranslationEllipse = child.GetComponentInChildren<LineRenderer>();
@@ -29,23 +36,34 @@ public class NavigationHelper : MonoBehaviour {
                 {
                     helperCamera = child.gameObject;
                     helperCameraViewLine = child.GetComponentInChildren<LineRenderer>();
+                }              
+            }
+
+            navigationAssistants = GameObject.Find("NavigationAssistants");
+            foreach (Transform child in navigationAssistants.transform)
+            {
+                if (child.name == "HelperRotationTrajectory")
+                {
+                    lineRotationEllipse = child.GetComponentInChildren<LineRenderer>();
+                }
+                if (child.name == "HelperFrameworkEllipseH")
+                {
+                    lineHorizontalFrameworkEllipse = child.GetComponentInChildren<LineRenderer>();
+                }
+                if (child.name == "HelperFrameworkEllipseV")
+                {
+                    lineVerticalFrameworkEllipse = child.GetComponentInChildren<LineRenderer>();
                 }
             }
 
-            lineTranslationEllipse.material = new Material(Shader.Find("Sprites/Default"));
-            lineTranslationEllipse.widthMultiplier = 0.5f;
-            lineTranslationEllipse.positionCount = (segments + 1);
-            lineTranslationEllipse.useWorldSpace = false;
 
-            lineRotationEllipse.material = new Material(Shader.Find("Sprites/Default"));
-            lineRotationEllipse.widthMultiplier = 0.8f;
-            lineRotationEllipse.positionCount = (segments + 1);
-            lineRotationEllipse.useWorldSpace = false;
-
-            helperCameraViewLine.material = new Material(Shader.Find("Sprites/Default"));
-            helperCameraViewLine.widthMultiplier = 0.2f;
-            helperCameraViewLine.positionCount = 2;
-            helperCameraViewLine.useWorldSpace = false;
+            segments = 360;
+            InitLineRenderer(lineTranslationEllipse, 0.5f, segments);
+            InitLineRenderer(lineRotationEllipse, 0.8f, segments);
+            InitLineRenderer(helperCameraViewLine, 0.2f, segments);
+            InitLineRenderer(lineHorizontalFrameworkEllipse, 0.5f, segments);
+            InitLineRenderer(lineVerticalFrameworkEllipse, 0.5f, segments);
+        
         }
         else
         {
@@ -63,71 +81,104 @@ public class NavigationHelper : MonoBehaviour {
                 {
                     child.gameObject.SetActive(false);
                 }
+                if (child.name == "HelperFrameworkEllipseH") { child.gameObject.SetActive(false); }
+                if (child.name == "HelperFrameworkEllipseV") { child.gameObject.SetActive(false); }
             }
         } 
     }
 
+    private void InitLineRenderer(LineRenderer lineRenderer, float widthMultiplier, int positions)
+    {
+        lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
+        lineRenderer.widthMultiplier = widthMultiplier;
+        lineRenderer.positionCount = (positions + 1);
+        lineRenderer.useWorldSpace = false;
+    }
+
+
+    public void InitNavigationAssistantsPosition(Vector3 position)
+    {
+        navigationAssistants.transform.position = position;
+    }
+
+
+    ////////////////////////////////
+    // Draw Ellipses Methods
+    ////////////////////////////////
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="xRadius"></param>
+    /// <param name="zRadius"></param>
     public void DrawTranslationEllipse(float xRadius, float zRadius)
     {
         if (hom3r.state.platform == THom3rPlatform.Editor)
         {
-            List<Vector3> points = new List<Vector3>();
-            float x;
-            float y = 0f;
-            float z;
-
-            float angle = 20f;
-
-            for (int i = 0; i < (segments + 1); i++)
-            {
-                x = Mathf.Cos(Mathf.Deg2Rad * angle) * xRadius;
-                z = Mathf.Sin(Mathf.Deg2Rad * angle) * zRadius;
-
-                //line.SetPosition(i, new Vector3(x, y, z));  
-                points.Add(new Vector3(x, y, z));
-                angle += (360f / segments);
-            }
-            lineTranslationEllipse.SetPositions(points.ToArray());
+            DrawEllipse(xRadius, zRadius, 0f, TPlanes.XZ, lineTranslationEllipse);
         }        
     }
-
+  
     public void DrawRotationEllipse(float zRadius, float yRadius, float offset)
     {
         if (hom3r.state.platform == THom3rPlatform.Editor)
+
         {
-            //var points = new Vector3[segments + 1];
-            List<Vector3> points = new List<Vector3>();
-            float z;
-            float x = 0f;
-            float y;
+            DrawEllipse(zRadius, yRadius, -offset, TPlanes.YZ, lineRotationEllipse);
 
-            float angle = 20f;
 
-            for (int i = 0; i < (segments + 1); i++)
-            {
-                z = Mathf.Cos(Mathf.Deg2Rad * angle) * zRadius;
-                y = Mathf.Sin(Mathf.Deg2Rad * angle) * yRadius;
-                x = offset;
+            //List<Vector3> points = new List<Vector3>();
+            //float z;
+            //float x = 0f;
+            //float y;
 
-                //line2.SetPosition(i, new Vector3(x, y, z));
-                points.Add(new Vector3(x, y, z));
-                angle += (360f / segments);
-            }
+            //float angle = 20f;
 
-            lineRotationEllipse.SetPositions(points.ToArray());
+            //for (int i = 0; i < (segments + 1); i++)
+            //{
+            //    z = Mathf.Cos(Mathf.Deg2Rad * angle) * zRadius;
+            //    y = Mathf.Sin(Mathf.Deg2Rad * angle) * yRadius;
+            //    x = offset;
 
-            foreach (Transform child in transform)
-            {
-                if (child.name == "HelperRotationTrajectory")
-                {
-                    //Debug.Log(- this.transform.rotation.eulerAngles.x);                    
-                    child.transform.Rotate(new Vector3(-child.transform.rotation.eulerAngles.x, 0, 0));
-                    child.transform.rotation = Quaternion.identity;                    
-                }
-            }
+            //    //line2.SetPosition(i, new Vector3(x, y, z));
+            //    points.Add(new Vector3(x, y, z));
+            //    angle += (360f / segments);
+            //}
+
+            //lineRotationEllipse.SetPositions(points.ToArray());
+
+            //foreach (Transform child in transform)
+            //{
+            //    if (child.name == "HelperRotationTrajectory")
+            //    {
+            //        //Debug.Log(- this.transform.rotation.eulerAngles.x);                    
+            //        //child.transform.Rotate(new Vector3(-child.transform.rotation.eulerAngles.x, 0, 0));
+            //        child.transform.rotation = Quaternion.identity;
+            //    }
+            //}
         }
     }
-   
+
+    public void DrawHorizontalFrameworkEllipse(float xRadius, float zRadius)
+    {
+        if (hom3r.state.platform == THom3rPlatform.Editor)
+
+        {
+            DrawEllipse(xRadius, zRadius, 0f, TPlanes.XZ, lineHorizontalFrameworkEllipse);
+
+        }
+    }
+
+    public void DrawVerticalFrameworkEllipse(float xRadius, float yRadius)
+    {
+        if (hom3r.state.platform == THom3rPlatform.Editor)
+
+        {
+            DrawEllipse(xRadius, yRadius, 0f, TPlanes.XY, lineVerticalFrameworkEllipse);
+
+        }
+    }
+
     public void MoveCameraHelper(Vector3 cameraPosition, Vector3 pointToLook)
     {
         if (hom3r.state.platform == THom3rPlatform.Editor)
@@ -142,5 +193,48 @@ public class NavigationHelper : MonoBehaviour {
             Vector3 poinToLook_local = helperCamera.transform.InverseTransformPoint(pointToLook_world);
             helperCameraViewLine.SetPosition(1, poinToLook_local);
         }        
+    }
+
+    /// <summary>
+    /// Draw a ellipse, in one plane, using a lineRenderer of the scene
+    /// </summary>
+    /// <param name="a">Semi-major axis of the ellipse</param>
+    /// <param name="b">Semi-minos axis of the ellipse</param>
+    /// <param name="offset">Offset of the ellipse from the origin</param>
+    /// <param name="plane">Plane where the plane is going to be drawn</param>
+    /// <param name="lineRenderer">Line rendeder that is going to used to draw the ellipse
+    /// </param>
+    private void DrawEllipse(float a, float b, float offset, TPlanes plane, LineRenderer lineRenderer)
+    {
+        List<Vector3> points = new List<Vector3>();
+        float x = 0f;
+        float y = 0f;
+        float z = 0f;
+        float angle = 0f;
+
+        for (int i = 0; i < (segments + 1); i++)
+        {
+            if (plane == TPlanes.XZ)
+            {
+                x = Mathf.Cos(Mathf.Deg2Rad * angle) * a;
+                z = Mathf.Sin(Mathf.Deg2Rad * angle) * b;
+                y = offset;
+            }
+            else if (plane == TPlanes.YZ)
+            {
+                z = Mathf.Cos(Mathf.Deg2Rad * angle) * a;
+                y = Mathf.Sin(Mathf.Deg2Rad * angle) * b;
+                x = offset;
+            } else if (plane == TPlanes.XY)
+            {
+                x = Mathf.Cos(Mathf.Deg2Rad * angle) * a;
+                y = Mathf.Sin(Mathf.Deg2Rad * angle) * b;
+                z = offset;
+            }
+            points.Add(new Vector3(x, y, z));
+            angle += (360f / segments);
+        }
+
+        lineRenderer.SetPositions(points.ToArray());
     }
 }
