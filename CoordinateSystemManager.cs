@@ -7,8 +7,7 @@ public class CEllipseData
 {
     public float a;    // Current mayor axis of the ellipse
     public float b;    // Current minor axis of the ellipse
-    public float c;    // Asymptote of the perpendiculars to the ellipse    
-
+    public float c;    // Asymptote of the perpendiculars to the ellipse        
 }
 
 public interface CCoordinateSystemManager
@@ -808,6 +807,12 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
 
 public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
 {
+    enum TAxis { x, y, z};
+    class CEllipseDataExtended: CEllipseData
+    {
+        public TAxis a_Axis;
+        public TAxis b_Axis;
+    }
 
     class CMovementEllipses {
         public CEllipseData translation;
@@ -819,26 +824,25 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
             rotation = new CEllipseData();
         }
     }
-    class CRotationEllipses
-    {
-        public CEllipseData horizontal;
-        public CEllipseData vertical;
 
-        public CRotationEllipses()
+
+    class CFrameworkEllipses
+    {
+        public CEllipseDataExtended xz;
+        public CEllipseDataExtended xy;
+
+        public CFrameworkEllipses()
         {
-            horizontal = new CEllipseData();
-            vertical = new CEllipseData();
+            xz = new CEllipseDataExtended();
+            xy = new CEllipseDataExtended();
         }
     }
 
     CMovementEllipses movementEllipses = new CMovementEllipses();       //Parameters that define the camera translation and rotation ellipses
-    CRotationEllipses frameworkEllipses = new CRotationEllipses();      //Parameters that define the horizontal and vertical ellipses
+    CFrameworkEllipses frameworkEllipses = new CFrameworkEllipses();      //Parameters that define the horizontal and vertical ellipses
 
 
-    //CEllipseData translationEllipse = new CEllipseData();
 
-    //CEllipseData horizontalFrameworkEllipse = new CEllipseData();
-    //CEllipseData verticalFrameworkEllipse = new CEllipseData();
 
 
     float t_translationEllipse;                    // Current t parameter that define camera position on the ellipse
@@ -857,12 +861,9 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
 
 
     enum TGeometryType { Prolate, Oblate };
-    struct TGeometryComplexType {
-        public TGeometryType xy;
-        public TGeometryType xz; 
-    };
+    
     TGeometryType geometryType;
-    TGeometryComplexType geometryComplexType;
+    //TGeometryComplexType geometryComplexType;
 
     //Control variables
     bool navigationInitialized = false;
@@ -883,28 +884,28 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
         //////////////////////////////////////////////////
         // Identify object geometry type. Long or flat
         //////////////////////////////////////////////////   
-        geometryComplexType = ClassifyObjectGeometry(_extents);         // Get if the object is flat or long
+        //geometryComplexType = ClassifyObjectGeometry(_extents);         // Get if the object is flat or long
         geometryType2=ClassifyObjectGeometry2(_extents);
 
         //Init Framework ellipses 
         CalculateFrameworkEllipses(_extents, cameraInitialPosition);
+        
         /////////////////////////////////////////////////////////////////
         // Get translation parameters from the initial camera position
-        ///////////////////////////////////////////////////////////////      
-        movementEllipses.translation.c = CalculateCParameter(_extents);            //TODO change it                               // Calculate the parameter c according to the geometry of the object and its dimensions.        
-        CalculateEllipseSemiAxesParameters(cameraInitialPosition, ref movementEllipses.translation);              // Calculate semi-axis of the ellipse a,b
-        t_translationEllipse = CalculateInitialTParameter(cameraInitialPosition, movementEllipses.translation);   // Calculate the initial value of t parameter           
-        movementEllipses.rotation = CalculateNewRotationEllipseAfterTranslation(t_translationEllipse, movementEllipses.translation);
+        ///////////////////////////////////////////////////////////////              
+        movementEllipses.translation    = CalculateInitialTranslationEllipseParameters(cameraInitialPosition);                                         // Calculate semi-axis of the ellipse a,b and c
+        t_translationEllipse            = CalculateTranslationEllipseInitialTParameter(cameraInitialPosition, movementEllipses.translation);    // Calculate the initial value of t parameter           
+        movementEllipses.rotation       = CalculateRotationEllipseParameters(t_translationEllipse);
+        
         ///////////////////////////////////
         // Initialize plane angle to 0
         ///////////////////////////////////
         planeAngle = 0.0f;
-
         ////////////////////////////////////////////
         // Calculate the minimum radius possible
         ////////////////////////////////////////////        
-        minimunAllowedAxis = CalculateMinimunEllipse(_extents, movementEllipses.translation);      // Calculate the minimum ellipse semi-axes
-        minimumCameraDistance = minimunAllowedAxis;                 // update out parameter
+        minimunAllowedAxis = CalculateMinimunEllipse(_extents, movementEllipses.translation);       // Calculate the minimum ellipse semi-axes
+        minimumCameraDistance = minimunAllowedAxis;                                                 // update out parameter
 
         //////////////////////////////////////////////////
         // Calculate the point which camera has to look
@@ -915,7 +916,7 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
         //////////////////////////////////////
         // HELPER
         //////////////////////////////////////
-        DrawTranslationTrajectory(movementEllipses.translation);                            // Draw the trajectory of the translation, for debug reasons   
+        DrawTranslationTrajectory();                            // Draw the trajectory of the translation, for debug reasons   
         DrawRotationTrajectory(cameraInitialPosition);
         DrawCameraPosition(cameraInitialPosition, pointToLook);
         DrawFrameworkEllipses();
@@ -964,26 +965,25 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
 
             planeAngle = MathHom3r.NormalizeAngleInRad(planeAngle);
 
-            movementEllipses.translation = CalculateNewTranslationEllipseAfterLongitudeVariation(planeAngle, movementEllipses.translation);
+            movementEllipses.translation = CalculateTranslationEllipseParameters(planeAngle);
 
             /////////////////////////////////////////////////////
             // Mapping of parameters - Translation parameters
             /////////////////////////////////////////////////////            
             //translationEllipse = CalculateNewEllipseSemiAxesParametersAfterRadialMovement(pseudoRadio, translationEllipse);
+            CalculateEllipsesAfterRadialMovement(pseudoRadio);
 
             //pseudoLatitudeVariation = 0.0f; //TODO Delete me                                    
             // Latitude - which is a translation movement on the camera plane1
             t_translationEllipse += pseudoLatitudeVariation;                    // Add to the current translation angle
             t_translationEllipse = MathHom3r.NormalizeAngleInRad(t_translationEllipse);   // Normalize new t angle 
 
-            movementEllipses.rotation = CalculateNewRotationEllipseAfterTranslation(t_translationEllipse, movementEllipses.rotation);
-
-
+            movementEllipses.rotation = CalculateRotationEllipseParameters(t_translationEllipse);
 
             //////////////////////////////////////
             // Calculate new camera position
             //////////////////////////////////////            
-            cameraPlanePosition = CalculateNewCameraPosition(t_translationEllipse, movementEllipses.translation);
+            cameraPlanePosition = CalculateNewCameraPosition(t_translationEllipse);
 
             //////////////////////////////////////
             // Calculate new plane rotation
@@ -998,9 +998,9 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
             //////////////////////////////////////
             // HELPER
             //////////////////////////////////////
-            //DrawTranslationTrajectory(movementEllipses.translation);                            // Draw the trajectory of the translation, for debug reasons   
-            //DrawRotationTrajectory(cameraPlanePosition);
-            //DrawCameraPosition(cameraPlanePosition, pointToLook);
+            DrawTranslationTrajectory();                            // Draw the trajectory of the translation, for debug reasons   
+            DrawRotationTrajectory(cameraPlanePosition);
+            DrawCameraPosition(cameraPlanePosition, pointToLook);
         }
     }
 
@@ -1015,30 +1015,7 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
     /// </summary>
     /// <param name="boundingBox"></param>
     /// <returns></returns>
-    private TGeometryComplexType ClassifyObjectGeometry(Vector3 extents)
-    {
-        geometryType = TGeometryType.Prolate;   //TO DO delete me
-
-
-        TGeometryComplexType temp;
-        if (extents.x >= extents.y)
-        {
-            temp.xy = TGeometryType.Prolate;
-        } else
-        {
-            temp.xy = TGeometryType.Oblate;
-        }
-        if (extents.x >= extents.z)
-        {
-            temp.xz = TGeometryType.Prolate;
-        }
-        else
-        {
-            temp.xz = TGeometryType.Oblate;
-        }
-        return temp;
-    }
-
+   
 
     private TGeometryType2 ClassifyObjectGeometry2(Vector3 extents)
     {
@@ -1053,7 +1030,15 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
         else if ((extents.z >= extents.x) && (extents.y >= extents.x))
         {
             temp = TGeometryType2.Type_II;
-        }   
+        }
+        else if ((extents.z >= extents.x) && (extents.x >= extents.y))
+        {
+            temp = TGeometryType2.Type_III;
+        }
+        else if ((extents.x >= extents.z) && (extents.y >= extents.x))
+        {
+            temp = TGeometryType2.Type_IV;
+        }
         return temp;
     }
 
@@ -1078,68 +1063,103 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
     /// <param name="cameraPosition"></param>
     private void CalculateFrameworkEllipses(Vector3 extents, Vector3 cameraPosition)
     {
-        //if ((geometryComplexType.xz == TGeometryType.Prolate) && (geometryComplexType.xy == TGeometryType.Prolate))
+        //float cameraObjectDistance = (Mathf.Abs(cameraPosition.z) - extents.z) / extents.z;        
+        //float cOD_1 = (Mathf.Abs(cameraPosition.z) - extents.z) / Mathf.Abs(cameraPosition.z);
+        //float cOD_2 = Mathf.Abs(cameraPosition.z) - extents.z;
+        float cameraObjectDistance2 = Mathf.Abs(cameraPosition.z) - extents.z;
+
         if (geometryType2 == TGeometryType2.Type_I) {
             // XZ Plane            
-            frameworkEllipses.horizontal.c = extents.x;
-            frameworkEllipses.horizontal.b = Mathf.Abs(cameraPosition.z);
-            frameworkEllipses.horizontal.a = CalculateA(frameworkEllipses.horizontal.b, frameworkEllipses.horizontal.c);
-            float cameraObjectDistance = (Mathf.Abs(cameraPosition.z) - extents.z) / extents.z;
-            // XY Plane            
-            frameworkEllipses.vertical.b =  (extents.y * cameraObjectDistance) + extents.y;
-            frameworkEllipses.vertical.a = frameworkEllipses.horizontal.a;
-            frameworkEllipses.vertical.c = CalculateC(frameworkEllipses.vertical.a, frameworkEllipses.vertical.b);
+            frameworkEllipses.xz.c = extents.x;
             
+            frameworkEllipses.xz.b = Mathf.Abs(cameraPosition.z);
+            frameworkEllipses.xz.b_Axis = TAxis.z;
+            frameworkEllipses.xz.a = CalculateA(frameworkEllipses.xz.b, frameworkEllipses.xz.c);
+            frameworkEllipses.xz.a_Axis = TAxis.x;
+            //float cameraObjectDistance = (Mathf.Abs(cameraPosition.z) - extents.z) / extents.z;
+            
+            // XY Plane            
+            //frameworkEllipses.xy.b =  (extents.y * cameraObjectDistance) + extents.y;
+            frameworkEllipses.xy.b = cameraObjectDistance2 + extents.y;
+            frameworkEllipses.xy.b_Axis = TAxis.y;
+            frameworkEllipses.xy.a = frameworkEllipses.xz.a;
+            frameworkEllipses.xy.a_Axis = TAxis.x;
+            frameworkEllipses.xy.c = CalculateC(frameworkEllipses.xy.a, frameworkEllipses.xy.b);            
+
         } else if (geometryType2 == TGeometryType2.Type_II)
         {
             // XZ Plane  
-            frameworkEllipses.horizontal.c = extents.z;
-            frameworkEllipses.horizontal.a = Mathf.Abs(cameraPosition.z);
-            frameworkEllipses.horizontal.b = CalculateB(frameworkEllipses.horizontal.a, frameworkEllipses.horizontal.c);
-            float cameraObjectDistance = (Mathf.Abs(cameraPosition.z) - extents.z) / extents.z;
-            
-            // XY Plane
-            frameworkEllipses.vertical.b = frameworkEllipses.horizontal.b;
-            frameworkEllipses.vertical.a = (extents.y * cameraObjectDistance) + extents.y;
+            frameworkEllipses.xz.c = extents.z;
+            frameworkEllipses.xz.a = Mathf.Abs(cameraPosition.z);
+            frameworkEllipses.xz.a_Axis = TAxis.z;
+            frameworkEllipses.xz.b = CalculateB(frameworkEllipses.xz.a, frameworkEllipses.xz.c);
+            frameworkEllipses.xz.b_Axis = TAxis.x;
+            //float cameraObjectDistance = (Mathf.Abs(cameraPosition.z) - extents.z) / extents.z;
 
-            if (frameworkEllipses.vertical.a < frameworkEllipses.vertical.b) { frameworkEllipses.vertical.a = frameworkEllipses.vertical.b;  }
-            frameworkEllipses.vertical.c = CalculateC(frameworkEllipses.vertical.a, frameworkEllipses.vertical.b);
+            // XY Plane
+            frameworkEllipses.xy.b_Axis = TAxis.x;
+            frameworkEllipses.xy.a_Axis = TAxis.y;
+            frameworkEllipses.xy.b = frameworkEllipses.xz.b;            
+            //frameworkEllipses.xy.a = (extents.y * cameraObjectDistance) + extents.y;
+            frameworkEllipses.xy.a = cameraObjectDistance2 + extents.y;
+
+            if (frameworkEllipses.xy.a < frameworkEllipses.xy.b) { frameworkEllipses.xy.a = frameworkEllipses.xy.b;  }      // TODO Why?
+            frameworkEllipses.xy.c = CalculateC(frameworkEllipses.xy.a, frameworkEllipses.xy.b);
+        }
+        else if (geometryType2 == TGeometryType2.Type_III)
+        {
+            // XZ Plane
+            frameworkEllipses.xz.a_Axis = TAxis.z;
+            frameworkEllipses.xz.b_Axis = TAxis.x;
+            frameworkEllipses.xz.c = extents.z;
+            frameworkEllipses.xz.a = Mathf.Abs(cameraPosition.z);
+            frameworkEllipses.xz.b = CalculateB(frameworkEllipses.xz.a, frameworkEllipses.xz.c);
+            //float cameraObjectDistance = (Mathf.Abs(cameraPosition.z) - extents.z) / extents.z;
+            // XY Plane
+            frameworkEllipses.xy.a_Axis = TAxis.x;
+            frameworkEllipses.xy.b_Axis = TAxis.y;
+            frameworkEllipses.xy.a = frameworkEllipses.xz.b;
+            //frameworkEllipses.xy.b = (extents.y * cameraObjectDistance) + extents.y;
+            frameworkEllipses.xy.b = extents.y + cameraObjectDistance2;
+
+            frameworkEllipses.xy.c = CalculateC(frameworkEllipses.xy.a, frameworkEllipses.xy.b);
+        }
+        else if (geometryType2 == TGeometryType2.Type_IV)
+        {
+            // XZ Plane            
+            frameworkEllipses.xz.c = extents.x;
+            frameworkEllipses.xz.b_Axis = TAxis.z;
+            frameworkEllipses.xz.a_Axis = TAxis.x;
+            frameworkEllipses.xz.b = Mathf.Abs(cameraPosition.z);            
+            frameworkEllipses.xz.a = CalculateA(frameworkEllipses.xz.b, frameworkEllipses.xz.c);
+
+            // XY Plane            
+            frameworkEllipses.xy.b_Axis = TAxis.x;
+            frameworkEllipses.xy.a_Axis = TAxis.y;
+            frameworkEllipses.xy.b = frameworkEllipses.xz.a;
+            //frameworkEllipses.xy.a = (extents.y * cameraObjectDistance) + extents.y;            
+            //float actual = (cameraObjectDistance + 1) * extents.y;
+            //float option1 = extents.y / (1 - cOD_1);
+            //float option2 = cOD_2 + extents.y;
+            frameworkEllipses.xy.a = cameraObjectDistance2 + extents.y;
+
+            frameworkEllipses.xy.c = CalculateC(frameworkEllipses.xy.a, frameworkEllipses.xy.b);
         }
     }
-
-    /// <summary>
-    /// Calculate the parameter c according to the geometry of the object and its dimensions.
-    /// If the object is long, c is the extension of the object on the x-axis. 
-    /// If the object is flat, c is the extension of the object on the z-axis.
-    /// </summary>
-    /// <param name="extents">Object Bounding Box extents</param>
-    /// <returns></returns>
-    private float CalculateCParameter(Vector3 extents)
-    {
-        //if (geometryType == TGeometryType.Prolate) { return extents.x; }
-        //else { return extents.z; }
-        return frameworkEllipses.horizontal.c;
-    }
+    
 
     /// <summary>
     /// Calculate the initial b and a parameter of the ellipse based on the object geometry and initial camera position.
     /// Store results into b and a class parameters.
     /// </summary>
     /// <param name="cameraPosition">Current camera position.</param>
-    private void CalculateEllipseSemiAxesParameters(Vector3 cameraPosition, ref CEllipseData ellipse)
+    private CEllipseData CalculateInitialTranslationEllipseParameters(Vector3 cameraPosition)
     {
-        ellipse.b = frameworkEllipses.horizontal.b;
-        ellipse.a = frameworkEllipses.horizontal.a;
-        //if (geometryType == TGeometryType.Prolate)
-        //{
-        //    ellipse.b = Mathf.Abs(cameraPosition.z);
-        //    ellipse.a = 0.5f * (ellipse.c + Mathf.Sqrt(MathHom3r.Pow2(ellipse.c) + 4 * MathHom3r.Pow2(ellipse.b)));
-        //}
-        //else
-        //{
-        //    ellipse.a = Mathf.Abs(cameraPosition.z);
-        //    ellipse.b = Mathf.Sqrt(MathHom3r.Pow2(ellipse.a) - ellipse.a * ellipse.c);
-        //}
+        CEllipseData ellipse = new CEllipseData(); ;
+        ellipse.b = frameworkEllipses.xz.b;
+        ellipse.a = frameworkEllipses.xz.a;
+        ellipse.c = frameworkEllipses.xz.c;
+        return ellipse;       
     }
 
     /// <summary>
@@ -1147,16 +1167,8 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
     /// </summary>
     /// <param name="cameraPosition">Current camera position</param>
     /// <returns>return the t parameter float value</returns>
-    private float CalculateInitialTParameter(Vector3 cameraPosition, CEllipseData ellipse)
-    {
-        //if (geometryType == TGeometryType.Prolate)
-        //{
-        //    return Mathf.Asin((cameraPosition.z) / ellipse.b);
-        //}
-        //else
-        //{
-        //    return Mathf.Asin((cameraPosition.z) / ellipse.a);
-        //}
+    private float CalculateTranslationEllipseInitialTParameter(Vector3 cameraPosition, CEllipseData ellipse)
+    {      
         return (Mathf.PI * -0.5f);
     }
 
@@ -1234,46 +1246,77 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
     //////////////////////////////////////////////////    
     //////////////////////////////////////////////////
 
-    private CEllipseData CalculateNewTranslationEllipseAfterLongitudeVariation(float pseudoLongitude, CEllipseData currentEllipse)
+    private CEllipseDataExtended CalculateTranslationEllipseParameters(float pseudoLongitude)
     {
-        CEllipseData newEllipse = new CEllipseData();
-        newEllipse.a = currentEllipse.a;        
+        CEllipseDataExtended newTranlationEllipse = new CEllipseDataExtended();
+      
+        if (geometryType2 == TGeometryType2.Type_I)
+        {
+            newTranlationEllipse.a = movementEllipses.translation.a;
+            float nume = frameworkEllipses.xz.b * frameworkEllipses.xy.b;
+            float deno = MathHom3r.Pow2(frameworkEllipses.xz.b * Mathf.Sin(pseudoLongitude)) + MathHom3r.Pow2(frameworkEllipses.xy.b * Mathf.Cos(pseudoLongitude));
+            newTranlationEllipse.b =  nume / Mathf.Sqrt(deno);            
+        } else if (geometryType2 == TGeometryType2.Type_II) {
 
-        float nume = frameworkEllipses.horizontal.b * frameworkEllipses.vertical.b;
-        float deno = MathHom3r.Pow2(frameworkEllipses.horizontal.b * Mathf.Sin(pseudoLongitude)) + MathHom3r.Pow2(frameworkEllipses.vertical.b * Mathf.Cos(pseudoLongitude));
-        newEllipse.b = nume / Mathf.Sqrt(deno);
+            newTranlationEllipse.b = movementEllipses.translation.b;
+            float nume = frameworkEllipses.xz.a * frameworkEllipses.xy.a;
+            float deno = MathHom3r.Pow2(frameworkEllipses.xz.a * Mathf.Sin(pseudoLongitude)) + MathHom3r.Pow2(frameworkEllipses.xy.a * Mathf.Cos(pseudoLongitude));
+            newTranlationEllipse.a =  nume / Mathf.Sqrt(deno);
+        }
+        else if (geometryType2 == TGeometryType2.Type_III)
+        {
+            newTranlationEllipse.b = movementEllipses.translation.b;
+            float nume = frameworkEllipses.xz.a * frameworkEllipses.xy.b;
+            float deno = MathHom3r.Pow2(frameworkEllipses.xz.a * Mathf.Sin(pseudoLongitude)) + MathHom3r.Pow2(frameworkEllipses.xy.b * Mathf.Cos(pseudoLongitude));
+            newTranlationEllipse.a = nume / Mathf.Sqrt(deno);
 
-        newEllipse.c = CalculateC(newEllipse.a, newEllipse.b);
+        }
+        else if (geometryType2 == TGeometryType2.Type_IV)
+        {
+            newTranlationEllipse.a = movementEllipses.translation.a;
+            float nume = frameworkEllipses.xz.b * frameworkEllipses.xy.a;
+            float deno = MathHom3r.Pow2(frameworkEllipses.xz.b * Mathf.Sin(pseudoLongitude)) + MathHom3r.Pow2(frameworkEllipses.xy.a * Mathf.Cos(pseudoLongitude));
+            newTranlationEllipse.b = nume / Mathf.Sqrt(deno);
+        }
+        newTranlationEllipse.c = CalculateC(newTranlationEllipse.a, newTranlationEllipse.b);
 
-        //Debug.Log("Plane Angle: " + pseudoLongitude +"  b: " + newEllipse.b);
-        return newEllipse;
+        return newTranlationEllipse;
     }
 
 
-    private CEllipseData CalculateNewRotationEllipseAfterTranslation(float t, CEllipseData currentEllipse)
+    private CEllipseDataExtended CalculateRotationEllipseParameters(float t)
     {
-        CEllipseData newEllipse = new CEllipseData();
+        CEllipseDataExtended newRotationEllipse = new CEllipseDataExtended();
 
         if (geometryType2 == TGeometryType2.Type_I)
         {
-            float b = frameworkEllipses.horizontal.b * Mathf.Sin(t);
-            newEllipse.a = Mathf.Abs(b);
-            float a = frameworkEllipses.vertical.b * Mathf.Sin(t);
-            newEllipse.b = Mathf.Abs(a);
+            newRotationEllipse.a_Axis = TAxis.z;
+            newRotationEllipse.b_Axis = TAxis.y;
+            newRotationEllipse.a = Mathf.Abs(frameworkEllipses.xz.b * Mathf.Sin(t));
+            newRotationEllipse.b = Mathf.Abs(frameworkEllipses.xy.b * Mathf.Sin(t));
         }
         else if (geometryType2 == TGeometryType2.Type_II)
         {
-            float a = frameworkEllipses.horizontal.a * Mathf.Sin(t);
-            newEllipse.a = Mathf.Abs(a);
-
-            float b = frameworkEllipses.vertical.a * Mathf.Sin(t);
-            newEllipse.b = Mathf.Abs(b);
+            newRotationEllipse.a_Axis = TAxis.z;
+            newRotationEllipse.b_Axis = TAxis.y;
+            newRotationEllipse.a = Mathf.Abs(frameworkEllipses.xz.a * Mathf.Sin(t));
+            newRotationEllipse.b = Mathf.Abs(frameworkEllipses.xy.a * Mathf.Sin(t));
         }
-        
-
-        //Debug.Log(frameworkEllipses.horizontal.b);
-        //Debug.Log(b + "," + a + ","+ t);
-        return newEllipse;
+        else if (geometryType2 == TGeometryType2.Type_III)
+        {
+            newRotationEllipse.a_Axis = TAxis.z;
+            newRotationEllipse.b_Axis = TAxis.y;
+            newRotationEllipse.a = Mathf.Abs(frameworkEllipses.xz.a * Mathf.Sin(t));
+            newRotationEllipse.b = Mathf.Abs(frameworkEllipses.xy.b * Mathf.Sin(t));
+        }
+        else if (geometryType2 == TGeometryType2.Type_IV)
+        {
+            newRotationEllipse.a_Axis = TAxis.y;
+            newRotationEllipse.b_Axis = TAxis.z;
+            newRotationEllipse.a = Mathf.Abs(frameworkEllipses.xy.a * Mathf.Sin(t));
+            newRotationEllipse.b = Mathf.Abs(frameworkEllipses.xz.b * Mathf.Sin(t));
+        }
+        return newRotationEllipse;
     }
 
     /// <summary>
@@ -1301,25 +1344,66 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
         return newEllipse;
     }
 
+
+
+
+    private void CalculateEllipsesAfterRadialMovement(float pseudoRadio)
+    {
+        float new_z;
+        if (frameworkEllipses.xz.b_Axis == TAxis.z) { new_z = frameworkEllipses.xz.b;
+        } else { new_z = frameworkEllipses.xz.a; }
+
+        new_z = new_z + pseudoRadio;
+
+        CalculateFrameworkEllipses(extents, new Vector3(0, 0, new_z));
+        movementEllipses.rotation = CalculateRotationEllipseParameters(t_translationEllipse);
+
+        //Update translation ellipse z-axis semiaxes
+        if ((geometryType2 == TGeometryType2.Type_I) || (geometryType2 == TGeometryType2.Type_IV)) {
+            movementEllipses.translation.a = frameworkEllipses.xz.a;
+        }
+        else
+        {
+            movementEllipses.translation.b = frameworkEllipses.xz.b;
+        }        
+
+        //Update translation ellipse completly
+        movementEllipses.translation = CalculateTranslationEllipseParameters(planeAngle);
+        DrawFrameworkEllipses();
+    }
+
     /// <summary>
     /// Calculate the new camera position in function of a,b and t of the ellipse
     /// </summary>
     /// <returns>Returns the new camera position</returns>
-    private Vector3 CalculateNewCameraPosition(float t, CEllipseData currentEllipse)
+    private Vector3 CalculateNewCameraPosition(float t)
     {
-        Vector3 cameraPositionOnPlane;
-        if (geometryType == TGeometryType.Prolate)
+        Vector3 cameraPositionOnPlane = Vector3.zero;     
+        if (geometryType2 == TGeometryType2.Type_I)
         {
-            cameraPositionOnPlane.x = currentEllipse.a * Mathf.Cos(t);
+            cameraPositionOnPlane.x = movementEllipses.translation.a * Mathf.Cos(t);
             cameraPositionOnPlane.y = 0;
-            cameraPositionOnPlane.z = currentEllipse.b * Mathf.Sin(t);
+            cameraPositionOnPlane.z = movementEllipses.translation.b * Mathf.Sin(t);
         }
-        else
+        else if (geometryType2 == TGeometryType2.Type_II)
         {
-            cameraPositionOnPlane.x = currentEllipse.b * Mathf.Cos(t);
+            cameraPositionOnPlane.x = movementEllipses.translation.b * Mathf.Cos(t);
             cameraPositionOnPlane.y = 0;
-            cameraPositionOnPlane.z = currentEllipse.a * Mathf.Sin(t);
+            cameraPositionOnPlane.z = movementEllipses.translation.a * Mathf.Sin(t);
         }
+        else if (geometryType2 == TGeometryType2.Type_III)
+        {
+            cameraPositionOnPlane.x = movementEllipses.translation.b * Mathf.Cos(t);
+            cameraPositionOnPlane.y = 0;
+            cameraPositionOnPlane.z = movementEllipses.translation.a * Mathf.Sin(t);
+        }
+        else if (geometryType2 == TGeometryType2.Type_IV)
+        {
+            cameraPositionOnPlane.x = movementEllipses.translation.a * Mathf.Cos(t);
+            cameraPositionOnPlane.y = 0;
+            cameraPositionOnPlane.z = movementEllipses.translation.b * Mathf.Sin(t);
+        }
+
         return cameraPositionOnPlane;
     }
     /// <summary>Calculate the point which camera has to look</summary>
@@ -1376,7 +1460,7 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
         float D2 = MathHom3r.Pow2(D);
 
         //Calculate P        
-        Vector3 P = CalculateNewCameraPosition(t_translationEllipse, movementEllipses.translation);
+        Vector3 P = CalculateNewCameraPosition(t_translationEllipse);
         //Debug.Log("P: " + P);
 
         //Calculate Q
@@ -1434,17 +1518,34 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
     }
 
     /// <summary>Draw the translation trajectory, just for support in the editor</summary>
-    private void DrawTranslationTrajectory(CEllipseData currentEllipse)
+    private void DrawTranslationTrajectory()
     {
         if (hom3r.state.platform == THom3rPlatform.Editor)
         {
-            if (geometryType == TGeometryType.Prolate)
+            //if (geometryType == TGeometryType.Prolate)
+            //{
+            //    hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawTranslationEllipse(currentEllipse.a, currentEllipse.b);
+            //}
+            //else
+            //{
+            //    hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawTranslationEllipse(currentEllipse.b, currentEllipse.a);
+            //}
+
+            if (geometryType2 == TGeometryType2.Type_I)
             {
-                hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawTranslationEllipse(currentEllipse.a, currentEllipse.b);
+                hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawTranslationEllipse(movementEllipses.translation.a, movementEllipses.translation.b);
             }
-            else
+            else if (geometryType2 == TGeometryType2.Type_II)
             {
-                hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawTranslationEllipse(currentEllipse.b, currentEllipse.a);
+                hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawTranslationEllipse(movementEllipses.translation.b, movementEllipses.translation.a);
+            }
+            else if (geometryType2 == TGeometryType2.Type_III)
+            {
+                hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawTranslationEllipse(movementEllipses.translation.b, movementEllipses.translation.a);
+            }
+            else if (geometryType2 == TGeometryType2.Type_IV)
+            {
+                hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawTranslationEllipse(movementEllipses.translation.a, movementEllipses.translation.b);
             }
         }
     }
@@ -1455,18 +1556,49 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
         if (hom3r.state.platform == THom3rPlatform.Editor)
         {
             float radio = _cameraPlanePosition.magnitude;
-            //hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawRotationEllipse(_cameraPlanePosition.z, _cameraPlanePosition.z, _cameraPlanePosition.x);
-            //hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawRotationEllipse(frameworkEllipses.horizontal.b, frameworkEllipses.vertical.b, _cameraPlanePosition.x);
-            hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawRotationEllipse(movementEllipses.rotation.a, movementEllipses.rotation.b, _cameraPlanePosition.x);
-
+            
+            if (geometryType2 == TGeometryType2.Type_I) {
+                hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawRotationEllipse(movementEllipses.rotation.a, movementEllipses.rotation.b, _cameraPlanePosition.x);
+            }
+            else if (geometryType2 == TGeometryType2.Type_II)
+            {
+                hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawRotationEllipse(movementEllipses.rotation.a, movementEllipses.rotation.b, _cameraPlanePosition.x);
+            }
+            else if (geometryType2 == TGeometryType2.Type_III)
+            {
+                hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawRotationEllipse(movementEllipses.rotation.a, movementEllipses.rotation.b, _cameraPlanePosition.x);
+            }
+            else if (geometryType2 == TGeometryType2.Type_IV)
+            {
+                hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawRotationEllipse(movementEllipses.rotation.b, movementEllipses.rotation.a, _cameraPlanePosition.x);
+            }            
         }
     }
 
     private void DrawFrameworkEllipses()
     {
         if (hom3r.state.platform == THom3rPlatform.Editor) {
-            hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawHorizontalFrameworkEllipse(frameworkEllipses.horizontal.a, frameworkEllipses.horizontal.b);
-            hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawVerticalFrameworkEllipse(frameworkEllipses.vertical.a, frameworkEllipses.vertical.b);
+
+            if (geometryType2 == TGeometryType2.Type_I)
+            {
+                hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawHorizontalFrameworkEllipse(frameworkEllipses.xz.a, frameworkEllipses.xz.b);
+                hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawVerticalFrameworkEllipse(frameworkEllipses.xy.a, frameworkEllipses.xy.b);
+            }
+            else if (geometryType2 == TGeometryType2.Type_II)
+            {
+                hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawHorizontalFrameworkEllipse(frameworkEllipses.xz.b, frameworkEllipses.xz.a);
+                hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawVerticalFrameworkEllipse(frameworkEllipses.xy.b, frameworkEllipses.xy.a);
+            }
+            else if (geometryType2 == TGeometryType2.Type_III)
+            {
+                hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawHorizontalFrameworkEllipse(frameworkEllipses.xz.b, frameworkEllipses.xz.a);
+                hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawVerticalFrameworkEllipse(frameworkEllipses.xy.a, frameworkEllipses.xy.b);
+            }
+            else if (geometryType2 == TGeometryType2.Type_IV)
+            {
+                hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawHorizontalFrameworkEllipse(frameworkEllipses.xz.a, frameworkEllipses.xz.b);
+                hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawVerticalFrameworkEllipse(frameworkEllipses.xy.b, frameworkEllipses.xy.a);
+            }
         }
     }
 

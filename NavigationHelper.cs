@@ -57,7 +57,7 @@ public class NavigationHelper : MonoBehaviour {
             }
 
 
-            segments = 360;
+            segments = 3600;
             InitLineRenderer(lineTranslationEllipse, 0.5f, segments);
             InitLineRenderer(lineRotationEllipse, 0.8f, segments);
             InitLineRenderer(helperCameraViewLine, 0.2f, segments);
@@ -101,11 +101,38 @@ public class NavigationHelper : MonoBehaviour {
         navigationAssistants.transform.position = position;
     }
 
+    public void SetBiggerLines()
+    {
+        lineTranslationEllipse.widthMultiplier += 0.1f;
+        lineRotationEllipse.widthMultiplier += 0.1f;
+        lineHorizontalFrameworkEllipse.widthMultiplier +=0.1f;
+        lineVerticalFrameworkEllipse.widthMultiplier += 0.1f;
+        helperCameraViewLine.widthMultiplier += 0.1f;
+    }
+
+    public void SetSmallerLines()
+    {
+        lineTranslationEllipse.widthMultiplier -=  0.1f;
+        lineRotationEllipse.widthMultiplier -= 0.1f;
+        lineHorizontalFrameworkEllipse.widthMultiplier -= 0.1f;
+        lineVerticalFrameworkEllipse.widthMultiplier -=  0.1f;
+        helperCameraViewLine.widthMultiplier -= 0.1f;
+    }
+
+    public void SetBiggerCamera()
+    {
+        helperCamera.transform.localScale = new Vector3 (helperCamera.transform.localScale.x + 0.2f, helperCamera.transform.localScale.y + 0.2f, helperCamera.transform.localScale.z + 0.2f);
+    }
+
+    public void SetSmallerCamera()
+    {
+        helperCamera.transform.localScale = new Vector3(helperCamera.transform.localScale.x - 0.2f, helperCamera.transform.localScale.y - 0.2f, helperCamera.transform.localScale.z - 0.2f);
+    }
 
     ////////////////////////////////
     // Draw Ellipses Methods
     ////////////////////////////////
-    
+
     /// <summary>
     /// 
     /// </summary>
@@ -172,7 +199,6 @@ public class NavigationHelper : MonoBehaviour {
     public void DrawVerticalFrameworkEllipse(float xRadius, float yRadius)
     {
         if (hom3r.state.platform == THom3rPlatform.Editor)
-
         {
             DrawEllipse(xRadius, yRadius, 0f, TPlanes.XY, lineVerticalFrameworkEllipse);
 
