@@ -100,7 +100,7 @@ public class NavigationManager : MonoBehaviour {
 
         TMainAxis newMainAxis = ParseMainAxis(newMainAxis_text);    // Parse input main Axis
         SetNavigationAxis(newMainAxis);                             // Change main axis            
-        hom3r.quickLinks.scriptsObject.GetComponent<IOManager>().IOGetProductModel();       //TODO DELETE ME
+        //hom3r.quickLinks.scriptsObject.GetComponent<IOManager>().IOGetProductModel();       //TODO DELETE ME
         this.modelBoundingBox = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().Get3DModelBoundingBox(true); //Get model bounding box        
         if (this.modelBoundingBox.size == Vector3.zero) { return; }
         InitOrbitPlanePosition();                                   // Initialize Orbit Plane position
