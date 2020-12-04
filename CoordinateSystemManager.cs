@@ -949,6 +949,8 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
             //pseudoLatitudeVariation = pseudoLatitudeVariation * CalculatePseudoLatitudeMappingFactor(fieldOfView.x);
             //pseudoLongitudeVariation = pseudoLongitudeVariation * CalculatePseudoLongitudeCorrectionParameter(fieldOfView.y, translationEllipse);
             Debug.Log(CalculatePseudoLatitudeMappingFactor(fieldOfView.x));
+            Debug.Log(CalculatePseudoLatitudeCorrectionFactor(fieldOfView.x));
+
             /////////////////////////////////////////////////////
             // Mapping of parameters - Plane rotation parameter
             /////////////////////////////////////////////////////                
@@ -1485,14 +1487,33 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
             bi = extents.x;
         }
         
-        float arco = Mathf.Sqrt(MathHom3r.Pow2(ai * Mathf.Sin(t_translationEllipse)) + MathHom3r.Pow2(bi * Mathf.Cos(t_translationEllipse)));
-        float k = CalculateCorrectionParameterK(fieldOfView_rad, ai, bi);
-
-        factor = k / arco;
+        float arco = Mathf.Sqrt(MathHom3r.Pow2(ai * Mathf.Sin(t_translationEllipse)) + MathHom3r.Pow2(bi * Mathf.Cos(t_translationEllipse)));       
+        factor = 1 / arco;
 
         return factor;
     }
-    private float CalculateCorrectionParameterK(float fieldOfView_rad, float ai, float bi)
+    private float CalculatePseudoLatitudeCorrectionFactor(float fieldOfView_rad)
+    {
+        float ai;
+        float bi;
+
+        if ((geometryType2 == TGeometryType2.Type_I) || (geometryType2 == TGeometryType2.Type_IV))
+        {
+            ai = extents.x;
+            bi = extents.z;
+        }
+        else
+        {
+            ai = extents.z;
+            bi = extents.x;
+        }
+
+        
+        float k = CalculateMappingCorrectionParameterK(fieldOfView_rad, ai, bi);
+        return k;
+    }
+
+    private float CalculateMappingCorrectionParameterK(float fieldOfView_rad, float ai, float bi)
     {
         float k = 1f;
 
@@ -1538,7 +1559,11 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
         
         //Calculate K    
         k = 2 * dPQ * Mathf.Tan(fieldOfView_rad);
-          
+        
+        if (float.IsNaN(k))
+        {
+            Debug.Log("nan");
+        }
         return k;
     }
     /// <summary>
