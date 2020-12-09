@@ -418,7 +418,7 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
             /////////////////////////////////////////////////////////
             // Apply pseudoLatitude and pseudoLongitude correction
             /////////////////////////////////////////////////////////
-            pseudoLatitudeVariation = pseudoLatitudeVariation * CalculatePseudoLatitudeCorrectionParameter(fieldOfView.x, translationEllipse);
+            pseudoLatitudeVariation = pseudoLatitudeVariation * CalculatePseudoLatitudeMappingFactor(fieldOfView.x) * CalculatePseudoLatitudeCorrectionParameter(fieldOfView.x, translationEllipse);
             pseudoLongitudeVariation = pseudoLongitudeVariation * CalculatePseudoLongitudeCorrectionParameter(fieldOfView.y, translationEllipse);
 
             /////////////////////////////////////////////////////
@@ -712,6 +712,31 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
     }
 
 
+    private float CalculatePseudoLatitudeMappingFactor(float fieldOfView_rad)
+    {      
+        float aMin;
+        float bMin;
+        // Calculate minimum ellipse
+        if (geometryType == TGeometryType.Prolate)
+        {
+            aMin = extents.x;
+            bMin = extents.z;
+        }
+        else
+        {
+            aMin = extents.z;
+            bMin = extents.x;
+        }
+        float aMin2 = MathHom3r.Pow2(aMin);
+        float bMin2 = MathHom3r.Pow2(bMin);
+
+        float arco = Mathf.Sqrt(MathHom3r.Pow2(aMin * Mathf.Sin(t_translationEllipse)) + MathHom3r.Pow2(bMin * Mathf.Cos(t_translationEllipse)));
+
+        float factor = 1 / arco;
+        Debug.Log("PseudoLatitudeMappingFactor " + factor);
+        return factor;
+    }
+
     /// <summary>
     /// Calculate pseudo latitude correction.
     /// Based on the projection from the camera ellipse to the ellipse inscribed in the object.
@@ -773,9 +798,10 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
         //float rMin = MathHom3r.Max(extents);
         float k = 2 * dPQ * Mathf.Tan(fieldOfView_rad);
         //Debug.Log(k);
-        float arco = Mathf.Sqrt(MathHom3r.Pow2(aMin * Mathf.Sin(t_translationEllipse)) + MathHom3r.Pow2(bMin * Mathf.Cos(t_translationEllipse)));
-       
-        return k/arco;
+        //float arco = Mathf.Sqrt(MathHom3r.Pow2(aMin * Mathf.Sin(t_translationEllipse)) + MathHom3r.Pow2(bMin * Mathf.Cos(t_translationEllipse)));
+
+        Debug.Log("CalculatePseudoLatitudeCorrectionParameter " + k);
+        return k;///arco;
     }
 
     /// <summary>
@@ -866,6 +892,7 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
     Vector3 extents;            // Store the product bounding box extents
     Vector2 fieldOfView;        // Store the camera field of View
 
+    float k_lastvalidvalue;     // TODO Delete me
 
     public bool Init(Vector3 _extents, Vector3 cameraInitialPosition,/* Vector2 _fieldOfView,*/ out float minimumCameraDistance, out Vector3 pointToLook)
     {
@@ -946,7 +973,7 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
             // Apply pseudoLatitude and pseudoLongitude correction
             /////////////////////////////////////////////////////////
             //pseudoLatitudeVariation = pseudoLatitudeVariation * CalculatePseudoLatitudeCorrectionParameter(fieldOfView.x, movementEllipses.translation);
-            //pseudoLatitudeVariation = pseudoLatitudeVariation * CalculatePseudoLatitudeMappingFactor(fieldOfView.x);
+            pseudoLatitudeVariation = pseudoLatitudeVariation * CalculatePseudoLatitudeMappingFactor(fieldOfView.x) * CalculatePseudoLatitudeCorrectionFactor(fieldOfView.x);
             //pseudoLongitudeVariation = pseudoLongitudeVariation * CalculatePseudoLongitudeCorrectionParameter(fieldOfView.y, translationEllipse);
             Debug.Log(CalculatePseudoLatitudeMappingFactor(fieldOfView.x));
             Debug.Log(CalculatePseudoLatitudeCorrectionFactor(fieldOfView.x));
@@ -1562,7 +1589,11 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
         
         if (float.IsNaN(k))
         {
-            Debug.Log("nan");
+            //Debug.Log("nan");
+            k = k_lastvalidvalue;
+        } else
+        {
+            k_lastvalidvalue = k;
         }
         return k;
     }
