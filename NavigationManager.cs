@@ -524,7 +524,9 @@ public class NavigationManager : MonoBehaviour {
     private void MoveCameraWithinThePlane(Vector3 newCameraPosition) {
         if (navigationInitialized)
         {
-            Camera.main.transform.localPosition = new Vector3 (newCameraPosition.x, 0.0f, newCameraPosition.z);            
+            Camera.main.transform.localPosition = new Vector3 (newCameraPosition.x, 0.0f, newCameraPosition.z);
+            //Move Helper camera
+            hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().MoveCameraHelper(newCameraPosition);
         }        
     }
 
@@ -548,19 +550,28 @@ public class NavigationManager : MonoBehaviour {
     private void OrientateCamera(Vector3 pointToLook)
     {
         if (navigationInitialized)
-        {                        
-            Vector3 pointToLook_world = hom3r.quickLinks.navigationSystemObject.transform.TransformPoint(pointToLook);      // Transform the coordinates of the point to global
-            Camera.main.transform.LookAt(pointToLook_world);            // Orientate the camera
-
+        {            
+            Vector3 pointToLookWorld = hom3r.quickLinks.navigationSystemObject.transform.TransformPoint(pointToLook);      // Transform the coordinates of the point to global            
+            Camera.main.transform.LookAt(pointToLookWorld);            // Orientate the camera
+            //pointToLook = Vector3.zero;
+            //Camera.main.transform.LookAt(pointToLook);            // Orientate the camera            
+            //Debug.Log(pointToLook);
+            //Debug.Log(pointToLook_world);
+            
             //Reorient the camera: fix the orientation of the camera to orientate it parallel to the orbit plane
+            Vector3 rotation = new Vector3();
             if (mainAxis == TMainAxis.Vertical)
             {
-                Camera.main.transform.localEulerAngles = new Vector3(Camera.main.transform.localEulerAngles.x, Camera.main.transform.localEulerAngles.y, -90);
+                rotation = new Vector3(Camera.main.transform.localEulerAngles.x, Camera.main.transform.localEulerAngles.y, -90);
             }
             else
             {
-                Camera.main.transform.localEulerAngles = new Vector3(Camera.main.transform.localEulerAngles.x, Camera.main.transform.localEulerAngles.y, 0);
-            }            
+                rotation = new Vector3(Camera.main.transform.localEulerAngles.x, Camera.main.transform.localEulerAngles.y, 0);
+            }
+            Camera.main.transform.localEulerAngles = rotation;
+
+            // Reorient HELPER camera
+            hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().SetCamaraOrientationHelper(pointToLookWorld);
         }
     }
 

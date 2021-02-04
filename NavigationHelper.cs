@@ -60,7 +60,7 @@ public class NavigationHelper : MonoBehaviour {
             segments = 3600;
             InitLineRenderer(lineTranslationEllipse, 0.5f, segments);
             InitLineRenderer(lineRotationEllipse, 0.8f, segments);
-            InitLineRenderer(helperCameraViewLine, 0.2f, segments);
+            InitLineRenderer(helperCameraViewLine, 0.2f, 1);
             InitLineRenderer(lineHorizontalFrameworkEllipse, 0.5f, segments);
             InitLineRenderer(lineVerticalFrameworkEllipse, 0.5f, segments);
         
@@ -205,21 +205,40 @@ public class NavigationHelper : MonoBehaviour {
         }
     }
 
-    public void MoveCameraHelper(Vector3 cameraPosition, Vector3 pointToLook)
+    public void MoveCameraHelper(Vector3 cameraPosition)
     {
         if (hom3r.state.platform == THom3rPlatform.Editor)
         {
             // Move Camera
             helperCamera.transform.localPosition = cameraPosition;
-            Vector3 pointToLook_world = hom3r.quickLinks.navigationSystemObject.transform.TransformPoint(pointToLook);
-            helperCamera.transform.LookAt(pointToLook_world);
+            //Vector3 pointToLook_world = hom3r.quickLinks.navigationSystemObject.transform.TransformPoint(pointToLook);
+            //helperCamera.transform.LookAt(pointToLook_world);
 
             // Draw look direction line        
-            helperCameraViewLine.SetPosition(0, Vector3.zero);
-            Vector3 poinToLook_local = helperCamera.transform.InverseTransformPoint(pointToLook_world);
-            helperCameraViewLine.SetPosition(1, poinToLook_local);
+            //helperCameraViewLine.SetPosition(0, Vector3.zero);
+           // Vector3 poinToLook_local = helperCamera.transform.InverseTransformPoint(pointToLook_world);
+           // helperCameraViewLine.SetPosition(1, poinToLook_local);
         }        
     }
+
+    public void SetCamaraOrientationHelper(Vector3 pointToLookWorld)
+    {
+        if (hom3r.state.platform == THom3rPlatform.Editor)
+        {
+            // Rotate Fake Camera
+            helperCamera.transform.localEulerAngles = Camera.main.transform.localEulerAngles;
+
+
+            // Rotate Fake Camera
+            //helperCamera.transform.LookAt(pointToLook);
+            
+            // Draw look direction line            
+            helperCameraViewLine.SetPosition(0, Vector3.zero);
+            Vector3 poinToLook_local = helperCamera.transform.InverseTransformPoint(pointToLookWorld);
+            helperCameraViewLine.SetPosition(1, poinToLook_local);
+        }
+    }
+
 
     /// <summary>
     /// Draw a ellipse, in one plane, using a lineRenderer of the scene
