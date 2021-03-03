@@ -104,6 +104,8 @@ public class CCoreEventData
     public float scaleFactor { get; set; }
     public float mouseDragMovementX { get; set; }
     public float mouseDragMovementY { get; set; }
+    public float mouseDragMovementXPercentage { get; set; }    
+    public float mouseDragMovementYPercentage { get; set; }    
     public float mouseWhellMovement { get; set; }
     public List<string> textList { get; set; }
     public THom3rCommandOrigin origin { get; set; }
@@ -205,12 +207,22 @@ public class CCoreEvent
         data.control = _control;        
     }
 
-    public CCoreEvent(TCoreEvent _command, Vector3 _mousePosition, float _mouseMovementX, float _mouseMovementY)
+    public CCoreEvent(TCoreEvent _command, Vector3 _mousePosition, float _mouseDragMovementX, float _mouseDragMovementY)
     {
         data = new CCoreEventData(_command);
-        data.mousePosition = _mousePosition;        
-        data.mouseDragMovementX = _mouseMovementX;
-        data.mouseDragMovementY = _mouseMovementY;    
+        data.mousePosition = _mousePosition;
+        data.mouseDragMovementX = _mouseDragMovementX;
+        data.mouseDragMovementY = _mouseDragMovementY;        
+    }
+
+    public CCoreEvent(TCoreEvent _command, Vector3 _mousePosition, float _mouseDragMovementX, float _mouseDragMovementY, float _mouseDragMovementXPercentage, float _mouseDragMovementYPercentage)
+    {
+        data = new CCoreEventData(_command);
+        data.mousePosition = _mousePosition;
+        data.mouseDragMovementX = _mouseDragMovementX;
+        data.mouseDragMovementY = _mouseDragMovementY;
+        data.mouseDragMovementXPercentage = _mouseDragMovementXPercentage;
+        data.mouseDragMovementYPercentage = _mouseDragMovementYPercentage;    
     }
     public CCoreEvent(TCoreEvent _command, List<string> _texlist)
     {

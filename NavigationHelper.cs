@@ -13,15 +13,14 @@ public class NavigationHelper : MonoBehaviour {
     LineRenderer lineVerticalFrameworkEllipse;
     GameObject helperCamera;
     LineRenderer helperCameraViewLine;
-    GameObject navigationAssistants; 
+    GameObject navigationAssistants;
+    GameObject plane;
 
     // Use this for initialization
     void Awake () {
 
         if (hom3r.state.platform == THom3rPlatform.Editor)
-        {
-            
-
+        {                       
             foreach (Transform child in transform)
             {
                 //if (child.name == "HelperRotationTrajectory")
@@ -36,7 +35,11 @@ public class NavigationHelper : MonoBehaviour {
                 {
                     helperCamera = child.gameObject;
                     helperCameraViewLine = child.GetComponentInChildren<LineRenderer>();
-                }              
+                }
+                if (child.name == "Plane")
+                {
+                    plane = child.gameObject;
+                }
             }
 
             navigationAssistants = GameObject.Find("NavigationAssistants");
@@ -58,11 +61,11 @@ public class NavigationHelper : MonoBehaviour {
 
 
             segments = 3600;
-            InitLineRenderer(lineTranslationEllipse, 0.5f, segments);
-            InitLineRenderer(lineRotationEllipse, 0.8f, segments);
-            InitLineRenderer(helperCameraViewLine, 0.2f, 1);
-            InitLineRenderer(lineHorizontalFrameworkEllipse, 0.5f, segments);
-            InitLineRenderer(lineVerticalFrameworkEllipse, 0.5f, segments);
+            InitLineRenderer(lineTranslationEllipse, 1.2f, segments);
+            InitLineRenderer(lineRotationEllipse, 1.2f, segments);
+            InitLineRenderer(helperCameraViewLine, 1f, 1);
+            InitLineRenderer(lineHorizontalFrameworkEllipse, 0.9f, segments);
+            InitLineRenderer(lineVerticalFrameworkEllipse, 0.9f, segments);
         
         }
         else
@@ -151,38 +154,7 @@ public class NavigationHelper : MonoBehaviour {
         if (hom3r.state.platform == THom3rPlatform.Editor)
 
         {
-            DrawEllipse(zRadius, yRadius, -offset, TPlanes.YZ, lineRotationEllipse);
-
-
-            //List<Vector3> points = new List<Vector3>();
-            //float z;
-            //float x = 0f;
-            //float y;
-
-            //float angle = 20f;
-
-            //for (int i = 0; i < (segments + 1); i++)
-            //{
-            //    z = Mathf.Cos(Mathf.Deg2Rad * angle) * zRadius;
-            //    y = Mathf.Sin(Mathf.Deg2Rad * angle) * yRadius;
-            //    x = offset;
-
-            //    //line2.SetPosition(i, new Vector3(x, y, z));
-            //    points.Add(new Vector3(x, y, z));
-            //    angle += (360f / segments);
-            //}
-
-            //lineRotationEllipse.SetPositions(points.ToArray());
-
-            //foreach (Transform child in transform)
-            //{
-            //    if (child.name == "HelperRotationTrajectory")
-            //    {
-            //        //Debug.Log(- this.transform.rotation.eulerAngles.x);                    
-            //        //child.transform.Rotate(new Vector3(-child.transform.rotation.eulerAngles.x, 0, 0));
-            //        child.transform.rotation = Quaternion.identity;
-            //    }
-            //}
+            DrawEllipse(zRadius, yRadius, -offset, TPlanes.YZ, lineRotationEllipse);            
         }
     }
 
@@ -192,7 +164,6 @@ public class NavigationHelper : MonoBehaviour {
 
         {
             DrawEllipse(xRadius, zRadius, 0f, TPlanes.XZ, lineHorizontalFrameworkEllipse);
-
         }
     }
 
@@ -201,7 +172,6 @@ public class NavigationHelper : MonoBehaviour {
         if (hom3r.state.platform == THom3rPlatform.Editor)
         {
             DrawEllipse(xRadius, yRadius, 0f, TPlanes.XY, lineVerticalFrameworkEllipse);
-
         }
     }
 
@@ -210,14 +180,7 @@ public class NavigationHelper : MonoBehaviour {
         if (hom3r.state.platform == THom3rPlatform.Editor)
         {
             // Move Camera
-            helperCamera.transform.localPosition = cameraPosition;
-            //Vector3 pointToLook_world = hom3r.quickLinks.navigationSystemObject.transform.TransformPoint(pointToLook);
-            //helperCamera.transform.LookAt(pointToLook_world);
-
-            // Draw look direction line        
-            //helperCameraViewLine.SetPosition(0, Vector3.zero);
-           // Vector3 poinToLook_local = helperCamera.transform.InverseTransformPoint(pointToLook_world);
-           // helperCameraViewLine.SetPosition(1, poinToLook_local);
+            helperCamera.transform.localPosition = cameraPosition;            
         }        
     }
 
@@ -281,5 +244,14 @@ public class NavigationHelper : MonoBehaviour {
         }
 
         lineRenderer.SetPositions(points.ToArray());
+    }
+
+
+    public void InitHelpPlaneSize(Bounds boundingBox)
+    {
+        if (plane != null)
+        {
+            plane.transform.localScale = new Vector3(boundingBox.extents.x * .5f, 1, boundingBox.extents.z * .5f);
+        }      
     }
 }

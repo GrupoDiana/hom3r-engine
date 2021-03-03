@@ -18,8 +18,9 @@ public class NavigationManager : MonoBehaviour {
 
 
     // Navigation mode parameters
-    TMainAxis mainAxis;                         // Store the 3d model main axis for navigation
-    CCoordinateSystemManager navigationSystem;  // Define the navigation mode
+    TMainAxis mainAxis;                             // Store the 3d model main axis for navigation
+    TNavigationSystemMode navigationSystemMode;         // Store the navigation mode in use
+    CCoordinateSystemManager navigationSystem;      // Define the navigation mode
     PanNavigatioMangager panNavigationSystem;
 
     // Control parameters
@@ -34,24 +35,7 @@ public class NavigationManager : MonoBehaviour {
     {
         hom3r.quickLinks.navigationSystemObject = GameObject.FindGameObjectWithTag("NavigationSystem_tag");       //Initialize the quick link to the orbit plane object
 
-        this.InitializeVariables();
-        //cameraInitialPosition = Vector3.zero;       // Initialize Scene parameters 
-        //cameraMinimumDistance = 0.0f;               // Initialize Scene parameters
-        //CalculateFielOfView();                      // Initialize Scene parameters               
-
-        //mainAxis = TMainAxis.Vertical;              // Initialize Navigation mode parameters
-
-        //pseudoRadioCorrection = 100f;               // Initialize Correction Parameters
-        //pseudoRadioScale = 5f;                      //
-
-        ////Navigation System
-        ////navigationSystem = new CSphericalCoordinatesManager();
-        ////navigationSystem = new CLimitedSphericalCoordinatesManager();     
-        //navigationSystem = new CEllipticalCoordinatesManager();
-        //panNavigationSystem = new PanNavigatioMangager();
-        //hom3r.state.navigationMode = THom3rNavigationMode.regular;
-
-        //navigationInitialized = false;       // This parameter controls when the navigation has been initialized
+        this.InitializeVariables();       
     }
 
     private void InitializeVariables()
@@ -67,18 +51,45 @@ public class NavigationManager : MonoBehaviour {
         pseudoRadioCorrection = 100f;               // Initialize Correction Parameters
         pseudoRadioScale = 5f;                      //
 
-        //Navigation System
+        //Navigation System        
+        InitNavigationSystem();
         //navigationSystem = new CSphericalCoordinatesManager();
         //navigationSystem = new CLimitedSphericalCoordinatesManager();     
         //navigationSystem = new CSpheroidCoordinatesManager();
-        navigationSystem = new CEllipsoidCoordinatesManager();
+        //navigationSystem = new CEllipsoidCoordinatesManager();
         panNavigationSystem = new PanNavigatioMangager();
         hom3r.state.navigationMode = THom3rNavigationMode.regular;        
     }
 
+    private void InitNavigationSystem()
+    {
+        //Get the navigation system to use from configuration module
+        navigationSystemMode = hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetActiveNavigationSystemMode();
+        //Set that navigation system
+        if (navigationSystemMode == TNavigationSystemMode.Spheroid)
+        {
+            navigationSystem = new CSpheroidCoordinatesManager();
+        }
+        else if (navigationSystemMode == TNavigationSystemMode.Ellipsoid)
+        {
+            navigationSystem = new CEllipsoidCoordinatesManager();
+        }
+    }
+
+
     ////////////////////////////////////
     // Initialize Navigation methods
     ////////////////////////////////////
+    public void CheckConfigurationUpdated()
+    {
+        if (hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetActiveNavigationSystemMode() != this.navigationSystemMode)
+        {
+            // Init with the new navigation system
+            this.StopNavigation();
+            this.InitNavigation();
+        }
+    }
+
     public void StopNavigation()
     {
         Debug.Log("Stop Navigation");
@@ -104,10 +115,10 @@ public class NavigationManager : MonoBehaviour {
         this.modelBoundingBox = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().Get3DModelBoundingBox(true); //Get model bounding box        
         if (this.modelBoundingBox.size == Vector3.zero) { return; }
         InitOrbitPlanePosition();                                   // Initialize Orbit Plane position
-        InitCameraRotation();                                       // Initialize Camera rotation
-        InitHelpPlaneSize(modelBoundingBox);    // TODO maybe delete 
-        NavigationAsssitants();
+        InitCameraRotation();                                       // Initialize Camera rotation        
+        InitNavigationHelper();
         cameraInitialPosition = CalculateInitialCameraPosition();           // Calculate the initial Camera position
+        InitSecundaryCameraPosition(cameraInitialPosition);
         Vector3 extentsVector = Get3DModelExtentsVector(modelBoundingBox);  // Get extents vector from bounding box in terms of main axis
         //Vector2 fielOfViewVector = GetFieldOfView();
         Vector3 pointToLook;    //Vector to store direction in which the camera has to look
@@ -261,26 +272,27 @@ public class NavigationManager : MonoBehaviour {
         }
     }
 
-    private void InitHelpPlaneSize(Bounds boundingBox)
-    {
-        Transform[] ts = hom3r.quickLinks.navigationSystemObject.GetComponentsInChildren<Transform>();
-        foreach (Transform child in ts)
-        {
-            if (child.name == "Plane")
-            {
-                child.transform.localScale = new Vector3(boundingBox.extents.x /5.0f, 1, boundingBox.extents.z /5.0f ) ;                
-            }
-            if (child.name == "Cube")
-            {
-                child.transform.localScale = new Vector3(boundingBox.extents.x * 2, boundingBox.extents.y * 2, boundingBox.extents.z * 2);                
-            }
-            //child is your child transform
-        }
-    }
+    //private void InitHelpPlaneSize(Bounds boundingBox)
+    //{
+    //    Transform[] ts = hom3r.quickLinks.navigationSystemObject.GetComponentsInChildren<Transform>();
+    //    foreach (Transform child in ts)
+    //    {
+    //        if (child.name == "Plane")
+    //        {
+    //            child.transform.localScale = new Vector3(boundingBox.extents.x /5.0f, 1, boundingBox.extents.z /5.0f ) ;                
+    //        }
+    //        if (child.name == "Cube")
+    //        {
+    //            child.transform.localScale = new Vector3(boundingBox.extents.x * 2, boundingBox.extents.y * 2, boundingBox.extents.z * 2);                
+    //        }
+    //        //child is your child transform
+    //    }
+    //}
 
-    private void NavigationAsssitants()
+    private void InitNavigationHelper()
     {
-        hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationHelper>().InitNavigationAssistantsPosition(modelBoundingBox.center);        
+        hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationHelper>().InitNavigationAssistantsPosition(modelBoundingBox.center);
+        hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationHelper>().InitHelpPlaneSize(modelBoundingBox);
     }
 
 
@@ -294,11 +306,11 @@ public class NavigationManager : MonoBehaviour {
     /// <param name="mouseMovementX">Movement of the mouse in X axis, % of the screen size</param>
     /// <param name="mouseMovementY">Movement of the mouse in Y axis, % of the screen size</param>
     /// <param name="mouseWhellMovement">Movement of the whell mouse, % of the screen size</param>
-    public void SetMouseMovement(float mouseMovementX, float mouseMovementY, float mouseWhellMovement)
+    public void SetMouseMovement(float mouseMovementX, float mouseMovementY, float mouseMovementPercentageX, float mouseMovementPercentageY, float mouseWhellMovement)
     {
         if (hom3r.state.navigationMode == THom3rNavigationMode.regular)
-        {
-            this.SetMouseMovementRegularNavigation(mouseMovementX, mouseMovementY, mouseWhellMovement);
+        {            
+            this.SetMouseMovementRegularNavigation(mouseMovementX, mouseMovementY, mouseMovementPercentageX, mouseMovementPercentageY, mouseWhellMovement);
         } else
         {
             this.SetMouseMovementPanNavigation(mouseMovementX, mouseMovementY, mouseWhellMovement);
@@ -309,16 +321,16 @@ public class NavigationManager : MonoBehaviour {
     /// <param name="mouseMovementX">Movement of the mouse in X axis, % of the screen size</param>
     /// <param name="mouseMovementY">Movement of the mouse in Y axis, % of the screen size</param>
     /// <param name="mouseWhellMovement">Movement of the whell mouse, % of the screen size</param>
-    private void SetMouseMovementRegularNavigation(float mouseMovementX, float mouseMovementY, float mouseWhellMovement)
+    private void SetMouseMovementRegularNavigation(float mouseMovementX, float mouseMovementY, float mouseMovementXPercentage, float mouseMovementYPercentage, float mouseWhellMovement)
     {
-        float pseudoLatitude;
-        float pseudoLongitude;
-        float pseudoRadio;
+        float latitudeVariation;
+        float longitudeVariation;
+        float radialVariation;
                 
         // Check if the navigation is activated or not        
         if (!hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetActiveNavigation()) { return;  }
         if (hom3r.state.navigationBlocked) { return; }
-
+        
         if ((navigationInitialized) & ((mouseMovementX != 0) || (mouseMovementY != 0) || (mouseWhellMovement != 0.0f)))
         {
             ///////////////////////////////////////////////////
@@ -328,31 +340,35 @@ public class NavigationManager : MonoBehaviour {
             //   Horizontal axis --> Latitude = Mouse X
             if (mainAxis == TMainAxis.Vertical)
             {
-                pseudoLatitude = -mouseMovementY; // * Mathf.PI * Calculate_Vertical_ScaleMapping_Mouse_To_Pseudo_Coordinate("Latitude");
-                pseudoLongitude = mouseMovementX; // * Mathf.PI * Calculate_Vertical_ScaleMapping_Mouse_To_Pseudo_Coordinate("Longitude");
+                //latitudeVariation = -mouseMovementY;
+                //longitudeVariation = mouseMovementX;
+                latitudeVariation = GetLatitudeVariationWithMappingCorrection(-mouseMovementY, -mouseMovementYPercentage);
+                longitudeVariation = GetLongitudeVariationWithMappingCorrection(mouseMovementX, mouseMovementXPercentage);                                
             }
             else
-            {                
-                pseudoLatitude  =  - mouseMovementX  /* * Mathf.PI /* * Calculate_Horizontal_ScaleMapping_Mouse_To_Pseudo_Coordinate("Latitude")*/;
-                pseudoLongitude =  - mouseMovementY /* * Mathf.PI * Calculate_Horizontal_ScaleMapping_Mouse_To_Pseudo_Coordinate("Longitude")*/;
+            {
+                //latitudeVariation = -mouseMovementX;
+                //longitudeVariation = -mouseMovementY;
+                latitudeVariation = GetLatitudeVariationWithMappingCorrection(-mouseMovementX, -mouseMovementXPercentage);
+                longitudeVariation = GetLongitudeVariationWithMappingCorrection(-mouseMovementY, -mouseMovementYPercentage);
             }
 
             //////////////////////////
             //  Calculate pseudoRadio
             //////////////////////////
-            pseudoRadio = 0.0f;
+            radialVariation = 0.0f;
             if (hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetActiveNavigationZoom())
             {
-                pseudoRadio = -1.0f * CalculatePseudoRadioVariation(mouseWhellMovement);    //Calculate pseudo Radio
+                radialVariation = -1.0f * CalculatePseudoRadioVariation(mouseWhellMovement);    //Calculate pseudo Radio
             }
             
 
             /////////////////////////////////////////////////
             // Emit pseudoData just in case someone need it
             /////////////////////////////////////////////////
-            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Navigation_PseudoLatitudeMovement, pseudoLatitude));     // Emit event
-            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Navigation_PseudoLongitudeMovement, pseudoLongitude));   // Emit event
-            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Navigation_PseudoRadioMovement, pseudoRadio));   // Emit event
+            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Navigation_PseudoLatitudeMovement, latitudeVariation));     // Emit event
+            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Navigation_PseudoLongitudeMovement, longitudeVariation));   // Emit event
+            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Navigation_PseudoRadioMovement, radialVariation));   // Emit event
 
 
             ////////////////
@@ -363,8 +379,8 @@ public class NavigationManager : MonoBehaviour {
             Vector3 pointToLook;
             Vector2 fielOfViewVector = GetFieldOfView(true);    // Get current field of view
 
-            //Calculate movement
-            navigationSystem.CalculateCameraPosition(pseudoLatitude, pseudoLongitude, pseudoRadio, fielOfViewVector, out newCameraPosition, out planeRotation, out pointToLook);            
+            //Calculate movement           
+            navigationSystem.CalculateCameraPosition(latitudeVariation, longitudeVariation, radialVariation, fielOfViewVector, out newCameraPosition, out planeRotation, out pointToLook);            
             //Apply movement
             RotateCameraPlane(planeRotation);
             MoveCameraWithinThePlane(newCameraPosition);
@@ -374,6 +390,32 @@ public class NavigationManager : MonoBehaviour {
             hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Navigation_CameraMoved));                 
         }
     }
+
+
+    private float GetLatitudeVariationWithMappingCorrection(float mouseMovement, float mouseMovementPercentage)
+    {        
+        if (hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetLatitudeInteractionCorrectionMode() == TInteractionMappingCorrectionMode.none)
+        {
+            return mouseMovement;
+        }
+        else
+        {
+            return mouseMovementPercentage;
+        }                
+    }
+    private float GetLongitudeVariationWithMappingCorrection(float mouseMovement, float mouseMovementPercentage)
+    {
+        if (hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetLongitudeInteractionCorrectionMode() == TInteractionMappingCorrectionMode.none)
+        {
+            return mouseMovement;
+        }
+        else
+        {
+            return mouseMovementPercentage;
+        }
+    }
+
+
 
     /// <summary>Receive the movement of the mouse and apply them</summary>
     /// <param name="mouseMovementX">Movement of the mouse in X axis, % of the screen size</param>
@@ -444,7 +486,7 @@ public class NavigationManager : MonoBehaviour {
             Vector3 pointToLook;
             Vector2 fielOfViewVector = GetFieldOfView(true);    // Get current field of view
 
-            //Calculate movement
+            //Calculate movement            
             navigationSystem.CalculateCameraPosition(pseudoLatitude, pseudoLongitude, 0.0f, fielOfViewVector, out newCameraPosition, out planeRotation, out pointToLook);
             //Apply movement
             RotateCameraPlane(planeRotation);
@@ -476,7 +518,7 @@ public class NavigationManager : MonoBehaviour {
         Vector3 pointToLook;
         Vector2 fielOfViewVector = GetFieldOfView(true);    // Get current field of view
 
-        //Calculate movement
+        //Calculate movement        
         navigationSystem.CalculateCameraPosition(0.0f, 0.0f, pseudoRadio, fielOfViewVector, out newCameraPosition, out planeRotation, out pointToLook);
         //Apply movement
         RotateCameraPlane(planeRotation);
@@ -507,6 +549,30 @@ public class NavigationManager : MonoBehaviour {
     /////////////////////////////
     // CAMERA Private Methods    
     /////////////////////////////
+
+    private void InitSecundaryCameraPosition(Vector3 newCameraPosition)
+    {
+        GameObject secundaryCamera = GameObject.FindGameObjectWithTag("secundarycamera");
+        secundaryCamera.transform.localPosition = new Vector3(newCameraPosition.z * -5f, newCameraPosition.z * -5f, newCameraPosition.z * 5f);
+        InitSecundaryCameraOrientation();
+    }
+    private void InitSecundaryCameraOrientation()
+    {
+        GameObject secundaryCamera = GameObject.FindGameObjectWithTag("secundarycamera");
+        secundaryCamera.transform.LookAt(modelBoundingBox.center);
+
+        //Reorient the camera: fix the orientation of the camera to orientate it parallel to the orbit plane
+        Vector3 rotation = new Vector3();
+        if (mainAxis == TMainAxis.Vertical)
+        {
+            rotation = new Vector3(secundaryCamera.transform.localEulerAngles.x, secundaryCamera.transform.localEulerAngles.y, -90);
+        }
+        else
+        {
+            rotation = new Vector3(secundaryCamera.transform.localEulerAngles.x, secundaryCamera.transform.localEulerAngles.y, 0);
+        }
+        secundaryCamera.transform.localEulerAngles = rotation;
+    }
 
     /// <summary>Moves the navigation plane</summary>
     /// <param name="newPlanePosition">New plane position</param>
@@ -572,6 +638,8 @@ public class NavigationManager : MonoBehaviour {
 
             // Reorient HELPER camera
             hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().SetCamaraOrientationHelper(pointToLookWorld);
+
+            this.InitSecundaryCameraOrientation();
         }
     }
 

@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum TNavigationSystem { Spherical, LimitedSpherical, Elliptical }
+public enum TNavigationSystemMode { Spherical, LimitedSpherical, Spheroid, Ellipsoid }
+public enum TInteractionMappingCorrectionMode { none, ellipsePerimeter, distance}
 public enum TMouseMapping { standard, inverse }
+
 public class ConfigurationManager : MonoBehaviour
 {    
     private bool UIEnabled;                     // UI enable or not    
@@ -19,7 +21,10 @@ public class ConfigurationManager : MonoBehaviour
 
     private bool navigationEnabled;             // This control if the navigation is On or not
     private bool navigationZoomEnabled;         // This control if the navigation Zoom is On or not
-    private TNavigationSystem navigationSystem; // This control the navigation system that is going to be used
+    private TNavigationSystemMode navigationSystem; // This control the navigation system that is going to be used
+
+    private TInteractionMappingCorrectionMode latitudeInteractionCorrectionFactorMode;     // This control if the correction factor of the latitude interaction is activated or not
+    private TInteractionMappingCorrectionMode longitudeInteractionCorrectionFactorMode;    // This control if the correction factor of the lontigude interaction is activated or not
 
     private bool labelEditionEnabled;           // This control if the labels can be edit or not
 
@@ -45,7 +50,10 @@ public class ConfigurationManager : MonoBehaviour
 
         navigationEnabled           = false;
         navigationZoomEnabled       = true;
-        navigationSystem            = TNavigationSystem.Spherical;
+        navigationSystem            = TNavigationSystemMode.Ellipsoid;
+
+        latitudeInteractionCorrectionFactorMode      = TInteractionMappingCorrectionMode.distance;
+        longitudeInteractionCorrectionFactorMode     = TInteractionMappingCorrectionMode.distance;
 
         labelEditionEnabled         = true;
 
@@ -254,6 +262,64 @@ public class ConfigurationManager : MonoBehaviour
     public bool GetActiveNavigationZoom()
     {
         return navigationZoomEnabled;
+    }
+
+    /// <summary>
+    /// Set if the navigation mode  
+    /// </summary>    
+    public void SetNavigationSystemMode(TNavigationSystemMode _navigationSystem)
+    {
+        navigationSystem = _navigationSystem;
+        this.SendUpdateEvent();
+    }
+
+    /// <summary>
+    /// Get if the navigation mode activated 
+    /// </summary>
+    /// <returns>The activated navigation mode</returns>
+    public TNavigationSystemMode GetActiveNavigationSystemMode()
+    {
+        return navigationSystem;
+    }
+
+    /////////////////////////////////
+    // Iteraction Correction Factors
+    /////////////////////////////////
+
+    // <summary>
+    /// Set if the correction factor of the latitude interaction is activated or not. 
+    /// </summary>
+    /// <param name="_enabled">true activate the latitude interaction correction factor</param>
+    public void SetModeLatitudeInteractionCorrectionFactor(TInteractionMappingCorrectionMode _mode)
+    {
+        latitudeInteractionCorrectionFactorMode = _mode;
+        this.SendUpdateEvent();
+    }
+    /// <summary>
+    /// Get if the correction factor of the latitude interaction is activated or not. 
+    /// </summary>
+    /// <returns>True activate the latitude interaction correction factor is activated</returns>
+    public TInteractionMappingCorrectionMode GetLatitudeInteractionCorrectionMode()
+    {
+        return latitudeInteractionCorrectionFactorMode;
+    }
+
+    /// <summary>
+    /// Set if the correction factor of the lontigude interaction is activated or not. 
+    /// </summary>
+    /// <param name="_enabled">true activate the longitude interaction correction factor</param>
+    public void SetModeLongitudeInteractionCorrectionFactor(TInteractionMappingCorrectionMode _mode)
+    {
+        longitudeInteractionCorrectionFactorMode = _mode;
+        this.SendUpdateEvent();
+    }
+    /// <summary>
+    /// Get if the correction factor of the lontigude interaction is activated or not. 
+    /// </summary>
+    /// <returns>True activate the longitude interaction correction factor is activated</returns>
+    public TInteractionMappingCorrectionMode GetLongitudeInteractionCorrectionMode()
+    {
+        return longitudeInteractionCorrectionFactorMode;
     }
 
 

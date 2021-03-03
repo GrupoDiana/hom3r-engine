@@ -35,7 +35,7 @@ public enum TConfigurationCommands
     ActivateUIHierarchyPanel, ActivateUIOcclusionPanel,
     ActiveUISelection, ActiveUIAutomaticSelection,
     ActiveTouchInteration, ActiveMouseInteration,    
-    ActiveNavigation, ActiveNavigationZoom,
+    ActiveNavigation, ActiveNavigationZoom, SetNavigationLatitudeCorrectioFactorMode, SetNavigationLongitudeCorrectioFactorMode, SetNavigationSystemMode,
     ActiveLabelEdition,
     ActiveExplosion,
     SetMouseMapping
@@ -47,6 +47,8 @@ public class CConfigurationCommandData
     public TConfigurationCommands command;
     public bool activate;
     public TMouseMapping mouseMapping;
+    public TNavigationSystemMode navigationSystem;
+    public TInteractionMappingCorrectionMode interactionMappingCorrectionMode;
 
 
     public CConfigurationCommandData(TConfigurationCommands _command)
@@ -79,6 +81,17 @@ public class CConfigurationCommand : CCoreCommand
     {
         data = new CConfigurationCommandData(_command);
         data.mouseMapping = _mouseMapping;
+    }
+
+    public CConfigurationCommand(TConfigurationCommands _command, TNavigationSystemMode _navigationSystem)
+    {
+        data = new CConfigurationCommandData(_command);
+        data.navigationSystem = _navigationSystem;
+    }
+    public CConfigurationCommand(TConfigurationCommands _command, TInteractionMappingCorrectionMode _interactionMappingCorrectionMode)
+    {
+        data = new CConfigurationCommandData(_command);
+        data.interactionMappingCorrectionMode = _interactionMappingCorrectionMode;
     }
     //////////////////
     //   Execute    //
@@ -124,6 +137,15 @@ public class CConfigurationCommand : CCoreCommand
                     break;
                 case TConfigurationCommands.ActiveExplosion:
                     hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetActiveExplosion(data.activate);
+                    break;
+                case TConfigurationCommands.SetNavigationLatitudeCorrectioFactorMode:
+                    hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetModeLatitudeInteractionCorrectionFactor(data.interactionMappingCorrectionMode);
+                    break;
+                case TConfigurationCommands.SetNavigationLongitudeCorrectioFactorMode:
+                    hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetModeLongitudeInteractionCorrectionFactor(data.interactionMappingCorrectionMode);
+                    break;
+                case TConfigurationCommands.SetNavigationSystemMode:
+                    hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetNavigationSystemMode(data.navigationSystem);
                     break;
                 default:
                     Debug.LogError("Error: This command " + data.command + " is not valid.");
