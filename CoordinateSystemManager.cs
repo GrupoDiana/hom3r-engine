@@ -189,11 +189,8 @@ public class CSphericalCoordinatesManager : CCoordinateSystemManager
     /// <param name="a">Axis mayor ellipse parameter</param>
     /// <param name="b">Axis minor ellipse parameter</param>
     private void DrawTranslationTrajectory(float a, float b)
-    {
-        if (hom3r.state.platform == THom3rPlatform.Editor)
-        {
-            hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawTranslationEllipse(a, b);
-        }        
+    {        
+            hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawTranslationEllipse(a, b);               
     }
 
     /// <summary>
@@ -709,27 +706,21 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
     /// <summary>Draw the translation trajectory, just for support in the editor</summary>
     private void DrawTranslationTrajectory(CEllipseData currentEllipse)
     {
-        if (hom3r.state.platform == THom3rPlatform.Editor)
+        if (geometryType == TGeometryType.Prolate)
         {
-            if (geometryType == TGeometryType.Prolate)
-            {
-                hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawTranslationEllipse(currentEllipse.a, currentEllipse.b);                
-            }
-            else
-            {
-                hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawTranslationEllipse(currentEllipse.b, currentEllipse.a);
-            }
+            hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawTranslationEllipse(currentEllipse.a, currentEllipse.b);                
+        }
+        else
+        {
+            hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawTranslationEllipse(currentEllipse.b, currentEllipse.a);
         }
     }
 
     /// <summary>Draw the translation trajectory, just for support in the editor</summary>
     private void DrawRotationTrajectory(Vector3 _cameraPlanePosition)
-    {        
-        if (hom3r.state.platform == THom3rPlatform.Editor)
-        {
-            float radio = _cameraPlanePosition.magnitude;
-            hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawRotationEllipse(_cameraPlanePosition.z, _cameraPlanePosition.z, _cameraPlanePosition.x);            
-        }
+    {               
+        float radio = _cameraPlanePosition.magnitude;
+        hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawRotationEllipse(_cameraPlanePosition.z, _cameraPlanePosition.z, _cameraPlanePosition.x);                    
     }
 
     /// <summary>
@@ -737,29 +728,26 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
     /// </summary>
     private void DrawReferenceEllipses(CEllipseData currentEllipse)
     {
-        if (hom3r.state.platform == THom3rPlatform.Editor)
+        float xRadious;
+        float zRadious;
+        float yRadious;
+
+        if (geometryType == TGeometryType.Prolate)
         {
-            float xRadious;
-            float zRadious;
-            float yRadious;
+            zRadious = currentEllipse.b;
+            xRadious = currentEllipse.a;
 
-            if (geometryType == TGeometryType.Prolate)
-            {
-                zRadious = currentEllipse.b;
-                xRadious = currentEllipse.a;
-
-            }
-            else
-            {
-                xRadious = currentEllipse.b;
-                zRadious = currentEllipse.a;
-            }
-
-            yRadious = zRadious;
-
-            hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawHorizontalFrameworkEllipse(xRadious, zRadious);
-            hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawVerticalFrameworkEllipse(xRadious, yRadious);
         }
+        else
+        {
+            xRadious = currentEllipse.b;
+            zRadious = currentEllipse.a;
+        }
+
+        yRadious = zRadious;
+
+        hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawHorizontalFrameworkEllipse(xRadious, zRadious);
+        hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawVerticalFrameworkEllipse(xRadious, yRadious);        
     }
 
     private float Calculate_t_Variation(float _latitudeVariation, float fieldOfViewX)
@@ -2083,11 +2071,8 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
 
     /// <summary>Draw the ellipse that the camera follows as a trajectory in its translational movements in the plane.</summary>
     private void DrawTranslationTrajectory()
-    {
-        if (hom3r.state.platform == THom3rPlatform.Editor)
-        {
-            hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawTranslationEllipse(movementEllipses.translation.radiousXAxis, movementEllipses.translation.radiousZAxis);
-        }
+    {        
+        hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawTranslationEllipse(movementEllipses.translation.radiousXAxis, movementEllipses.translation.radiousZAxis);        
     }
 
     /// <summary>
@@ -2096,12 +2081,8 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
     /// <param name="_cameraPlanePosition"></param>
     private void DrawRotationTrajectory(Vector3 _cameraPlanePosition)
     {
-        if (hom3r.state.platform == THom3rPlatform.Editor)
-        {
-            float radio = _cameraPlanePosition.magnitude;
-
-            hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawRotationEllipse(movementEllipses.rotation.radiousZAxis, movementEllipses.rotation.radiousYAxis, _cameraPlanePosition.x);            
-        }
+        float radio = _cameraPlanePosition.magnitude;
+        hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawRotationEllipse(movementEllipses.rotation.radiousZAxis, movementEllipses.rotation.radiousYAxis, _cameraPlanePosition.x);            
     }
 
     /// <summary>
@@ -2109,10 +2090,7 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
     /// </summary>
     private void DrawReferenceEllipses()
     {
-        if (hom3r.state.platform == THom3rPlatform.Editor)
-        {
-            hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawHorizontalFrameworkEllipse(ellipsoidData.radiousXAxis, ellipsoidData.radiousZAxis);
-            hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawVerticalFrameworkEllipse(ellipsoidData.radiousXAxis, ellipsoidData.radiousYAxis);
-        }
+        hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawHorizontalFrameworkEllipse(ellipsoidData.radiousXAxis, ellipsoidData.radiousZAxis);
+        hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawVerticalFrameworkEllipse(ellipsoidData.radiousXAxis, ellipsoidData.radiousYAxis);
     }
 }

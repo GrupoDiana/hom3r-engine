@@ -7,87 +7,87 @@ public class NavigationHelper : MonoBehaviour {
     enum TPlanes { XZ, XY, YZ };
 
     int segments;
+
+    GameObject helperTranslationTrajectoryGO;    
+    GameObject helperCameraGO;
+    GameObject navigationAssistantsGO;
+    GameObject planeGO;
+
     LineRenderer lineTranslationEllipse;
     LineRenderer lineRotationEllipse;
     LineRenderer lineHorizontalFrameworkEllipse;
-    LineRenderer lineVerticalFrameworkEllipse;
-    GameObject helperCamera;
+    LineRenderer lineVerticalFrameworkEllipse;    
     LineRenderer helperCameraViewLine;
-    GameObject navigationAssistants;
-    GameObject plane;
 
+    bool activated;
     // Use this for initialization
-    void Awake () {
-
-        if (hom3r.state.platform == THom3rPlatform.Editor)
-        {                       
-            foreach (Transform child in transform)
+    void Awake ()
+    {
+        activated = false;
+        foreach (Transform child in transform)
+        {            
+            if (child.name == "HelperTranslationTrajectory")
             {
-                //if (child.name == "HelperRotationTrajectory")
-                //{
-                //    lineRotationEllipse = child.GetComponentInChildren<LineRenderer>();
-                //}
-                if (child.name == "HelperTranslationTrajectory")
-                {
-                    lineTranslationEllipse = child.GetComponentInChildren<LineRenderer>();
-                }
-                if (child.name == "HelperCamera")
-                {
-                    helperCamera = child.gameObject;
-                    helperCameraViewLine = child.GetComponentInChildren<LineRenderer>();
-                }
-                if (child.name == "Plane")
-                {
-                    plane = child.gameObject;
-                }
+                helperTranslationTrajectoryGO = child.gameObject;
+                lineTranslationEllipse = child.GetComponentInChildren<LineRenderer>();
             }
-
-            navigationAssistants = GameObject.Find("NavigationAssistants");
-            foreach (Transform child in navigationAssistants.transform)
+            if (child.name == "HelperCamera")
             {
-                if (child.name == "HelperRotationTrajectory")
-                {
-                    lineRotationEllipse = child.GetComponentInChildren<LineRenderer>();
-                }
-                if (child.name == "HelperFrameworkEllipseH")
-                {
-                    lineHorizontalFrameworkEllipse = child.GetComponentInChildren<LineRenderer>();
-                }
-                if (child.name == "HelperFrameworkEllipseV")
-                {
-                    lineVerticalFrameworkEllipse = child.GetComponentInChildren<LineRenderer>();
-                }
+                helperCameraGO = child.gameObject;
+                helperCameraViewLine = child.GetComponentInChildren<LineRenderer>();
             }
+            if (child.name == "Plane")
+            {
+                planeGO = child.gameObject;
+            }
+        }
 
+        navigationAssistantsGO = GameObject.Find("NavigationAssistants");
+        foreach (Transform child in navigationAssistantsGO.transform)
+        {
+            if (child.name == "HelperRotationTrajectory")
+            {                
+                lineRotationEllipse = child.GetComponentInChildren<LineRenderer>();
+            }
+            if (child.name == "HelperFrameworkEllipseH")
+            {
+                lineHorizontalFrameworkEllipse = child.GetComponentInChildren<LineRenderer>();
+            }
+            if (child.name == "HelperFrameworkEllipseV")
+            {
+                lineVerticalFrameworkEllipse = child.GetComponentInChildren<LineRenderer>();
+            }
+        }
 
-            segments = 3600;
+        segments = 3600;
+        if (hom3r.state.platform == THom3rPlatform.Editor || hom3r.state.platform == THom3rPlatform.Windows) { SetActivatedNavigationHelper(true); }
+        else { SetActivatedNavigationHelper(false); } 
+    }
+
+    public void SetActivatedNavigationHelper(bool _activated)
+    {
+        if (_activated && activated) { return; }
+        activated = _activated;
+        if (_activated)
+        {
+            helperTranslationTrajectoryGO.SetActive(true);
+            helperCameraGO.SetActive(true);
+            planeGO.SetActive(true);
+            navigationAssistantsGO.SetActive(true);
+
             InitLineRenderer(lineTranslationEllipse, 1.2f, segments);
             InitLineRenderer(lineRotationEllipse, 1.2f, segments);
             InitLineRenderer(helperCameraViewLine, 1f, 1);
             InitLineRenderer(lineHorizontalFrameworkEllipse, 0.9f, segments);
             InitLineRenderer(lineVerticalFrameworkEllipse, 0.9f, segments);
-        
         }
         else
         {
-            foreach (Transform child in transform)
-            {
-                if (child.name == "HelperRotationTrajectory")
-                {
-                    child.gameObject.SetActive(false);
-                }
-                if (child.name == "HelperTranslationTrajectory")
-                {
-                    child.gameObject.SetActive(false);
-                }
-                if (child.name == "HelperCamera")
-                {
-                    child.gameObject.SetActive(false);
-                }
-                if (child.name == "HelperFrameworkEllipseH") { child.gameObject.SetActive(false); }
-                if (child.name == "HelperFrameworkEllipseV") { child.gameObject.SetActive(false); }
-            }
-        } 
+            helperTranslationTrajectoryGO.SetActive(false);
+            helperCameraGO.SetActive(false);
+            planeGO.SetActive(false);
+            navigationAssistantsGO.SetActive(false);
+        }
     }
 
     private void InitLineRenderer(LineRenderer lineRenderer, float widthMultiplier, int positions)
@@ -101,11 +101,12 @@ public class NavigationHelper : MonoBehaviour {
 
     public void InitNavigationAssistantsPosition(Vector3 position)
     {
-        navigationAssistants.transform.position = position;
+        navigationAssistantsGO.transform.position = position;
     }
 
     public void SetBiggerLines()
     {
+        if (!activated) { return; }
         lineTranslationEllipse.widthMultiplier += 0.1f;
         lineRotationEllipse.widthMultiplier += 0.1f;
         lineHorizontalFrameworkEllipse.widthMultiplier +=0.1f;
@@ -115,6 +116,7 @@ public class NavigationHelper : MonoBehaviour {
 
     public void SetSmallerLines()
     {
+        if (!activated) { return; }
         lineTranslationEllipse.widthMultiplier -=  0.1f;
         lineRotationEllipse.widthMultiplier -= 0.1f;
         lineHorizontalFrameworkEllipse.widthMultiplier -= 0.1f;
@@ -124,12 +126,14 @@ public class NavigationHelper : MonoBehaviour {
 
     public void SetBiggerCamera()
     {
-        helperCamera.transform.localScale = new Vector3 (helperCamera.transform.localScale.x + 0.2f, helperCamera.transform.localScale.y + 0.2f, helperCamera.transform.localScale.z + 0.2f);
+        if (!activated) { return; }
+        helperCameraGO.transform.localScale = new Vector3 (helperCameraGO.transform.localScale.x + 0.2f, helperCameraGO.transform.localScale.y + 0.2f, helperCameraGO.transform.localScale.z + 0.2f);
     }
 
     public void SetSmallerCamera()
     {
-        helperCamera.transform.localScale = new Vector3(helperCamera.transform.localScale.x - 0.2f, helperCamera.transform.localScale.y - 0.2f, helperCamera.transform.localScale.z - 0.2f);
+        if (!activated) { return; }
+        helperCameraGO.transform.localScale = new Vector3(helperCameraGO.transform.localScale.x - 0.2f, helperCameraGO.transform.localScale.y - 0.2f, helperCameraGO.transform.localScale.z - 0.2f);
     }
 
     ////////////////////////////////
@@ -143,7 +147,8 @@ public class NavigationHelper : MonoBehaviour {
     /// <param name="zRadius"></param>
     public void DrawTranslationEllipse(float xRadius, float zRadius)
     {
-        if (hom3r.state.platform == THom3rPlatform.Editor)
+        if (activated) 
+        //if (hom3r.state.platform == THom3rPlatform.Editor)
         {
             DrawEllipse(xRadius, zRadius, 0f, TPlanes.XZ, lineTranslationEllipse);
         }        
@@ -151,8 +156,8 @@ public class NavigationHelper : MonoBehaviour {
   
     public void DrawRotationEllipse(float zRadius, float yRadius, float offset)
     {
-        if (hom3r.state.platform == THom3rPlatform.Editor)
-
+        if (activated)
+        //    if (hom3r.state.platform == THom3rPlatform.Editor)
         {
             DrawEllipse(zRadius, yRadius, -offset, TPlanes.YZ, lineRotationEllipse);            
         }
@@ -160,8 +165,8 @@ public class NavigationHelper : MonoBehaviour {
 
     public void DrawHorizontalFrameworkEllipse(float xRadius, float zRadius)
     {
-        if (hom3r.state.platform == THom3rPlatform.Editor)
-
+        if (activated)
+        //if (hom3r.state.platform == THom3rPlatform.Editor)
         {
             DrawEllipse(xRadius, zRadius, 0f, TPlanes.XZ, lineHorizontalFrameworkEllipse);
         }
@@ -169,7 +174,8 @@ public class NavigationHelper : MonoBehaviour {
 
     public void DrawVerticalFrameworkEllipse(float xRadius, float yRadius)
     {
-        if (hom3r.state.platform == THom3rPlatform.Editor)
+        if (activated)
+        //   if (hom3r.state.platform == THom3rPlatform.Editor)
         {
             DrawEllipse(xRadius, yRadius, 0f, TPlanes.XY, lineVerticalFrameworkEllipse);
         }
@@ -177,19 +183,21 @@ public class NavigationHelper : MonoBehaviour {
 
     public void MoveCameraHelper(Vector3 cameraPosition)
     {
-        if (hom3r.state.platform == THom3rPlatform.Editor)
+        if (activated)
+            //if (hom3r.state.platform == THom3rPlatform.Editor)
         {
             // Move Camera
-            helperCamera.transform.localPosition = cameraPosition;            
+            helperCameraGO.transform.localPosition = cameraPosition;            
         }        
     }
 
-    public void SetCamaraOrientationHelper(Vector3 pointToLookWorld)
+    public void SetCameraOrientationHelper(Vector3 pointToLookWorld)
     {
-        if (hom3r.state.platform == THom3rPlatform.Editor)
+        if (activated)
+            //if (hom3r.state.platform == THom3rPlatform.Editor)
         {
             // Rotate Fake Camera
-            helperCamera.transform.localEulerAngles = Camera.main.transform.localEulerAngles;
+            helperCameraGO.transform.localEulerAngles = Camera.main.transform.localEulerAngles;
 
 
             // Rotate Fake Camera
@@ -197,7 +205,7 @@ public class NavigationHelper : MonoBehaviour {
             
             // Draw look direction line            
             helperCameraViewLine.SetPosition(0, Vector3.zero);
-            Vector3 poinToLook_local = helperCamera.transform.InverseTransformPoint(pointToLookWorld);
+            Vector3 poinToLook_local = helperCameraGO.transform.InverseTransformPoint(pointToLookWorld);
             helperCameraViewLine.SetPosition(1, poinToLook_local);
         }
     }
@@ -249,9 +257,16 @@ public class NavigationHelper : MonoBehaviour {
 
     public void InitHelpPlaneSize(Bounds boundingBox)
     {
-        if (plane != null)
+        if (!activated) { return; }
+        if (planeGO != null)
         {
-            plane.transform.localScale = new Vector3(boundingBox.extents.x * .5f, 1, boundingBox.extents.z * .5f);
+            planeGO.transform.localScale = new Vector3(boundingBox.extents.x * .5f, 1, boundingBox.extents.z * .5f);
         }      
+    }
+
+    public void InitNavigationHelperRotation(Vector3 rotationEulerAngles)
+    {
+        if (!activated) { return; }
+        navigationAssistantsGO.transform.eulerAngles = rotationEulerAngles;
     }
 }

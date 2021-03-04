@@ -110,8 +110,7 @@ public class NavigationManager : MonoBehaviour {
         Debug.Log("Init Navigation");
 
         TMainAxis newMainAxis = ParseMainAxis(newMainAxis_text);    // Parse input main Axis
-        SetNavigationAxis(newMainAxis);                             // Change main axis            
-        //hom3r.quickLinks.scriptsObject.GetComponent<IOManager>().IOGetProductModel();       //TODO DELETE ME
+        SetNavigationAxis(newMainAxis);                             // Change main axis                    
         this.modelBoundingBox = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().Get3DModelBoundingBox(true); //Get model bounding box        
         if (this.modelBoundingBox.size == Vector3.zero) { return; }
         InitOrbitPlanePosition();                                   // Initialize Orbit Plane position
@@ -180,10 +179,12 @@ public class NavigationManager : MonoBehaviour {
         if ( mainAxis == TMainAxis.Horizontal)
         {
             this.transform.eulerAngles = new Vector3(0, 0, 0);  //Initialize orbit plane orientation for horizontal orientation
+            hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationHelper>().InitNavigationHelperRotation(new Vector3(0, 0, 180));
         }
         else if(mainAxis == TMainAxis.Vertical)
         {            
             this.transform.eulerAngles = new Vector3(0, 0, 90); //Initialize orbit plane orientation for vertical orientation
+            hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationHelper>().InitNavigationHelperRotation(new Vector3(0, 0, -90));
         }
         else
         {
@@ -553,7 +554,19 @@ public class NavigationManager : MonoBehaviour {
     private void InitSecundaryCameraPosition(Vector3 newCameraPosition)
     {
         GameObject secundaryCamera = GameObject.FindGameObjectWithTag("secundarycamera");
-        secundaryCamera.transform.localPosition = new Vector3(newCameraPosition.z * -5f, newCameraPosition.z * -5f, newCameraPosition.z * 5f);
+
+        Vector3 current = new Vector3(newCameraPosition.z * -5f, newCameraPosition.z * -5f, newCameraPosition.z * 5f);
+        //float distance = Vector3.Distance(newCameraPosition, modelBoundingBox.center);        
+        float distance = Mathf.Abs(newCameraPosition.z - modelBoundingBox.extents.z);
+        Vector3 direction = newCameraPosition.normalized;
+        direction.x = 1f;
+        direction.y = 1f;
+        direction.z = -1f;
+        Vector3 temp = newCameraPosition + 3f * distance * direction;
+
+
+        //secundaryCamera.transform.localPosition = new Vector3(newCameraPosition.z * -5f, newCameraPosition.z * -5f, newCameraPosition.z * 5f);
+        secundaryCamera.transform.localPosition = temp;
         InitSecundaryCameraOrientation();
     }
     private void InitSecundaryCameraOrientation()
@@ -562,16 +575,16 @@ public class NavigationManager : MonoBehaviour {
         secundaryCamera.transform.LookAt(modelBoundingBox.center);
 
         //Reorient the camera: fix the orientation of the camera to orientate it parallel to the orbit plane
-        Vector3 rotation = new Vector3();
-        if (mainAxis == TMainAxis.Vertical)
-        {
-            rotation = new Vector3(secundaryCamera.transform.localEulerAngles.x, secundaryCamera.transform.localEulerAngles.y, -90);
-        }
-        else
-        {
-            rotation = new Vector3(secundaryCamera.transform.localEulerAngles.x, secundaryCamera.transform.localEulerAngles.y, 0);
-        }
-        secundaryCamera.transform.localEulerAngles = rotation;
+        //Vector3 rotation = new Vector3();
+        //if (mainAxis == TMainAxis.Vertical)
+        //{
+        //    rotation = new Vector3(secundaryCamera.transform.localEulerAngles.x, secundaryCamera.transform.localEulerAngles.y, -90);
+        //}
+        //else
+        //{
+        //    rotation = new Vector3(secundaryCamera.transform.localEulerAngles.x, secundaryCamera.transform.localEulerAngles.y, 0);
+        //}
+        //secundaryCamera.transform.localEulerAngles = rotation;
     }
 
     /// <summary>Moves the navigation plane</summary>
@@ -637,9 +650,9 @@ public class NavigationManager : MonoBehaviour {
             Camera.main.transform.localEulerAngles = rotation;
 
             // Reorient HELPER camera
-            hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().SetCamaraOrientationHelper(pointToLookWorld);
+            hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().SetCameraOrientationHelper(pointToLookWorld);
 
-            this.InitSecundaryCameraOrientation();
+            //this.InitSecundaryCameraOrientation();
         }
     }
 
