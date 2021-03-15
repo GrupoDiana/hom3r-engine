@@ -89,7 +89,7 @@ public class CNavigationCommand : CCoreCommand
                     hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().StopNavigation();
                     break;
                 case TNavigationCommands.MouseMovement:                        
-                    hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().SetMouseMovement(data.mouseX, data.mouseY, data.mouseWheel);
+                    hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().SetMouseMovement(data.mouseX, data.mouseY, data.mouseX, data.mouseY, data.mouseWheel);
                     break;
                 default:
                     Debug.LogError("Error: This command " + data.commandEvent + " is not valid.");

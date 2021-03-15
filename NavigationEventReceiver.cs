@@ -29,7 +29,7 @@ public class NavigationEventReceiver : MonoBehaviour {
             switch (_event.data.commandEvent)
             {
                 case TCoreEvent.MouseManager_LeftButtonDragMovement:
-                    hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().SetMouseMovement(_event.data.mouseDragMovementX, _event.data.mouseDragMovementY, 0.0f);
+                    hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().SetMouseMovement(_event.data.mouseDragMovementX, _event.data.mouseDragMovementY, _event.data.mouseDragMovementXPercentage, _event.data.mouseDragMovementYPercentage, 0.0f);
                     break;
                 case TCoreEvent.MouseManager_CentralButtonDown:
                     hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().SetActivePanNavitagion(true);
@@ -50,23 +50,21 @@ public class NavigationEventReceiver : MonoBehaviour {
                     hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().SetActivePanNavitagion(false);
                     break;
                 case TCoreEvent.MouseManager_WheelMovement:
-                    hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().SetMouseMovement(0.0f, 0.0f, _event.data.mouseWhellMovement);
+                    hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().SetMouseMovement(0.0f, 0.0f, 0.0f, 0.0f, _event.data.mouseWhellMovement);
                     break;
                 case TCoreEvent.MouseManager_CentralButtonDragMovement:
-                    hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().SetMouseMovement(_event.data.mouseDragMovementX, _event.data.mouseDragMovementY, 0.0f);
+                    hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().SetMouseMovement(_event.data.mouseDragMovementX, _event.data.mouseDragMovementY, _event.data.mouseDragMovementXPercentage, _event.data.mouseDragMovementYPercentage, 0.0f);
                     break;
                 case TCoreEvent.TouchManager_TwoFingerDragMovement:
-                    hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().SetMouseMovement(_event.data.mouseDragMovementX, _event.data.mouseDragMovementY, 0.0f);
+                    hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().SetMouseMovement(_event.data.mouseDragMovementX, _event.data.mouseDragMovementY, _event.data.mouseDragMovementXPercentage, _event.data.mouseDragMovementYPercentage, 0.0f);
                     break;
                 case TCoreEvent.TouchManager_ThreeFingerDragMovement:
-                    hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().SetMouseMovement(_event.data.mouseDragMovementX, _event.data.mouseDragMovementY, 0.0f);
+                    hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().SetMouseMovement(_event.data.mouseDragMovementX, _event.data.mouseDragMovementY, _event.data.mouseDragMovementXPercentage, _event.data.mouseDragMovementYPercentage, 0.0f);
                     break;
                 case TCoreEvent.ModelManagement_3DLoadSuccess:                    
                     hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().InitNavigation(_event.data.text);
                     break;                
-                case TCoreEvent.ModelManagement_ModelReset_Success:
-                    //hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().InitNavigation(_event.data.text);
-                    //hom3r.coreLink.Do(new CNavigationCommand(TNavigationCommands.StopNavigation));
+                case TCoreEvent.ModelManagement_ModelReset_Success:                    
                     hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().StopNavigation();
                     break;
                 case TCoreEvent.ModelManagement_NavigationAxisChange_Success:
@@ -89,6 +87,9 @@ public class NavigationEventReceiver : MonoBehaviour {
                     break;
                 case TCoreEvent.ModelManagement_FileDownloadEnd:
                     hom3r.state.navigationBlocked = false;
+                    break;
+                case TCoreEvent.ConfigurationManager_ConfigurationUpdated:
+                    hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().CheckConfigurationUpdated();
                     break;
                 default:
                     break;

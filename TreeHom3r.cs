@@ -11,20 +11,20 @@ public delegate void TreeNodeAction<T>(T nodeData);
 
 public delegate void TreeNodeDo<T> (T source, T target);
 
-public delegate void TreeAction<T>(Tree<T> subtree);
+public delegate void TreeAction<T>(TreeHom3r<T> subtree);
 
-public class Tree<T>
+public class TreeHom3r<T>
 {
 	private T data;
 	//private LinkedList<Tree<T>> children; // Use linkedlist if you want faster insert. we rather prefer faster access by index
-	private List<Tree<T>> children;
-	private Tree<T> parent;
+	private List<TreeHom3r<T>> children;
+	private TreeHom3r<T> parent;
 
 //*****************************   
-	public Tree(T ndata)
+	public TreeHom3r(T ndata)
 	{
 		data = ndata;
-		children = new List<Tree<T>>();
+		children = new List<TreeHom3r<T>>();
 		parent = null;
 	}
 
@@ -33,7 +33,7 @@ public class Tree<T>
 	public void AddChild(T data)
 	{
 		//children.AddFirst(new Tree<T>(data)); // With linked list
-		Tree<T> child = new Tree<T>(data);
+		TreeHom3r<T> child = new TreeHom3r<T>(data);
 		child.parent = this;
 		children.Add(child); 
 	}
@@ -45,7 +45,7 @@ public class Tree<T>
 
 	//*****************************
 
-	public Tree<T> GetChild(int i)
+	public TreeHom3r<T> GetChild(int i)
 	{
 		// Linked list:
 		//foreach (Tree<T> n in children)
@@ -78,82 +78,82 @@ public class Tree<T>
 	
 	//*****************************
 
-	public Tree<T> GetParent()
+	public TreeHom3r<T> GetParent()
 	{
 		return parent;
 	}
 
 	//*****************************
 
-	public void DoIf(Tree<T> node, TreeNodeCompare<T> comparer, T otherData, TreeNodeAction<T> action)
+	public void DoIf(TreeHom3r<T> node, TreeNodeCompare<T> comparer, T otherData, TreeNodeAction<T> action)
 	{
 		bool comparison = comparer (node.data, otherData);
 		if (comparison) 
 		{
 			action(node.data);
-			foreach (Tree<T> kid in node.children)
+			foreach (TreeHom3r<T> kid in node.children)
 				//DoIf (node, comparer, kid.GetData(), action);
 				DoIf (kid, comparer, otherData, action);
 		} 
 		else 
 		{
-			foreach (Tree<T> kid in node.children)
+			foreach (TreeHom3r<T> kid in node.children)
 				DoIf (kid, comparer, otherData, action);
 		}
 	}
 
 	//*****************************
 
-	public void DoIf(Tree<T> node, TreeNodeCompare<T> comparer, T otherData, TreeNodeDo<T> action)
+	public void DoIf(TreeHom3r<T> node, TreeNodeCompare<T> comparer, T otherData, TreeNodeDo<T> action)
 	{
 		bool comparison = comparer (node.data, otherData);
 		if (comparison) 
 		{
 			action(node.data, otherData);
-			foreach (Tree<T> kid in node.children)
+			foreach (TreeHom3r<T> kid in node.children)
 				//DoIf (node, comparer, kid.GetData(), action);
 				DoIf (kid, comparer, otherData, action);
 		} 
 		else 
 		{
-			foreach (Tree<T> kid in node.children)
+			foreach (TreeHom3r<T> kid in node.children)
 				DoIf (kid, comparer, otherData, action);
 		}
 	}
 	
 	//*****************************
 
-	public void DoIf(Tree<T> node, TreeNodeCondition<T> condition, TreeNodeAction<T> action)
+	public void DoIf(TreeHom3r<T> node, TreeNodeCondition<T> condition, TreeNodeAction<T> action)
 	{
 		bool meetsCondition = condition (node.data);
 		if (meetsCondition) 
 		{
 			action(node.data);
-			foreach (Tree<T> kid in node.children)
+			foreach (TreeHom3r<T> kid in node.children)
 				DoIf (kid, condition, action);
 		} 
 		else 
 		{
-			foreach (Tree<T> kid in node.children)
+			foreach (TreeHom3r<T> kid in node.children)
 				DoIf (kid, condition, action);
 		}
 	}
 	
 	//*****************************
 
-	public void DoIf(Tree<T> node, TreeNodeCompare<T> comparer, T otherData, TreeAction<T> action)
+	public void DoIf(TreeHom3r<T> node, TreeNodeCompare<T> comparer, T otherData, TreeAction<T> action)
 	{
 		bool comparison = comparer (node.data, otherData);
 		if (comparison) 
 		{
 			action(node);
-			foreach (Tree<T> kid in node.children)
+			foreach (TreeHom3r<T> kid in node.children)
 				//DoIf (node, comparer, kid.GetData(), action);
 				DoIf (kid, comparer, otherData, action);
 		} 
 		else 
 		{
-			foreach (Tree<T> kid in node.children)
+			foreach (TreeHom3r<T> kid in node.children)
 				DoIf (kid, comparer, otherData, action);
 		}
 	}
@@ -161,9 +161,9 @@ public class Tree<T>
 	//*****************************
 
 	// Do something only to direct children (not recursive), if a condition is met between the parent and each child
-	public void DoIfParentToChildren(Tree<T> parent, TreeNodeCompare<T> comparer, TreeAction<T> action)
+	public void DoIfParentToChildren(TreeHom3r<T> parent, TreeNodeCompare<T> comparer, TreeAction<T> action)
 	{
-		foreach (Tree<T> kid in parent.children) 
+		foreach (TreeHom3r<T> kid in parent.children) 
 		{
 			if (comparer (parent.data, kid.data))
 				action(kid);
@@ -173,9 +173,9 @@ public class Tree<T>
 	//*****************************
 
 	// Do something only to direct children (not recursive), if a condition is met for each child
-	public void DoIfToChildren(Tree<T> parent, TreeNodeCondition<T> condition, TreeAction<T> action)
+	public void DoIfToChildren(TreeHom3r<T> parent, TreeNodeCondition<T> condition, TreeAction<T> action)
 	{
-		foreach (Tree<T> kid in parent.children) 
+		foreach (TreeHom3r<T> kid in parent.children) 
 		{
 			if (condition (kid.data))
 				action(kid);
@@ -185,9 +185,9 @@ public class Tree<T>
 	//*****************************
 
 	// Do something only to direct children (not recursive)
-	public void DoToChildren(Tree<T> parent, TreeAction<T> action)
+	public void DoToChildren(TreeHom3r<T> parent, TreeAction<T> action)
 	{
-		foreach (Tree<T> kid in parent.children) 
+		foreach (TreeHom3r<T> kid in parent.children) 
 		{
 			action(kid);
 		}
@@ -195,23 +195,23 @@ public class Tree<T>
 	
 	//*****************************
 
-	public void DoIf(Tree<T> node, TreeNodeCondition<T> condition, TreeAction<T> action)
+	public void DoIf(TreeHom3r<T> node, TreeNodeCondition<T> condition, TreeAction<T> action)
 	{
 		bool meetsCondition = condition (node.data);
 		if (meetsCondition) 
 			action(node);
 
-		foreach (Tree<T> kid in node.children)
+		foreach (TreeHom3r<T> kid in node.children)
 				DoIf (kid, condition, action);
 	}
 	
 	//*****************************
 
-	public void Do(Tree<T> node, TreeNodeAction<T> action)
+	public void Do(TreeHom3r<T> node, TreeNodeAction<T> action)
 	{
 		action (node.data);
 
-		foreach (Tree<T> kid in node.children)
+		foreach (TreeHom3r<T> kid in node.children)
 			Do (kid, action);
 	}
 	
@@ -239,7 +239,7 @@ public class Tree<T>
 //	
 	//*****************************
 
-	public Tree<T> GetIf(Tree<T> node, TreeNodeCompare<T> comparer, T otherData)
+	public TreeHom3r<T> GetIf(TreeHom3r<T> node, TreeNodeCompare<T> comparer, T otherData)
 	{
 		bool comparison = comparer (node.data, otherData);
 		if (comparison) 
@@ -248,9 +248,9 @@ public class Tree<T>
 		} 
 		else 
 		{
-			foreach (Tree<T> kid in node.children)
+			foreach (TreeHom3r<T> kid in node.children)
 			{
-				Tree<T> kidResult = GetIf (kid, comparer, otherData);
+				TreeHom3r<T> kidResult = GetIf (kid, comparer, otherData);
 				if (kidResult != null)
 					return kidResult;
 			}
@@ -261,7 +261,7 @@ public class Tree<T>
 	
 	//*****************************
     
-	public bool MeetsCondition(Tree<T> node, TreeNodeCondition<T> visitor)
+	public bool MeetsCondition(TreeHom3r<T> node, TreeNodeCondition<T> visitor)
 	{
 		bool condition = visitor (node.data);
 		if (condition) 
@@ -270,7 +270,7 @@ public class Tree<T>
 		} 
 		else 
 		{
-			foreach (Tree<T> kid in node.children)
+			foreach (TreeHom3r<T> kid in node.children)
 			{
 				bool kidResult = MeetsCondition (kid, visitor);
 				if (kidResult)
