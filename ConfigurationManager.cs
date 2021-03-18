@@ -11,6 +11,7 @@ public class ConfigurationManager : MonoBehaviour
     private bool UIEnabled;                     // UI enable or not    
     private bool UIHierarchyPanelEnabled;       // UI Hierarchy panel enable or not
     private bool UIOcclusionPanelEnabled;       // UI Occlusion panel enable or not
+    private bool UISettingsPanelEnabled;
 
     private bool uiSelectionEnabled;            // Selection by the UI enabled or not
     private bool uiAutomaticSelectionEnabled;   // This controlled what happens when the user click over a object
@@ -38,6 +39,8 @@ public class ConfigurationManager : MonoBehaviour
         UIEnabled                   = true;     // Initially the UI is activated
         UIHierarchyPanelEnabled     = true;     // Initially the UI Hierarchy panel is activated
         UIOcclusionPanelEnabled     = true;     // Initially the UI Occlusion panel is activated
+        UISettingsPanelEnabled      = true;
+        
         explosionEnabled            = true;        
 
         uiSelectionEnabled          = true;     // Initially the selection from UI is activated
@@ -123,6 +126,27 @@ public class ConfigurationManager : MonoBehaviour
         UIOcclusionPanelEnabled = _enabled;
         this.SendUpdateEvent();
     }
+
+
+    /// <summary>
+    /// Get if the UI is visible or not. NOT WORKING YET
+    /// </summary>
+    /// <returns>True if the UI is activated</returns>
+    public bool GetActiveUISettingsPanel()
+    {
+        return UISettingsPanelEnabled;
+    }
+
+    /// <summary>
+    /// Set if the UI is visible or not. NOT WORKING YET
+    /// </summary>
+    /// <param name="_enabled">true UI is visible</param>
+    public void SetActiveUISettingsPanel(bool _enabled)
+    {
+        UISettingsPanelEnabled = _enabled;
+        this.SendUpdateEvent();
+    }
+
 
 
 

@@ -32,8 +32,8 @@ public class ConfigurationCommandReceiver : MonoBehaviour
 public enum TConfigurationCommands
 {
     ActiveUI,
-    ActivateUIHierarchyPanel, ActivateUIOcclusionPanel,
-    ActiveUISelection, ActiveUIAutomaticSelection,
+    ActivateUIHierarchyPanel, ActivateUIOcclusionPanel, ActivateUISettingsPanel,
+    ActiveUISelection, ActiveUIAutomaticSelection,    
     ActiveTouchInteration, ActiveMouseInteration,    
     ActiveNavigation, ActiveNavigationZoom, SetNavigationLatitudeCorrectioFactorMode, SetNavigationLongitudeCorrectioFactorMode, SetNavigationSystemMode,
     ActiveLabelEdition,
@@ -110,6 +110,9 @@ public class CConfigurationCommand : CCoreCommand
                     break;
                 case TConfigurationCommands.ActivateUIOcclusionPanel:
                     hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetActiveUIOcclusionPanel(data.activate);
+                    break;
+                case TConfigurationCommands.ActivateUISettingsPanel:
+                    hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetActiveUISettingsPanel(data.activate);
                     break;
                 case TConfigurationCommands.ActiveUISelection:
                     hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetActiveUISelection(data.activate);
