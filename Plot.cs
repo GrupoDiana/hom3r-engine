@@ -7,6 +7,13 @@ public class CPlotLabelPosition
     public float x;
     public float y;
     public float z;
+
+    public CPlotLabelPosition(float _x, float _y, float _z)
+    {
+        this.x = _x;
+        this.y = _y;
+        this.z = _z;
+    }
 }
 
 [System.Serializable]
@@ -51,6 +58,27 @@ public class CPlotLabelData
         this.position = _position;
     }
 }
+
+[System.Serializable]
+public class CPlotViewfinderData
+{    
+    public CPlotLabelPosition position;
+    public float radious;
+
+    public CPlotViewfinderData() { }
+
+    public CPlotViewfinderData(CPlotLabelPosition _position, float _radious)
+    {
+        this.position = _position;
+        this.radious = _radious;
+    }
+    public CPlotViewfinderData(float _positionX, float _positionY, float _positionZ, float _radious)
+    {
+        position = new CPlotLabelPosition(_positionX, _positionY, _positionZ);        
+        this.radious = _radious;
+    }
+}
+
 [System.Serializable]
 public class CPlotTextData
 {
@@ -70,6 +98,7 @@ public class CPlotPoint
     public List<CPlotSelectedAreaData> selectedAreaList;
     public List<CPlotHiddenAreaData> hiddenAreaList;
     public List<CPlotLabelData> labelList;
+    public List<CPlotViewfinderData> viewfinderList;
 
     /*public CPlotPoint()
     {
