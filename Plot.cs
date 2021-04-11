@@ -61,18 +61,20 @@ public class CPlotLabelData
 
 [System.Serializable]
 public class CPlotViewfinderData
-{    
+{
+    public int id;
     public CPlotLabelPosition position;
     public float radious;
 
     public CPlotViewfinderData() { }
 
-    public CPlotViewfinderData(CPlotLabelPosition _position, float _radious)
+    public CPlotViewfinderData(int _id, CPlotLabelPosition _position, float _radious)
     {
+        this.id = _id;
         this.position = _position;
         this.radious = _radious;
     }
-    public CPlotViewfinderData(float _positionX, float _positionY, float _positionZ, float _radious)
+    public CPlotViewfinderData(int _id, float _positionX, float _positionY, float _positionZ, float _radious)
     {
         position = new CPlotLabelPosition(_positionX, _positionY, _positionZ);        
         this.radious = _radious;
