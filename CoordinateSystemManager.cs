@@ -80,7 +80,7 @@ public class CSphericalCoordinatesManager : CCoordinateSystemManager
         r = cameraInitialPosition.magnitude;                // radius of the circumference passing through that point 
         t = Mathf.Asin(cameraInitialPosition.z / r);        // t = ASin(z/r)
         t = MathHom3r.NormalizeAngleInRad(t);               // Normalize t angle between 0-2PI
-        this.DrawTranslationTrajectory(r, r);               // Draw the trajectory of the translation, for debug reasons
+       
         
         ////////////////////////////////
         // Initialize plane angle to 0
@@ -108,6 +108,13 @@ public class CSphericalCoordinatesManager : CCoordinateSystemManager
         //////////////////////////////////////////////////        
         pointToLook = CalculatePointToLook();
 
+        //////////////////////////////////////
+        // HELPER
+        //////////////////////////////////////
+        this.DrawTranslationTrajectory(r);               // Draw the trajectory of the translation, for debug reasons
+        DrawRotationTrajectory(cameraInitialPosition);
+        DrawReferenceEllipses(r);
+
 
         /////////////////////////////////////////////////////////////////
         //Check if the proposed initial position for the camera is OK
@@ -125,7 +132,7 @@ public class CSphericalCoordinatesManager : CCoordinateSystemManager
         
     }
 
-    public void CalculateCameraPosition(float pseudoLatitudeVariation, float pseudoLongitudeVariation, float pseudoRadio, Vector2 fieldOfView, out Vector3 cameraPlanePosition, out float planeRotation, out Vector3 pointToLook)
+    public void CalculateCameraPosition(float latitudeVariation, float longitudeVariation, float radialVariation, Vector2 fieldOfView, out Vector3 cameraPlanePosition, out float planeRotation, out Vector3 pointToLook)
     {
         cameraPlanePosition = Vector3.zero;
         planeRotation = 0.0f;
@@ -135,18 +142,17 @@ public class CSphericalCoordinatesManager : CCoordinateSystemManager
             /////////////////////////////////////////////////////////
             // Apply pseudoLatitude and pseudoLongitude correction
             /////////////////////////////////////////////////////////
-            pseudoLatitudeVariation = pseudoLatitudeVariation * CalculatePseudoLatitudeLongitudeCorrectionParameter(fieldOfView.x);             
-            pseudoLongitudeVariation = pseudoLongitudeVariation * CalculatePseudoLatitudeLongitudeCorrectionParameter(fieldOfView.y);
+            float tVariation = latitudeVariation * CalculatePseudoLatitudeLongitudeCorrectionParameter(fieldOfView.x);
+            float angleVariation = longitudeVariation * CalculatePseudoLatitudeLongitudeCorrectionParameter(fieldOfView.y);
 
             /////////////////////////////////////////////////////
             // Mapping of parameters - Translation parameters
             /////////////////////////////////////////////////////        
-            r += pseudoRadio;                                           // Circumference Radius
+            r += radialVariation;                                           // Circumference Radius
             if (Mathf.Abs(r) < minimunRadious) { r = minimunRadious; }  // We can not closer that minimum
-            this.DrawTranslationTrajectory(r, r);                       // Draw the trajectory of the translation, for debug reasons
-            
+                        
             // Latitude - which is a translation movement on the camera plane
-            t += pseudoLatitudeVariation;                    // Add to the current translation angle
+            t += tVariation;                    // Add to the current translation angle
             t = MathHom3r.NormalizeAngleInRad(t);   // Normalize new t angle 
 
             /////////////////////////////////////////////////////
@@ -154,9 +160,9 @@ public class CSphericalCoordinatesManager : CCoordinateSystemManager
             /////////////////////////////////////////////////////                
             if ((0 < t) && (t < Mathf.PI))
             {
-                pseudoLongitudeVariation = -pseudoLongitudeVariation;   // Depends of the camera position, to avoid that the mouse behaviour change between front and back
+                angleVariation = -angleVariation;   // Depends of the camera position, to avoid that the mouse behaviour change between front and back
             }
-            planeAngle = pseudoLongitudeVariation;
+            planeAngle = angleVariation;
 
             
             //////////////////////////////////////
@@ -175,7 +181,14 @@ public class CSphericalCoordinatesManager : CCoordinateSystemManager
             // Calculate the point which camera hast to look
             //////////////////////////////////////////////////        
             pointToLook = CalculatePointToLook();
-        }        
+
+            //////////////////////////////////////
+            // HELPER
+            //////////////////////////////////////            
+            this.DrawTranslationTrajectory(r);                       // Draw the trajectory of the translation, for debug reasons
+            DrawRotationTrajectory(cameraPlanePosition);
+            DrawReferenceEllipses(r);
+        }
     }
 
     /// <summary>Calculate the point which camera has to look</summary>
@@ -183,14 +196,6 @@ public class CSphericalCoordinatesManager : CCoordinateSystemManager
     private Vector3 CalculatePointToLook()
     {
         return Vector3.zero;
-    }
-
-    /// <summary>Draw the translation trajectory</summary>
-    /// <param name="a">Axis mayor ellipse parameter</param>
-    /// <param name="b">Axis minor ellipse parameter</param>
-    private void DrawTranslationTrajectory(float a, float b)
-    {        
-            hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawTranslationEllipse(a, b);               
     }
 
     /// <summary>
@@ -204,6 +209,39 @@ public class CSphericalCoordinatesManager : CCoordinateSystemManager
         float rMin = MathHom3r.Max(extents);     
         float k = 2* (r - rMin) * Mathf.Tan(fieldOfView_rad);        
         return k * (1/rMin) ;        
+    }
+
+
+    //////////////////////////////////////
+    // HELPER
+    //////////////////////////////////////
+
+    /// <summary>Draw the translation trajectory</summary>
+    /// <param name="a">Axis mayor ellipse parameter</param>
+    /// <param name="b">Axis minor ellipse parameter</param>
+    private void DrawTranslationTrajectory(float radious)
+    {
+        hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawTranslationEllipse(radious, radious);
+    }
+
+    /// <summary>Draw the translation trajectory, just for support in the editor</summary>
+    private void DrawRotationTrajectory(Vector3 _cameraPlanePosition)
+    {
+        float radio = _cameraPlanePosition.magnitude;
+        hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawRotationEllipse(_cameraPlanePosition.z, _cameraPlanePosition.z, _cameraPlanePosition.x);
+    }
+
+    /// <summary>
+    /// Draw a reference ellipses to help understand camera movements.
+    /// </summary>
+    private void DrawReferenceEllipses(float radious)
+    {
+        float xRadious = radious;
+        float zRadious = radious;
+        float yRadious = radious;
+       
+        hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawHorizontalFrameworkEllipse(xRadious, zRadious);
+        hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawVerticalFrameworkEllipse(xRadious, yRadious);
     }
 
 }
@@ -1828,9 +1866,9 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
         inscribedEllipseSemiAxes.b = axisOne > axisTwo ? axisTwo : axisOne;
 
 
-        Debug.Log("Inscribed Rotation Ellipse SemiAxes");
-        Debug.Log("extents.x: " + extents.x + " - extents.y: " + extents.y + " - extents.z: " + extents.z);
-        Debug.Log("a: " + inscribedEllipseSemiAxes.a + " b: " + inscribedEllipseSemiAxes.b);
+        //Debug.Log("Inscribed Rotation Ellipse SemiAxes");
+        //Debug.Log("extents.x: " + extents.x + " - extents.y: " + extents.y + " - extents.z: " + extents.z);
+        //Debug.Log("a: " + inscribedEllipseSemiAxes.a + " b: " + inscribedEllipseSemiAxes.b);
 
         return inscribedEllipseSemiAxes;
     }
