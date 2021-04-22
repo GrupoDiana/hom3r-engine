@@ -62,21 +62,24 @@ public class CPlotLabelData
 [System.Serializable]
 public class CPlotViewfinderData
 {
-    public string areaID;
+    public int id;
+    public string targetID;    
     public CPlotLabelPosition position;
     public float radious;
 
     public CPlotViewfinderData() { }
 
-    public CPlotViewfinderData(string _id, CPlotLabelPosition _position, float _radious)
+    public CPlotViewfinderData(int _id, string _targetId, CPlotLabelPosition _position, float _radious)
     {
-        this.areaID = _id;
+        this.targetID = _targetId;
+        this.id = _id;             
         this.position = _position;
         this.radious = _radious;
-    }
-    public CPlotViewfinderData(string _id, float _positionX, float _positionY, float _positionZ, float _radious)
+    }    
+    public CPlotViewfinderData(int _id, string _targetId, float _positionX, float _positionY, float _positionZ, float _radious)
     {
-        this.areaID = _id;
+        this.targetID = _targetId;
+        this.id = _id;
         position = new CPlotLabelPosition(_positionX, _positionY, _positionZ);        
         this.radious = _radious;
     }
@@ -96,7 +99,7 @@ public class CPlotTextData
 public class CPlotPoint
 {    
     public string productModelUrl;
-    public string plotUrl;
+    public string plotUrl;    
     public List<CPlotTextData> textList;
     public List<CPlotSelectedAreaData> selectedAreaList;
     public List<CPlotHiddenAreaData> hiddenAreaList;
@@ -125,6 +128,7 @@ public class CPlot
     public string title;
     public string description;
     public string type;
+    public string navigationSystem;
     public List<CPlotPoint> plotPointList;
 
     public CPlot() { plotPointList = new List<CPlotPoint>(); }
