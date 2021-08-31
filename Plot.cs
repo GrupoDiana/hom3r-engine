@@ -59,31 +59,31 @@ public class CPlotLabelData
     }
 }
 
-[System.Serializable]
-public class CPlotViewfinderData
-{
-    public int id;
-    public string targetID;    
-    public CPlotLabelPosition position;
-    public float radious;
+//[System.Serializable]
+//public class CPlotViewfinderData
+//{
+//    public int id;
+//    public string targetID;    
+//    public CPlotLabelPosition position;
+//    public float radious;
 
-    public CPlotViewfinderData() { }
+//    public CPlotViewfinderData() { }
 
-    public CPlotViewfinderData(int _id, string _targetId, CPlotLabelPosition _position, float _radious)
-    {
-        this.targetID = _targetId;
-        this.id = _id;             
-        this.position = _position;
-        this.radious = _radious;
-    }    
-    public CPlotViewfinderData(int _id, string _targetId, float _positionX, float _positionY, float _positionZ, float _radious)
-    {
-        this.targetID = _targetId;
-        this.id = _id;
-        position = new CPlotLabelPosition(_positionX, _positionY, _positionZ);        
-        this.radious = _radious;
-    }
-}
+//    public CPlotViewfinderData(int _id, string _targetId, CPlotLabelPosition _position, float _radious)
+//    {
+//        this.targetID = _targetId;
+//        this.id = _id;             
+//        this.position = _position;
+//        this.radious = _radious;
+//    }    
+//    public CPlotViewfinderData(int _id, string _targetId, float _positionX, float _positionY, float _positionZ, float _radious)
+//    {
+//        this.targetID = _targetId;
+//        this.id = _id;
+//        position = new CPlotLabelPosition(_positionX, _positionY, _positionZ);        
+//        this.radious = _radious;
+//    }
+//}
 
 [System.Serializable]
 public class CPlotTextData
@@ -104,22 +104,7 @@ public class CPlotPoint
     public List<CPlotSelectedAreaData> selectedAreaList;
     public List<CPlotHiddenAreaData> hiddenAreaList;
     public List<CPlotLabelData> labelList;
-    public List<CPlotViewfinderData> viewfinderList;
-
-    /*public CPlotPoint()
-    {
-        selectedAreaList = new List<CPlotSelectedAreaData>();
-        labelList = new List<CPlotLabelData>();
-        textList = new List<CPlotTextData>();
-
-    }*/
-    /*public CPlotPoint(string _modelURL, List<CPlotTextData> _textList , List<CPlotSelectedAreaData> _selectedAreaList, List<CPlotLabelData> _label)
-    {
-        this.productModelUrl = _modelURL;
-        this.selectedAreaList = _selectedAreaList;
-        this.labelList = _label;
-        this.textList = _textList;
-    }*/
+    public List<CTrialViewfinderData> viewfinderList;    
 }
 
 [System.Serializable]
