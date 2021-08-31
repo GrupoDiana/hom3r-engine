@@ -16,15 +16,22 @@ public class OcclusionManager : MonoBehaviour
     
     public void RemoveArea(string areaId, THom3rCommandOrigin _origin)
     {
-        GameObject objToRemove = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetAreaGameObject_ByAreaID(areaId);
-        this.RemoveGameObject(objToRemove, areaId, _origin);
+        if (hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().IsArea(areaId))
+        {
+            GameObject objToRemove = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetAreaGameObject_ByAreaID(areaId);
+            this.RemoveGameObject(objToRemove, areaId, _origin);
+        }
+        else if (hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().IsLeaf(areaId))
+        {
+            ExecuteRemoveLeaf(areaId, _origin);
+        }        
     }
 
     /// <summary>Remove a game object from the scene</summary>
     /// <param name="objToRemove">Pointer to the object to be hide</param>
     public void RemoveGameObject(GameObject objToRemove, string areaID = null, THom3rCommandOrigin _origin = THom3rCommandOrigin.ui)
     {
-        //1. De confirm the area/special node if it's confirmed
+        //1. Confirm OFF the area/special node if it's confirmed
         hom3r.coreLink.Do(new CSelectionCommand(TSelectionCommands.ConfirmationOff, objToRemove), Constants.undoNotAllowed);
         //2. Perform the remove algorithm        
         if (areaID == null) { areaID = objToRemove.GetComponent<ObjectStateManager>().areaID; }
@@ -84,6 +91,33 @@ public class OcclusionManager : MonoBehaviour
                 hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.RemovedPart_Activate, areaIDList));
             }
         }
+    }
+
+    private void ExecuteRemoveLeaf(string leafID, THom3rCommandOrigin _origin)
+    {
+        if (leafID != null)
+        {
+            // Desconfirm and remove
+            List<GameObject> areasOfaLeaf = this.GetComponent<ModelManager>().GetAreaGameObjectList_ByLeafID(leafID);
+            foreach (GameObject go in areasOfaLeaf)
+            {
+                //Desconfirm the area if it's confirmed
+                hom3r.coreLink.Do(new CSelectionCommand(TSelectionCommands.ConfirmationOff, go), Constants.undoNotAllowed);
+                //Change the state of the object to hide (this method will be in charge of changing the object material)
+                float duration = hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetDurationRemoveAnimation();
+                go.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Remove_On, duration));
+            }
+            // Send list of areas to WebApp only if the action starts in the UserInterface
+            if (_origin == THom3rCommandOrigin.ui)
+            {
+                List<string> areaIDList = this.GetComponent<ModelManager>().GetAreaList_ByLeafID(leafID);
+                hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.RemovedPart_Activate, areaIDList));
+            }
+        }
+        else {
+            Debug.LogError("areaID not found");
+        }
+
     }
 
     public void ShowRemovedArea(string areaID, THom3rCommandOrigin _origin)
