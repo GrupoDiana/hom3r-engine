@@ -23,7 +23,10 @@ public class OcclusionManager : MonoBehaviour
         }
         else if (hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().IsLeaf(areaId))
         {
+            //1. Perform the remove algorithm 
             ExecuteRemoveLeaf(areaId, _origin);
+            //2. Update mode
+            hom3r.state.currentIsolateMode = THom3rIsolationMode.WITH_REMOVEDNODES;
         }        
     }
 
