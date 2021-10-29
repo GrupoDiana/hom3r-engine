@@ -951,6 +951,16 @@ public class ModelManager : MonoBehaviour {
         return null;
     }
 
+    public string GetLeafDescriptionByLeafID(string leafID)
+    {
+        if (productModel.IsLeaf(leafID))
+        {
+            return productModel.GetLeafDescriptionByLeafID(leafID);
+        }
+        return null;
+    }
+    
+
     /// <summary> Return the parent ID of an area. </summary>
     /// <param name="areaID">area ID</param>
     /// <returns>Parent ID</returns>

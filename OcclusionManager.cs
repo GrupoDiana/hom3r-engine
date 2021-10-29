@@ -13,11 +13,21 @@ public class OcclusionManager : MonoBehaviour
     //////////////////////////////
     // REMOVE                   //
     //////////////////////////////
-    
-    public void RemoveArea(string areaId, THom3rCommandOrigin _origin)
+    public bool IsRemovedGO(GameObject go)
     {
+        return hom3r.quickLinks.scriptsObject.GetComponent<RemoveManager>().IsRemovedGameObject(go);
+    }
+
+    public bool IsRemovedArea(string areaID)
+    {
+        return hom3r.quickLinks.scriptsObject.GetComponent<RemoveManager>().IsRemovedArea(areaID);
+    }
+
+    public void RemoveArea(string areaId, THom3rCommandOrigin _origin)
+    {        
         if (hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().IsArea(areaId))
         {
+            //TO DO check if the area is alreday removed
             GameObject objToRemove = hom3r.quickLinks.scriptsObject.GetComponent<ModelManager>().GetAreaGameObject_ByAreaID(areaId);
             this.RemoveGameObject(objToRemove, areaId, _origin);
         }
@@ -102,18 +112,24 @@ public class OcclusionManager : MonoBehaviour
         {
             // Desconfirm and remove
             List<GameObject> areasOfaLeaf = this.GetComponent<ModelManager>().GetAreaGameObjectList_ByLeafID(leafID);
+            List<string> areaIDList = new List<string>();
             foreach (GameObject go in areasOfaLeaf)
             {
-                //Desconfirm the area if it's confirmed
-                hom3r.coreLink.Do(new CSelectionCommand(TSelectionCommands.ConfirmationOff, go), Constants.undoNotAllowed);
-                //Change the state of the object to hide (this method will be in charge of changing the object material)
-                float duration = hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetDurationRemoveAnimation();
-                go.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Remove_On, duration));
+                if (!IsRemovedGO(go))
+                {
+                    //Desconfirm the area if it's confirmed
+                    hom3r.coreLink.Do(new CSelectionCommand(TSelectionCommands.ConfirmationOff, go), Constants.undoNotAllowed);
+                    //Change the state of the object to hide (this method will be in charge of changing the object material)
+                    float duration = hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetDurationRemoveAnimation();
+                    go.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Remove_On, duration));
+
+                    areaIDList.Add(go.GetComponent<ObjectStateManager>().areaID);   // Save areaID to be sent to the app
+                }
             }
             // Send list of areas to WebApp only if the action starts in the UserInterface
-            if (_origin == THom3rCommandOrigin.ui)
+            if ((_origin == THom3rCommandOrigin.ui) & (areaIDList.Count != 0))
             {
-                List<string> areaIDList = this.GetComponent<ModelManager>().GetAreaList_ByLeafID(leafID);
+                //List<string> areaIDList = this.GetComponent<ModelManager>().GetAreaList_ByLeafID(leafID);
                 hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.RemovedPart_Activate, areaIDList));
             }
         }

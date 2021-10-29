@@ -1067,6 +1067,21 @@ public class CProductModel
         }
         return null;
     }
+
+    public string GetLeafDescriptionByLeafID(string leafID)
+    {
+        if (dictionariesInitialized)
+        {
+            CLeafData temp = new CLeafData();
+            temp = leaves.Find(r => r.id == leafID);
+            if (temp != null)
+            {
+                return temp.description;
+            }
+        }
+        return null;
+    }
+
     /*public List<string> GetNodeChildsIdByNodeID(string nodeID)
     {
         List<string> childrenIdList = null;
