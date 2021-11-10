@@ -73,7 +73,8 @@ public class NavigationManager : MonoBehaviour {
         else if (navigationSystemMode == TNavigationSystemMode.Ellipsoid)
         {
             navigationSystem = new CEllipsoidCoordinatesManager();
-        } else if (navigationSystemMode == TNavigationSystemMode.Spherical)
+        }
+        else if (navigationSystemMode == TNavigationSystemMode.Spherical)
         {
             navigationSystem = new CSphericalCoordinatesManager();
         }
