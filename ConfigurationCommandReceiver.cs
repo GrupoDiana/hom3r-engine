@@ -36,8 +36,10 @@ public enum TConfigurationCommands
     ActiveUISelection, ActiveUIAutomaticSelection,    
     ActiveTouchInteration, ActiveMouseInteration,    
     ActiveNavigation, ActiveNavigationZoom, SetNavigationLatitudeCorrectioFactorMode, SetNavigationLongitudeCorrectioFactorMode, SetNavigationSystemMode,
+    ActivePanNavigation,
     ActiveLabelEdition,
     ActiveExplosion,
+    SetDurationRemoveAnimation,
     SetMouseMapping
 }
 
@@ -49,7 +51,7 @@ public class CConfigurationCommandData
     public TMouseMapping mouseMapping;
     public TNavigationSystemMode navigationSystem;
     public TInteractionMappingCorrectionMode interactionMappingCorrectionMode;
-
+    public float value;
 
     public CConfigurationCommandData(TConfigurationCommands _command)
     {
@@ -93,6 +95,13 @@ public class CConfigurationCommand : CCoreCommand
         data = new CConfigurationCommandData(_command);
         data.interactionMappingCorrectionMode = _interactionMappingCorrectionMode;
     }
+
+    public CConfigurationCommand(TConfigurationCommands _command, float _value)
+    {
+        data = new CConfigurationCommandData(_command);
+        data.value = _value;
+    }
+
     //////////////////
     //   Execute    //
     //////////////////
@@ -129,6 +138,9 @@ public class CConfigurationCommand : CCoreCommand
                 case TConfigurationCommands.ActiveNavigation:
                     hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetActiveNavigation(data.activate);
                     break;
+                case TConfigurationCommands.ActivePanNavigation:
+                    hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetActivePanNavigation(data.activate);
+                    break;
                 case TConfigurationCommands.ActiveNavigationZoom:
                     hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetActiveNavigationZoom(data.activate);
                     break;
@@ -149,6 +161,9 @@ public class CConfigurationCommand : CCoreCommand
                     break;
                 case TConfigurationCommands.SetNavigationSystemMode:
                     hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetNavigationSystemMode(data.navigationSystem);
+                    break;
+                case TConfigurationCommands.SetDurationRemoveAnimation:
+                    hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetDurationRemoveAnimation(data.value);
                     break;
                 default:
                     Debug.LogError("Error: This command " + data.command + " is not valid.");

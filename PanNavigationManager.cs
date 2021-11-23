@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PanNavigatioMangager
+public class PanNavigatioManager
 {
 
     Vector3 extentsVector;

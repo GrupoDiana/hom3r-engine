@@ -21,7 +21,7 @@ public class NavigationManager : MonoBehaviour {
     TMainAxis mainAxis;                             // Store the 3d model main axis for navigation
     TNavigationSystemMode navigationSystemMode;         // Store the navigation mode in use
     CCoordinateSystemManager navigationSystem;      // Define the navigation mode
-    PanNavigatioMangager panNavigationSystem;
+    PanNavigatioManager panNavigationSystem;
 
     // Control parameters
     bool navigationInitialized;          // Store if the navigation has been initialized or not 
@@ -57,7 +57,7 @@ public class NavigationManager : MonoBehaviour {
         //navigationSystem = new CLimitedSphericalCoordinatesManager();     
         //navigationSystem = new CSpheroidCoordinatesManager();
         //navigationSystem = new CEllipsoidCoordinatesManager();
-        panNavigationSystem = new PanNavigatioMangager();
+        panNavigationSystem = new PanNavigatioManager();
         hom3r.state.navigationMode = THom3rNavigationMode.regular;        
     }
 
@@ -428,6 +428,8 @@ public class NavigationManager : MonoBehaviour {
     /// <param name="mouseWhellMovement">Movement of the whell mouse, % of the screen size</param>
     private void SetMouseMovementPanNavigation(float mouseMovementX, float mouseMovementY, float mouseWhellMovement)
     {
+        if (!hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetActivePanNavigation()) { return; }
+
         Vector2 fielOfViewVector = GetFieldOfView(true);    // Get current field of view
         Vector3 newPlanePosition = panNavigationSystem.CalculatePlanePosition(mouseMovementX, mouseMovementY, this.transform.position, fielOfViewVector);        
         this.MovePlane(newPlanePosition);

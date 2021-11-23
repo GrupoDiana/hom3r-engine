@@ -23,6 +23,7 @@ public class ConfigurationManager : MonoBehaviour
     private bool navigationEnabled;             // This control if the navigation is On or not
     private bool navigationZoomEnabled;         // This control if the navigation Zoom is On or not
     private TNavigationSystemMode navigationSystem; // This control the navigation system that is going to be used
+    private bool panNavigationEnabled;           // This control if the Pan navigation is On or not
 
     private TInteractionMappingCorrectionMode latitudeInteractionCorrectionFactorMode;     // This control if the correction factor of the latitude interaction is activated or not
     private TInteractionMappingCorrectionMode longitudeInteractionCorrectionFactorMode;    // This control if the correction factor of the lontigude interaction is activated or not
@@ -52,6 +53,7 @@ public class ConfigurationManager : MonoBehaviour
         mouseMapping                = TMouseMapping.standard;
 
         navigationEnabled           = false;
+        panNavigationEnabled         = false;
         navigationZoomEnabled       = true;
         navigationSystem            = TNavigationSystemMode.Ellipsoid;
 
@@ -306,6 +308,25 @@ public class ConfigurationManager : MonoBehaviour
         return navigationSystem;
     }
 
+
+    /// <summary>
+    /// Set if the navigation is activated or not. 
+    /// </summary>
+    /// <param name="_enabled">true activate the mouse interaction</param>
+    public void SetActivePanNavigation(bool _enabled)
+    {
+        panNavigationEnabled = _enabled;
+        this.SendUpdateEvent();
+    }
+
+    /// <summary>
+    /// Get if the navigation is activated or not. 
+    /// </summary>
+    /// <returns>True if mouse interaction is activated</returns>
+    public bool GetActivePanNavigation()
+    {
+        return panNavigationEnabled;
+    }
     /////////////////////////////////
     // Iteraction Correction Factors
     /////////////////////////////////
