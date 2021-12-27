@@ -2,7 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public enum TNavigationSystemMode { Spherical, LimitedSpherical, Spheroid, Ellipsoid }
+/// <summary>
+/// translationLimited : limited only in t € [0, PI]
+/// </summary>
+public enum TNavigationSystemConstraints { none, translationLimited }
 public enum TInteractionMappingCorrectionMode { none, ellipsePerimeter, distance}
 public enum TMouseMapping { standard, inverse }
 
@@ -20,10 +25,11 @@ public class ConfigurationManager : MonoBehaviour
     private bool mouseInteractionEnabled;       // This control if the mouse interaction is On or not
     private TMouseMapping mouseMapping;         // This control which action is done by left mouse button and which by the right
 
-    private bool navigationEnabled;             // This control if the navigation is On or not
-    private bool navigationZoomEnabled;         // This control if the navigation Zoom is On or not
-    private TNavigationSystemMode navigationSystem; // This control the navigation system that is going to be used
-    private bool panNavigationEnabled;           // This control if the Pan navigation is On or not
+    private bool navigationEnabled;                             // This control if the navigation is On or not
+    private bool navigationZoomEnabled;                         // This control if the navigation Zoom is On or not
+    private TNavigationSystemMode navigationSystem;             // This control the navigation system that is going to be used
+    private TNavigationSystemConstraints navigationConstraints; // This control the constraints applied to the navigation
+    private bool panNavigationEnabled;                          // This control if the Pan navigation is On or not
 
     private TInteractionMappingCorrectionMode latitudeInteractionCorrectionFactorMode;     // This control if the correction factor of the latitude interaction is activated or not
     private TInteractionMappingCorrectionMode longitudeInteractionCorrectionFactorMode;    // This control if the correction factor of the lontigude interaction is activated or not
@@ -56,6 +62,7 @@ public class ConfigurationManager : MonoBehaviour
         panNavigationEnabled         = false;
         navigationZoomEnabled       = true;
         navigationSystem            = TNavigationSystemMode.Ellipsoid;
+        navigationConstraints       = TNavigationSystemConstraints.translationLimited;
 
         latitudeInteractionCorrectionFactorMode      = TInteractionMappingCorrectionMode.distance;
         longitudeInteractionCorrectionFactorMode     = TInteractionMappingCorrectionMode.distance;
@@ -308,6 +315,20 @@ public class ConfigurationManager : MonoBehaviour
         return navigationSystem;
     }
 
+    /// <summary>
+    /// Set if the constraints to the navigation
+    /// </summary>   
+    public void SetNavigationConstraints(TNavigationSystemConstraints _navigationConstraints)
+    {
+        navigationConstraints = _navigationConstraints;
+        this.SendUpdateEvent();
+    }
+    
+    /// <summary>
+    /// Get if the constraint applied to the navigation
+    /// </summary>
+    /// <returns></returns>
+    public TNavigationSystemConstraints GetNavigationConstraints() { return navigationConstraints; }
 
     /// <summary>
     /// Set if the navigation is activated or not. 

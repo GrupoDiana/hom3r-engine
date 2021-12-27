@@ -18,6 +18,12 @@ class CSemiAxes
     public CSemiAxes(float _a, float _b) { a = _a; b = _b; }
 }
 
+/// <summary>
+/// translationLimited : limited only in t € [0, PI]
+/// </summary>
+//public enum TCoordinateSystemConstraints { none, translationLimited }
+
+
 public interface CCoordinateSystemManager
 {
     /// <summary>Initialize the navigation system</summary>
@@ -29,7 +35,7 @@ public interface CCoordinateSystemManager
     /// the distance between the object's intrinsic rotation axis and the point Zo, which is the closest allowed position in the Z axis </param>
     /// <param name="pointToLook">Out parameter that indicated the direction in which the camera has to look</param>
     /// <returns>Returns true if the initial position proposed for the camera is possible</returns>
-    bool Init(Vector3 extents, Vector3 cameraInitialPosition, /*Vector2 fieldOfView,*/ out float minimumCameraDistance, out Vector3 pointToLook);
+    bool Init(Vector3 extents, Vector3 cameraInitialPosition, TNavigationSystemConstraints navigationConstraints, /*Vector2 fieldOfView,*/ out float minimumCameraDistance, out Vector3 pointToLook);
 
     /// <summary>Calculate the new camera position in terms of pseudoLatitude, pseudoLongitude and pseusoRadio</summary>
     /// <param name="latitudeVariation">Incremental translation movements inside of the camera plane. A value of 2·PI corresponds to a complete revolution.
@@ -62,16 +68,16 @@ public class CSphericalCoordinatesManager : CCoordinateSystemManager
     //Control variable
     bool navigationInitialized = false;
     
-    Vector3 extents;            // Store the product bounding box extents
-    Vector2 fieldOfView;        // Store the camera field of View
+    Vector3 extents;                                    // Store the product bounding box extents    
+    TNavigationSystemConstraints navigationConstraints; 
 
-    public bool Init(Vector3 _extents, Vector3 cameraInitialPosition, /*Vector2 _fieldOfView,*/ out float minimumCameraDistance, out Vector3 pointToLook)
+    public bool Init(Vector3 _extents, Vector3 cameraInitialPosition, TNavigationSystemConstraints _navigationConstraints, out float minimumCameraDistance, out Vector3 pointToLook)
     {
         /////////////////////
         // Save parameters 
         /////////////////////
         extents = _extents;
-        //fieldOfView = _fieldOfView;
+        navigationConstraints = _navigationConstraints;
         
 
         /////////////////////////////////////////////////////////////////
@@ -142,8 +148,8 @@ public class CSphericalCoordinatesManager : CCoordinateSystemManager
             /////////////////////////////////////////////////////////
             // Apply pseudoLatitude and pseudoLongitude correction
             /////////////////////////////////////////////////////////
-            float tVariation = latitudeVariation * CalculatePseudoLatitudeLongitudeCorrectionParameter(fieldOfView.x);
-            float angleVariation = longitudeVariation * CalculatePseudoLatitudeLongitudeCorrectionParameter(fieldOfView.y);
+            float tVariation = latitudeVariation * CalculateCorrectionParameter(fieldOfView.x);
+            float angleVariation = longitudeVariation * CalculateCorrectionParameter(fieldOfView.y);
 
             /////////////////////////////////////////////////////
             // Mapping of parameters - Translation parameters
@@ -152,8 +158,11 @@ public class CSphericalCoordinatesManager : CCoordinateSystemManager
             if (Mathf.Abs(r) < minimunRadious) { r = minimunRadious; }  // We can not closer that minimum
                         
             // Latitude - which is a translation movement on the camera plane
-            t += tVariation;                    // Add to the current translation angle
-            t = MathHom3r.NormalizeAngleInRad(t);   // Normalize new t angle 
+            //t += tVariation;                    // Add to the current translation angle
+            //t = MathHom3r.NormalizeAngleInRad(t);   // Normalize new t angle 
+            float newt = t + tVariation;                    // Add to the current translation angle
+            newt = MathHom3r.NormalizeAngleInRad(newt);    // Normalize new t angle 
+            t = ApplyTranslationConstraints(newt);            
 
             /////////////////////////////////////////////////////
             // Mapping of parameters - Plane rotation parameter
@@ -204,13 +213,32 @@ public class CSphericalCoordinatesManager : CCoordinateSystemManager
     /// </summary>
     /// <param name="fieldOfView_rad">field of view of the camera in radians</param>
     /// <returns></returns>
-    private float CalculatePseudoLatitudeLongitudeCorrectionParameter(float fieldOfView_rad)
+    private float CalculateCorrectionParameter(float fieldOfView_rad)
     {        
         float rMin = MathHom3r.Max(extents);     
         float k = 2* (r - rMin) * Mathf.Tan(fieldOfView_rad);        
         return k * (1/rMin) ;        
     }
 
+    /// <summary>
+    /// Check navigation constraints and applied to the translation t parameter
+    /// </summary>
+    /// <param name="desire_tValue"></param>
+    /// <returns></returns>
+    private float ApplyTranslationConstraints(float desire_tValue)
+    {
+        float new_tValue = t;
+
+        if (navigationConstraints == TNavigationSystemConstraints.translationLimited)
+        {
+            if (!((0 < desire_tValue) && (desire_tValue < Mathf.PI))) { new_tValue = desire_tValue; }   //Translation are limited only in t € [0, PI]
+        }
+        else
+        {
+            new_tValue = desire_tValue;
+        }
+        return new_tValue;
+    }
 
     //////////////////////////////////////
     // HELPER
@@ -262,7 +290,7 @@ public class CLimitedSphericalCoordinatesManager : CCoordinateSystemManager
     //Control variables
     bool navigationInitialized = false;
 
-    public bool Init(Vector3 extents, Vector3 cameraInitialPosition, /*Vector2 _fieldOfView,*/ out float minimumCameraDistance, out Vector3 pointToLook)    
+    public bool Init(Vector3 extents, Vector3 cameraInitialPosition, TNavigationSystemConstraints _navigationConstraints, out float minimumCameraDistance, out Vector3 pointToLook)    
     {
         
         /////////////////////////////////////////////////////////////////
@@ -384,15 +412,16 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
 
 
     Vector3 extents;            // Store the product bounding box extents
-    Vector2 fieldOfView;        // Store the camera field of View
+    //Vector2 fieldOfView;        // Store the camera field of View
+    TNavigationSystemConstraints navigationConstraints;
 
-    public bool Init(Vector3 _extents, Vector3 cameraInitialPosition,/* Vector2 _fieldOfView,*/ out float minimumCameraDistance, out Vector3 pointToLook)
+    public bool Init(Vector3 _extents, Vector3 cameraInitialPosition, TNavigationSystemConstraints _navigationConstraints, out float minimumCameraDistance, out Vector3 pointToLook)
     {
         /////////////////////
         // Save parameters 
         /////////////////////
         extents = _extents;
-        //fieldOfView = _fieldOfView;
+        navigationConstraints = _navigationConstraints;
 
         //////////////////////////////////////////////////
         // Identify object geometry type. Long or flat
@@ -456,7 +485,7 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
         if (navigationInitialized)
         {
             // Update field of view
-            fieldOfView = _fieldOfView;
+            //fieldOfView = _fieldOfView;
 
             /////////////////////////////////////////////////////////
             // Apply pseudoLatitude and pseudoLongitude correction
@@ -475,8 +504,14 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
             
 
             // Latitude - which is a translation movement on the camera plane
-            t_translationEllipse += tVariation;                    // Add to the current translation angle
-            t_translationEllipse = MathHom3r.NormalizeAngleInRad(t_translationEllipse);   // Normalize new t angle 
+            //t_translationEllipse += tVariation;                                             // Add to the current translation angle
+            //t_translationEllipse = MathHom3r.NormalizeAngleInRad(t_translationEllipse);     // Normalize new t angle 
+
+            float new_t_translationEllipse = t_translationEllipse + tVariation;                     // Calculate new translation angle
+            new_t_translationEllipse = MathHom3r.NormalizeAngleInRad(new_t_translationEllipse);     // Normalize new t angle 
+            t_translationEllipse = ApplyTranslationConstraints(new_t_translationEllipse);
+
+
 
             /////////////////////////////////////////////////////
             // Mapping of parameters - Plane rotation parameter
@@ -1059,7 +1094,25 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
         return k;
     }
 
+    /// <summary>
+    /// Check navigation constraints and applied to the translation t parameter
+    /// </summary>
+    /// <param name="desired_tValue"></param>
+    /// <returns></returns>
+    private float ApplyTranslationConstraints(float desired_tValue)
+    {
+        float new_tValue = t_translationEllipse;
 
+        if (navigationConstraints == TNavigationSystemConstraints.translationLimited)
+        {
+            if (!((0 < desired_tValue) && (desired_tValue < Mathf.PI))) { new_tValue = desired_tValue; }   //Translation are limited only in t € [0, PI]
+        }
+        else
+        {
+            new_tValue = desired_tValue;
+        }
+        return new_tValue;
+    }
 }
 
 public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
@@ -1187,12 +1240,12 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
     bool navigationInitialized = false;
 
 
-    Vector3 extents;            // Store the product bounding box extents
-    //Vector2 fieldOfView;        // Store the camera field of View
+    Vector3 extents;                                        // Store the product bounding box extents
+    TNavigationSystemConstraints navigationConstraints;     // Store configuration
 
     float k_lastvalidvalue;     // TODO Delete me
 
-    public bool Init(Vector3 _extents, Vector3 cameraInitialPosition,/* Vector2 _fieldOfView,*/ out float minimumCameraDistance, out Vector3 pointToLook)
+    public bool Init(Vector3 _extents, Vector3 cameraInitialPosition, TNavigationSystemConstraints _navigationConstraints, out float minimumCameraDistance, out Vector3 pointToLook)
     {
         ///////////////////////////////////
         // Initialize plane angle to 0
@@ -1202,7 +1255,8 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
         /////////////////////
         // Save parameters 
         /////////////////////
-        extents = _extents;        
+        extents = _extents;
+        navigationConstraints = _navigationConstraints;
 
         //////////////////////////////////////////////////
         // Identify object geometry type. Long or flat
@@ -1286,16 +1340,21 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
             planeAngle += angleVariation;
             planeAngle = MathHom3r.NormalizeAngleInRad(planeAngle);
             movementEllipses.translation = CalculateTranslationEllipseParameters(planeAngle);
-            //Debug.Log("planeAngle: " + planeAngle);
+            
             /////////////////////////////////////////////////////
             // Mapping of parameters - Translation parameters
             /////////////////////////////////////////////////////                        
             CalculateNewEllipsoidAndRestOfEllipsesAfterRadialMovement(radialVariation);
 
             // Latitude - which is a translation movement on the camera plane1
-            t_translationEllipse += tVariation;                    // Add to the current translation angle
-            t_translationEllipse = MathHom3r.NormalizeAngleInRad(t_translationEllipse);   // Normalize new t angle 
-            
+            //t_translationEllipse += tVariation;                    // Add to the current translation angle
+            //t_translationEllipse = MathHom3r.NormalizeAngleInRad(t_translationEllipse);   // Normalize new t angle 
+
+            float new_t_translationEllipse = t_translationEllipse + tVariation;                     // Calculate new translation angle
+            new_t_translationEllipse = MathHom3r.NormalizeAngleInRad(new_t_translationEllipse);     // Normalize new t angle 
+            t_translationEllipse = ApplyTranslationConstraints(new_t_translationEllipse);
+
+
             movementEllipses.rotation = CalculateRotationEllipseParameters(t_translationEllipse);
 
             //////////////////////////////////////
@@ -2106,6 +2165,25 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
         return k;
     }
 
+    /// <summary>
+    /// Check navigation constraints and applied to the translation t parameter
+    /// </summary>
+    /// <param name="desired_tValue"></param>
+    /// <returns></returns>
+    private float ApplyTranslationConstraints(float desired_tValue)
+    {
+        float new_tValue = t_translationEllipse;
+
+        if (navigationConstraints == TNavigationSystemConstraints.translationLimited)
+        {
+            if (!((0 < desired_tValue) && (desired_tValue < Mathf.PI))) { new_tValue = desired_tValue; }   //Translation are limited only in t € [0, PI]
+        }
+        else
+        {
+            new_tValue = desired_tValue;
+        }
+        return new_tValue;
+    }
 
     /// <summary>Draw the ellipse that the camera follows as a trajectory in its translational movements in the plane.</summary>
     private void DrawTranslationTrajectory()

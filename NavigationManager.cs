@@ -125,7 +125,8 @@ public class NavigationManager : MonoBehaviour {
         Vector3 extentsVector = Get3DModelExtentsVector(modelBoundingBox);  // Get extents vector from bounding box in terms of main axis
         //Vector2 fielOfViewVector = GetFieldOfView();
         Vector3 pointToLook;    //Vector to store direction in which the camera has to look
-        if (navigationSystem.Init(extentsVector, cameraInitialPosition,/* fielOfViewVector,*/ out cameraMinimumDistance, out pointToLook))
+        TNavigationSystemConstraints navigationConstraints = hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetNavigationConstraints();
+        if (navigationSystem.Init(extentsVector, cameraInitialPosition, navigationConstraints, out cameraMinimumDistance, out pointToLook))
         {
             panNavigationSystem.Init(extentsVector, /*fielOfViewVector,*/ cameraMinimumDistance);
             navigationInitialized = true;            
