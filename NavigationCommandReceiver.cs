@@ -33,7 +33,8 @@ public class NavigationCommandReceiver : MonoBehaviour {
 public enum TNavigationCommands
 {
     InitializeNavigation, StopNavigation,
-    MouseMovement
+    MouseMovement,
+    ZoomToClosest, ZoomToInitial
 }
 
 /// <summary>Navigation data</summary>
@@ -90,6 +91,12 @@ public class CNavigationCommand : CCoreCommand
                     break;
                 case TNavigationCommands.MouseMovement:                        
                     hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().SetMouseMovement(data.mouseX, data.mouseY, data.mouseX, data.mouseY, data.mouseWheel);
+                    break;
+                case TNavigationCommands.ZoomToClosest:
+                    hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().SetRadialPosition(TNavigationRadialPositions.closest);
+                    break;
+                case TNavigationCommands.ZoomToInitial:
+                    hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().SetRadialPosition(TNavigationRadialPositions.initial);
                     break;
                 default:
                     Debug.LogError("Error: This command " + data.commandEvent + " is not valid.");

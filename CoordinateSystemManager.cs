@@ -48,7 +48,7 @@ public interface CCoordinateSystemManager
     /// to the object's intrinsic rotation axis). </param>
     /// <param name="planeRotation">Out parameter that contains the rotation that has to be applied to the plane. Expressed in radians.</param>
     /// <param name="pointToLook">Out parameter that indicated the direction in which the camera has to look</param>
-    void CalculateCameraPosition(float latitudeVariation, float longitudeVariation, float radialVariation, Vector2 fieldOfView, out Vector3 cameraPlanePosition, out float planeRotation, out Vector3 pointToLook);
+    void CalculateCameraPosition(float latitudeVariation, float longitudeVariation, float radialVariation, Vector2 fieldOfView, out Vector3 cameraPlanePosition, out float planeRotation, out Vector3 pointToLook);    
 }
 
 
@@ -65,6 +65,7 @@ public class CSphericalCoordinatesManager : CCoordinateSystemManager
     float planeAngle;           // Current rotation angle
     //Circumference limits
     float minimunRadious;       // Minimum possible radius    
+    float initialRadious;
     //Control variable
     bool navigationInitialized = false;
     
@@ -86,8 +87,8 @@ public class CSphericalCoordinatesManager : CCoordinateSystemManager
         r = cameraInitialPosition.magnitude;                // radius of the circumference passing through that point 
         t = Mathf.Asin(cameraInitialPosition.z / r);        // t = ASin(z/r)
         t = MathHom3r.NormalizeAngleInRad(t);               // Normalize t angle between 0-2PI
-       
-        
+
+        initialRadious = r;
         ////////////////////////////////
         // Initialize plane angle to 0
         ////////////////////////////////
@@ -153,10 +154,9 @@ public class CSphericalCoordinatesManager : CCoordinateSystemManager
 
             /////////////////////////////////////////////////////
             // Mapping of parameters - Translation parameters
-            /////////////////////////////////////////////////////        
-            r += radialVariation;                                           // Circumference Radius
-            if (Mathf.Abs(r) < minimunRadious) { r = minimunRadious; }  // We can not closer that minimum
-                        
+            /////////////////////////////////////////////////////                  
+            r = CalculateNewR(radialVariation);
+
             // Latitude - which is a translation movement on the camera plane
             //t += tVariation;                    // Add to the current translation angle
             //t = MathHom3r.NormalizeAngleInRad(t);   // Normalize new t angle 
@@ -198,6 +198,30 @@ public class CSphericalCoordinatesManager : CCoordinateSystemManager
             DrawRotationTrajectory(cameraPlanePosition);
             DrawReferenceEllipses(r);
         }
+    }
+
+    /// <summary>
+    /// Calculate the new value of the circunference radious
+    /// </summary>
+    /// <param name="radialVariation"></param>
+    /// <returns></returns>
+    private float CalculateNewR(float radialVariation)
+    {
+        float new_r;
+        if (radialVariation == -10000)
+        {
+            new_r = minimunRadious;
+        }
+        else if (radialVariation == 10000)
+        {
+            new_r = initialRadious;
+        }
+        else
+        {
+            new_r = r + radialVariation;                                           // Circumference Radius
+            if (Mathf.Abs(new_r) < minimunRadious) { new_r = minimunRadious; }  // We can not closer that minimum
+        }
+        return new_r;
     }
 
     /// <summary>Calculate the point which camera has to look</summary>
@@ -399,9 +423,10 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
 
     float t_translationEllipse;                    // Current t parameter that define camera position on the ellipse
     //Plane rotation angle
-    float planeAngle;           // Current rotation angle    
+    float planeAngle;                               // Current rotation angle    
     //Ellipse limits
-    float minimunAllowedAxis;       // Minimum possible minor axis
+    float minimunAllowedAxis;                       // Minimum possible minor axis
+    float initialAxis;
 
     //Object Geometry classification
     enum TGeometryType { Prolate, Oblate };
@@ -465,6 +490,7 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
         if (CheckInitialMinimunDistance(cameraInitialPosition))
         {            
             navigationInitialized = true;
+            initialAxis = Mathf.Abs(cameraInitialPosition.z);
             return true;
         }
         else
@@ -693,28 +719,49 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
     /// <summary>
     /// Calculate the b and a parameters of the ellipse based of a pseudoRadio movement.    
     /// </summary>
-    /// <param name="pseudoRadio"></param>
-    private CEllipseData CalculateNewEllipseSemiAxesParametersAfterRadialMovement(float pseudoRadio, CEllipseData currentEllipse)
+    /// <param name="radialVariation"></param>
+    private CEllipseData CalculateNewEllipseSemiAxesParametersAfterRadialMovement(float radialVariation, CEllipseData currentEllipse)
     {
         CEllipseData newEllipse = new CEllipseData();
         newEllipse.Ec = currentEllipse.Ec;
 
         if (geometryType == TGeometryType.Prolate)
         {
-            newEllipse.b = currentEllipse.b + pseudoRadio;
-            if (Mathf.Abs(newEllipse.b) < minimunAllowedAxis) { newEllipse.b = minimunAllowedAxis; }  // We can not closer that minimum
+            //newEllipse.b = currentEllipse.b + radialVariation;
+            //if (Mathf.Abs(newEllipse.b) < minimunAllowedAxis) { newEllipse.b = minimunAllowedAxis; }  // We can not closer that minimum
+            newEllipse.b = CalculateNewEllipseRadious(currentEllipse.b, radialVariation);
             newEllipse.a = 0.5f * (newEllipse.Ec + Mathf.Sqrt(MathHom3r.Pow2(newEllipse.Ec) + 4 * MathHom3r.Pow2(newEllipse.b)));
         }
         else
         {
-            newEllipse.a = currentEllipse.a + pseudoRadio;
-            if (Mathf.Abs(newEllipse.a) < minimunAllowedAxis) { newEllipse.a = minimunAllowedAxis; }  // We can not closer that minimum
+            //newEllipse.a = currentEllipse.a + radialVariation;
+            //if (Mathf.Abs(newEllipse.a) < minimunAllowedAxis) { newEllipse.a = minimunAllowedAxis; }  // We can not closer that minimum
+            newEllipse.a = CalculateNewEllipseRadious(currentEllipse.a, radialVariation);
             newEllipse.b = Mathf.Sqrt(MathHom3r.Pow2(newEllipse.a) - newEllipse.a * newEllipse.Ec);
         }
 
         DrawReferenceEllipses(newEllipse);
 
         return newEllipse;
+    }
+
+    private float CalculateNewEllipseRadious(float currentEllipseRadious, float radialVariation)
+    {
+        float new_r;
+        if (radialVariation == -10000)
+        {
+            new_r = minimunAllowedAxis;
+        }
+        else if (radialVariation == 10000)
+        {
+            new_r = initialAxis;
+        }
+        else
+        {
+            new_r = currentEllipseRadious + radialVariation;                                           // Circumference Radius
+            if (Mathf.Abs(new_r) < minimunAllowedAxis) { new_r = minimunAllowedAxis; }  // We can not closer that minimum
+        }
+        return new_r;
     }
 
     /// <summary>
@@ -1223,7 +1270,7 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
     //Ellipse limits
     CEllipsoidData minimunEllipsoidData;
     float minimunAllowedAxisSize;       // Minimum possible minor axis
-    
+    float initialAxisSize;
 
     enum TGeometryType3
     {
@@ -1276,7 +1323,9 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
         ////////////////////////////////////////////
         // Calculate the minimum radius possible
         ////////////////////////////////////////////        
-        minimunAllowedAxisSize = CalculateMinimunEllipsoid(_extents);       // Calculate the minimum ellipse semi-axes
+        float aproximationToMinimunAllowedZAxisSize = CalculateMinimunEllipsoid(_extents);       // Calculate the minimum ellipse semi-axes
+        minimunAllowedAxisSize = CalculateRealMinimumZRadiousRecursive(aproximationToMinimunAllowedZAxisSize);
+
         minimumCameraDistance = minimunAllowedAxisSize;                                                 // update out parameter
 
         //////////////////////////////////////////////////
@@ -1297,6 +1346,7 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
         if (CheckInitialMinimunDistance(cameraInitialPosition))
         {
             navigationInitialized = true;
+            initialAxisSize = Mathf.Abs(cameraInitialPosition.z);
             return true;
         }
         else
@@ -1632,6 +1682,25 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
     }
 
     /// <summary>
+    /// Recursive method to calculate the real minimum radius.
+    /// </summary>
+    /// <param name="zRadious"></param>
+    /// <returns></returns>
+    private float CalculateRealMinimumZRadiousRecursive(float zRadious)
+    {
+
+        CEllipsoidData ellipsoidCandidate = CalculateEllipsoid(extents, new Vector3(0, 0, zRadious));
+
+        if (ellipsoidCandidate.radiousXAxis < minimunEllipsoidData.radiousXAxis
+            || ellipsoidCandidate.radiousYAxis < minimunEllipsoidData.radiousYAxis
+            || ellipsoidCandidate.radiousZAxis < minimunEllipsoidData.radiousZAxis)
+        {
+            return zRadious = CalculateRealMinimumZRadiousRecursive(zRadious * 1.01f);
+        }
+        return zRadious;
+    }
+
+    /// <summary>
     /// Check if the initial camera position proposed is correct or not
     /// </summary>
     /// <param name="cameraPosition">Camera position</param>
@@ -1695,13 +1764,13 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
     /// <summary>
     /// Calculate the new ellipsoid and the new rotation and translation ellipses after a radial movement of the camera
     /// </summary>
-    /// <param name="pseudoRadio"></param>
-    private void CalculateNewEllipsoidAndRestOfEllipsesAfterRadialMovement(float pseudoRadio)
+    /// <param name="radialVariation"></param>
+    private void CalculateNewEllipsoidAndRestOfEllipsesAfterRadialMovement(float radialVariation)
     {
         float new_z;
         
-        new_z = ellipsoidData.radiousZAxis + pseudoRadio;        
-                
+        //new_z = ellipsoidData.radiousZAxis + radialVariation;
+        new_z = CalculateNewZRadious(ellipsoidData.radiousZAxis, radialVariation);
         CEllipsoidData ellipsoidCandidate = CalculateEllipsoid(extents, new Vector3(0, 0, new_z));      // Calculate new ellipsoid after camera distance changed
         // Check if the new ellipsoid is valid
         if (IsEllipsoidAllowed(ellipsoidCandidate))
@@ -1711,6 +1780,24 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
             movementEllipses.translation = CalculateTranslationEllipseParameters(planeAngle);           // Calculate new translation ellipse
             DrawReferenceEllipses();
         }
+    }
+
+    private float CalculateNewZRadious(float currentZRadious, float radialVariation)
+    {
+        float new_z;
+        if (radialVariation == -10000)
+        {
+            new_z = minimunAllowedAxisSize;            
+        }
+        else if (radialVariation == 10000)
+        {
+            new_z = initialAxisSize;
+        }
+        else
+        {
+            new_z = currentZRadious + radialVariation;              
+        }
+        return new_z;
     }
 
     private bool IsEllipsoidAllowed(CEllipsoidData ellipsoidCandidate)
@@ -1726,8 +1813,6 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
 
         return allowedEllipsoid;
     }
-
-
 
     /// <summary>
     /// Calculate the new camera position in function of a,b and t of the ellipse

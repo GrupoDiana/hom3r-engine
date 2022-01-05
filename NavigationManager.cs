@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public enum TMainAxis { Vertical, Horizontal};
-//public enum THom3rNavigationMode { regular, pan };
+public enum TNavigationRadialPositions { initial, closest };
 
 public class NavigationManager : MonoBehaviour {
         
@@ -16,7 +16,7 @@ public class NavigationManager : MonoBehaviour {
     float verticalFieldOfView_rad;      // 
     float horizontalFieldOfView_rad;    // 
 
-
+    
     // Navigation mode parameters
     TMainAxis mainAxis;                             // Store the 3d model main axis for navigation
     TNavigationSystemMode navigationSystemMode;         // Store the navigation mode in use
@@ -27,9 +27,10 @@ public class NavigationManager : MonoBehaviour {
     bool navigationInitialized;          // Store if the navigation has been initialized or not 
 
     // Correction Parameters
-    float pseudoRadioCorrection;        // Store the parameter to make the pseudo-radio correction
-    float pseudoRadioScale;
-    
+    float radialVariationCorrection;        // Store the parameter to make the pseudo-radio correction
+    float radialVariationScale;
+    float radialVariationJump;
+
     /// <summary>Initialize variables and structures</summary>
     private void Awake()
     {
@@ -48,8 +49,9 @@ public class NavigationManager : MonoBehaviour {
 
         mainAxis = TMainAxis.Vertical;              // Initialize Navigation mode parameters
 
-        pseudoRadioCorrection = 100f;               // Initialize Correction Parameters
-        pseudoRadioScale = 5f;                      //
+        radialVariationCorrection = 100f;               // Initialize Correction Parameters
+        radialVariationScale = 5f;                      //
+        radialVariationJump = 10000f;
 
         //Navigation System        
         InitNavigationSystem();
@@ -365,7 +367,7 @@ public class NavigationManager : MonoBehaviour {
             radialVariation = 0.0f;
             if (hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetActiveNavigationZoom())
             {
-                radialVariation = -1.0f * CalculatePseudoRadioVariation(mouseWhellMovement);    //Calculate pseudo Radio
+                radialVariation = -1.0f * CalculatePseudoRadioVariation(mouseWhellMovement);    //Calculate pseudo Radio                   
             }
             
 
@@ -395,6 +397,36 @@ public class NavigationManager : MonoBehaviour {
             //Emit event
             hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Navigation_CameraMoved));                 
         }
+    }
+
+
+    public void SetRadialPosition(TNavigationRadialPositions newJump)
+    {
+        float value = 0;
+        if (newJump == TNavigationRadialPositions.closest)
+        {
+            value = -1f * radialVariationJump;
+        } else if (newJump == TNavigationRadialPositions.initial)
+        {
+            value = radialVariationJump;
+        }
+        //SetMouseMovementRegularNavigation(0f, 0f, 0f, 0f, value);
+
+        //////////////////
+        //// Move Camera
+        //////////////////
+        Vector3 newCameraPosition = new Vector3();
+        float planeRotation;
+        Vector3 pointToLook;
+        Vector2 fielOfViewVector = GetFieldOfView(true);    // Get current field of view
+
+        //Calculate movement           
+        navigationSystem.CalculateCameraPosition(0f, 0f, value, fielOfViewVector, out newCameraPosition, out planeRotation, out pointToLook);
+        //Apply movement
+        RotateCameraPlane(planeRotation);
+        MoveCameraWithinThePlane(newCameraPosition);
+        OrientateCamera(pointToLook);
+
     }
 
 
@@ -438,7 +470,7 @@ public class NavigationManager : MonoBehaviour {
 
     private float CalculatePseudoRadioVariation(float mouseWheelMovement)
     {       
-        return mouseWheelMovement * pseudoRadioCorrection;
+        return mouseWheelMovement * radialVariationCorrection;
     }
 
     /// <summary>Initialize pseudo radio correction parameter.
@@ -447,7 +479,7 @@ public class NavigationManager : MonoBehaviour {
     private void InitPseudoRadioCorrection()
     {
         // TODO What if the minimum distance was not calculated in the same plane as the initial position? 
-        pseudoRadioCorrection = pseudoRadioScale * (cameraInitialPosition.magnitude - cameraMinimumDistance) / 100;
+        radialVariationCorrection = radialVariationScale * (cameraInitialPosition.magnitude - cameraMinimumDistance) / 100;
     }
 
     ////////////////////////////
