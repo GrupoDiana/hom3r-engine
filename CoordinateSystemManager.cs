@@ -208,11 +208,11 @@ public class CSphericalCoordinatesManager : CCoordinateSystemManager
     private float CalculateNewR(float radialVariation)
     {
         float new_r;
-        if (radialVariation == -10000)
+        if (radialVariation <= -10000)
         {
             new_r = minimunRadious;
         }
-        else if (radialVariation == 10000)
+        else if (radialVariation >= 10000)
         {
             new_r = initialRadious;
         }
@@ -748,13 +748,19 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
     private float CalculateNewEllipseRadious(float currentEllipseRadious, float radialVariation)
     {
         float new_r;
-        if (radialVariation == -10000)
-        {
-            new_r = minimunAllowedAxis;
+        if (radialVariation <= -10000)
+        { 
+            float zoomPercentage = -0.01f * (radialVariation + 10000);
+            float offset = (initialAxis - minimunAllowedAxis) * (1-zoomPercentage);
+            new_r = minimunAllowedAxis + offset;
+            //new_r = minimunAllowedAxis * 1.75f;
         }
-        else if (radialVariation == 10000)
+        else if (radialVariation >= 10000)
         {
-            new_r = initialAxis;
+            float zoomPercentage = 0.01f * (radialVariation - 10000);
+            float offset = (initialAxis - minimunAllowedAxis) * (1 - zoomPercentage);
+            new_r = minimunAllowedAxis + offset;
+            //new_r = initialAxis;
         }
         else
         {
@@ -1324,7 +1330,7 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
         // Calculate the minimum radius possible
         ////////////////////////////////////////////        
         float aproximationToMinimunAllowedZAxisSize = CalculateMinimunEllipsoid(_extents);       // Calculate the minimum ellipse semi-axes
-        minimunAllowedAxisSize = CalculateRealMinimumZRadiousRecursive(aproximationToMinimunAllowedZAxisSize);
+        minimunAllowedAxisSize = CalculateRealMinimumZRadious(aproximationToMinimunAllowedZAxisSize);
 
         minimumCameraDistance = minimunAllowedAxisSize;                                                 // update out parameter
 
@@ -1681,6 +1687,10 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
             return minimunAxis;
     }
 
+    private float CalculateRealMinimumZRadious(float zRadious)
+    {
+        return 1.05f * CalculateRealMinimumZRadiousRecursive(zRadious);
+    }
     /// <summary>
     /// Recursive method to calculate the real minimum radius.
     /// </summary>
@@ -1695,7 +1705,7 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
             || ellipsoidCandidate.radiousYAxis < minimunEllipsoidData.radiousYAxis
             || ellipsoidCandidate.radiousZAxis < minimunEllipsoidData.radiousZAxis)
         {
-            return zRadious = CalculateRealMinimumZRadiousRecursive(zRadious * 1.01f);
+            return zRadious = CalculateRealMinimumZRadiousRecursive(zRadious * 1.02f);
         }
         return zRadious;
     }
@@ -1785,13 +1795,19 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
     private float CalculateNewZRadious(float currentZRadious, float radialVariation)
     {
         float new_z;
-        if (radialVariation == -10000)
+        if (radialVariation <= -10000)
         {
-            new_z = minimunAllowedAxisSize;            
+            float zoomPercentage = -0.01f * (radialVariation + 10000);
+            float offset = (initialAxisSize - minimunAllowedAxisSize) * (1 - zoomPercentage);
+            new_z = minimunAllowedAxisSize + offset;
+            //new_z = minimunAllowedAxisSize * 1.75f;            
         }
-        else if (radialVariation == 10000)
+        else if (radialVariation >= 10000)
         {
-            new_z = initialAxisSize;
+            float zoomPercentage = 0.01f * (radialVariation - 10000);
+            float offset = (initialAxisSize - minimunAllowedAxisSize) * (1 - zoomPercentage);
+            new_z = minimunAllowedAxisSize + offset;
+            //new_z = initialAxisSize;
         }
         else
         {

@@ -45,6 +45,7 @@ public class CNavigationCommandData
     public float mouseX { get; set; }
     public float mouseY { get; set; }
     public float mouseWheel { get; set; }
+    public float value { get; set; }
     public TMainAxis main3DModelAxis { get; set; }
 
     public CNavigationCommandData(TNavigationCommands _commandEvent) { this.commandEvent = _commandEvent; }
@@ -73,6 +74,11 @@ public class CNavigationCommand : CCoreCommand
         data.mouseY = _mouseY;
         data.mouseWheel = _mouseWheel;
     }
+    public CNavigationCommand(TNavigationCommands _command, float _value)
+    {
+        data = new CNavigationCommandData(_command);
+        data.value = _value;        
+    }
 
     //////////////////
     //   Execute    //
@@ -93,10 +99,10 @@ public class CNavigationCommand : CCoreCommand
                     hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().SetMouseMovement(data.mouseX, data.mouseY, data.mouseX, data.mouseY, data.mouseWheel);
                     break;
                 case TNavigationCommands.ZoomToClosest:
-                    hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().SetRadialPosition(TNavigationRadialPositions.closest);
+                    hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().SetRadialPosition(TNavigationRadialPositions.closest, data.value);
                     break;
                 case TNavigationCommands.ZoomToInitial:
-                    hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().SetRadialPosition(TNavigationRadialPositions.initial);
+                    hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().SetRadialPosition(TNavigationRadialPositions.initial, data.value);
                     break;
                 default:
                     Debug.LogError("Error: This command " + data.commandEvent + " is not valid.");

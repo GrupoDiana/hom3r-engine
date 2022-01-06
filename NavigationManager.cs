@@ -400,15 +400,15 @@ public class NavigationManager : MonoBehaviour {
     }
 
 
-    public void SetRadialPosition(TNavigationRadialPositions newJump)
+    public void SetRadialPosition(TNavigationRadialPositions newJump, float _value)
     {
-        float value = 0;
+        float value = radialVariationJump + _value;
         if (newJump == TNavigationRadialPositions.closest)
         {
-            value = -1f * radialVariationJump;
+            value = -1f * value;
         } else if (newJump == TNavigationRadialPositions.initial)
         {
-            value = radialVariationJump;
+            //value = value;
         }
         //SetMouseMovementRegularNavigation(0f, 0f, 0f, 0f, value);
 
