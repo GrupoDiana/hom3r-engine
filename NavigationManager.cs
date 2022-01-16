@@ -24,7 +24,9 @@ public class NavigationManager : MonoBehaviour {
     PanNavigatioManager panNavigationSystem;
 
     // Control parameters
-    bool navigationInitialized;          // Store if the navigation has been initialized or not 
+    bool navigationInitialized;             // Store if the navigation has been initialized or not 
+    bool abortCameraSmoothlyMovement;
+    bool cameraSmoothlyMovementActivated;
 
     // Correction Parameters
     float radialVariationCorrection;        // Store the parameter to make the pseudo-radio correction
@@ -41,7 +43,9 @@ public class NavigationManager : MonoBehaviour {
 
     private void InitializeVariables()
     {
-        navigationInitialized = false;       // This parameter controls when the navigation has been initialized
+        navigationInitialized = false;               // This parameter controls when the navigation has been initialized
+        abortCameraSmoothlyMovement = false;
+        cameraSmoothlyMovementActivated = false;    
 
         cameraInitialPosition = Vector3.zero;       // Initialize Scene parameters 
         cameraMinimumDistance = 0.0f;               // Initialize Scene parameters
@@ -410,7 +414,7 @@ public class NavigationManager : MonoBehaviour {
         {
             //value = value;
         }
-        //SetMouseMovementRegularNavigation(0f, 0f, 0f, 0f, value);
+        
 
         //////////////////
         //// Move Camera
@@ -422,10 +426,11 @@ public class NavigationManager : MonoBehaviour {
 
         //Calculate movement           
         navigationSystem.CalculateCameraPosition(0f, 0f, value, fielOfViewVector, out newCameraPosition, out planeRotation, out pointToLook);
+        Debug.Log("newCameraPosition: " + newCameraPosition + "/" + "planeRotation: " + planeRotation + "pointToLook: " + pointToLook);
         //Apply movement
-        RotateCameraPlane(planeRotation);
-        MoveCameraWithinThePlane(newCameraPosition);
-        OrientateCamera(pointToLook);
+        //RotateCameraPlane(planeRotation);
+        MoveCameraWithinThePlane(0f, 0.2f, newCameraPosition, pointToLook);
+        //OrientateCamera(pointToLook);
 
     }
 
@@ -695,7 +700,58 @@ public class NavigationManager : MonoBehaviour {
         }
     }
 
-    
+
+    private void MoveCameraWithinThePlane(float delayTime, float durationTime, Vector3 newCameraPosition, Vector3 pointToLook)
+    {
+        if (!navigationInitialized || cameraSmoothlyMovementActivated) { return; }
+        Vector3 targetCameraPosition = newCameraPosition;
+        StartCoroutine(CoroutineMoveCameraWithinThePlaneSmoothly(delayTime, durationTime, targetCameraPosition, pointToLook));               
+    }
+
+    IEnumerator CoroutineMoveCameraWithinThePlaneSmoothly(float delayTime, float durationTime, Vector3 targetCameraPosition, Vector3 pointToLook)
+    {
+        cameraSmoothlyMovementActivated = true;
+        hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetActiveNavigation(false);
+        //Start the Movement
+        if (durationTime != 0) { yield return StartCoroutine(MoveCameraSmoothly(delayTime, durationTime, targetCameraPosition, pointToLook)); }
+        else { MoveCameraWithinThePlane(targetCameraPosition); }
+        // Final steps
+        cameraSmoothlyMovementActivated = false;
+        hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetActiveNavigation(true);
+
+        Vector3 currentCameraPosition = Camera.main.transform.localPosition;
+        if (currentCameraPosition != targetCameraPosition)
+        {
+            MoveCameraWithinThePlane(targetCameraPosition);
+            OrientateCamera(pointToLook);
+        }                
+    }
+
+    IEnumerator MoveCameraSmoothly(float delayTime, float durationTime, Vector3 targetCameraPosition, Vector3 pointToLook)
+    {
+        Vector3 currentCameraPosition;
+        Vector3 initialCameraPosition = Camera.main.transform.localPosition;
+        float t = 0.0f;
+        
+        //Start delay
+        yield return new WaitForSeconds(delayTime);
+
+        //Movement & Orientation
+        while (t<=1)
+        {
+            if (abortCameraSmoothlyMovement)
+            {
+                abortCameraSmoothlyMovement = false;
+                t = 1;                        
+            }
+            currentCameraPosition = Vector3.Lerp(initialCameraPosition, targetCameraPosition, t);
+            t += Time.deltaTime / durationTime;
+            MoveCameraWithinThePlane(currentCameraPosition);
+            OrientateCamera(pointToLook);
+            yield return true;
+        }        
+        
+    }
     ////////////////////////////
     // MODE Methods
     ////////////////////////////    
@@ -713,6 +769,7 @@ public class NavigationManager : MonoBehaviour {
             hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Navigation_PanNavigation_Disabled));
         }
     }
-
 }
+
+
 
