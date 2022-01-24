@@ -426,7 +426,7 @@ public class NavigationManager : MonoBehaviour {
 
         //Calculate movement           
         navigationSystem.CalculateCameraPosition(0f, 0f, value, fielOfViewVector, out newCameraPosition, out planeRotation, out pointToLook);
-        Debug.Log("newCameraPosition: " + newCameraPosition + "/" + "planeRotation: " + planeRotation + "pointToLook: " + pointToLook);
+        //Debug.Log("newCameraPosition: " + newCameraPosition + "/" + "planeRotation: " + planeRotation + "pointToLook: " + pointToLook);
         //Apply movement
         //RotateCameraPlane(planeRotation);
         MoveCameraWithinThePlane(0f, 0.2f, newCameraPosition, pointToLook);

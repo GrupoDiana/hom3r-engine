@@ -12,6 +12,7 @@ public class NavigationHelper : MonoBehaviour {
     GameObject helperCameraGO;
     GameObject navigationAssistantsGO;
     GameObject planeGO;
+    GameObject helperPointToLookCameraGO;
 
     LineRenderer lineTranslationEllipse;
     LineRenderer lineRotationEllipse;
@@ -57,6 +58,10 @@ public class NavigationHelper : MonoBehaviour {
             {
                 lineVerticalFrameworkEllipse = child.GetComponentInChildren<LineRenderer>();
             }
+            if (child.name == "HelperPointToLookCamera")
+            {
+                helperPointToLookCameraGO = child.gameObject;
+            }
         }
 
         segments = 3600;
@@ -72,6 +77,7 @@ public class NavigationHelper : MonoBehaviour {
         {
             helperTranslationTrajectoryGO.SetActive(true);
             helperCameraGO.SetActive(true);
+            helperPointToLookCameraGO.SetActive(true);
             planeGO.SetActive(true);
             navigationAssistantsGO.SetActive(true);
 
@@ -87,6 +93,7 @@ public class NavigationHelper : MonoBehaviour {
             helperCameraGO.SetActive(false);
             planeGO.SetActive(false);
             navigationAssistantsGO.SetActive(false);
+            helperPointToLookCameraGO.SetActive(false);
         }
     }
 
@@ -127,15 +134,29 @@ public class NavigationHelper : MonoBehaviour {
     public void SetBiggerCamera()
     {
         if (!activated) { return; }
-        helperCameraGO.transform.localScale = new Vector3 (helperCameraGO.transform.localScale.x + 0.2f, helperCameraGO.transform.localScale.y + 0.2f, helperCameraGO.transform.localScale.z + 0.2f);
+        Vector3 newScale = helperCameraGO.transform.localScale * 1.1f;
+        helperCameraGO.transform.localScale = newScale;
     }
 
     public void SetSmallerCamera()
     {
         if (!activated) { return; }
-        helperCameraGO.transform.localScale = new Vector3(helperCameraGO.transform.localScale.x - 0.2f, helperCameraGO.transform.localScale.y - 0.2f, helperCameraGO.transform.localScale.z - 0.2f);
+        Vector3 newScale = helperCameraGO.transform.localScale * 0.9f;
+        helperCameraGO.transform.localScale = newScale;
     }
 
+    public void SetBiggerPointToLook()
+    {
+        if (!activated) { return; }
+        Vector3 newScale = helperPointToLookCameraGO.transform.localScale * 1.1f;
+        helperPointToLookCameraGO.transform.localScale = newScale;
+    }
+    public void SetSmallerPointToLook()
+    {
+        if (!activated) { return; }
+        Vector3 newScale = helperPointToLookCameraGO.transform.localScale * 0.9f;
+        helperPointToLookCameraGO.transform.localScale = newScale;
+    }
     ////////////////////////////////
     // Draw Ellipses Methods
     ////////////////////////////////
@@ -207,9 +228,12 @@ public class NavigationHelper : MonoBehaviour {
             helperCameraViewLine.SetPosition(0, Vector3.zero);
             Vector3 poinToLook_local = helperCameraGO.transform.InverseTransformPoint(pointToLookWorld);
             helperCameraViewLine.SetPosition(1, poinToLook_local);
+
+            helperPointToLookCameraGO.GetComponent<Transform>().SetPositionAndRotation(pointToLookWorld, Quaternion.identity);
         }
     }
 
+    
 
     /// <summary>
     /// Draw a ellipse, in one plane, using a lineRenderer of the scene
