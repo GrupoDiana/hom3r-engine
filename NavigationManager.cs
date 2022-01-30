@@ -711,13 +711,15 @@ public class NavigationManager : MonoBehaviour {
     IEnumerator CoroutineMoveCameraWithinThePlaneSmoothly(float delayTime, float durationTime, Vector3 targetCameraPosition, Vector3 pointToLook)
     {
         cameraSmoothlyMovementActivated = true;
+
+        bool currentActivationNavigationStatus = hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetActiveNavigation();
         hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetActiveNavigation(false);
         //Start the Movement
         if (durationTime != 0) { yield return StartCoroutine(MoveCameraSmoothly(delayTime, durationTime, targetCameraPosition, pointToLook)); }
         else { MoveCameraWithinThePlane(targetCameraPosition); }
         // Final steps
         cameraSmoothlyMovementActivated = false;
-        hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetActiveNavigation(true);
+        hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetActiveNavigation(currentActivationNavigationStatus);
 
         Vector3 currentCameraPosition = Camera.main.transform.localPosition;
         if (currentCameraPosition != targetCameraPosition)
