@@ -17,6 +17,7 @@ public class ConfigurationManager : MonoBehaviour
     private bool UIHierarchyPanelEnabled;       // UI Hierarchy panel enable or not
     private bool UIOcclusionPanelEnabled;       // UI Occlusion panel enable or not
     private bool UISettingsPanelEnabled;
+    private bool UIGizmoEnabled;
 
     private bool uiSelectionEnabled;            // Selection by the UI enabled or not
     private bool uiAutomaticSelectionEnabled;   // This controlled what happens when the user click over a object
@@ -47,7 +48,8 @@ public class ConfigurationManager : MonoBehaviour
         UIHierarchyPanelEnabled     = true;     // Initially the UI Hierarchy panel is activated
         UIOcclusionPanelEnabled     = true;     // Initially the UI Occlusion panel is activated
         UISettingsPanelEnabled      = true;
-        
+        UIGizmoEnabled              = true;
+
         explosionEnabled            = true;        
 
         uiSelectionEnabled          = true;     // Initially the selection from UI is activated
@@ -79,7 +81,7 @@ public class ConfigurationManager : MonoBehaviour
     // UI 
     /////////////////////   
     /// <summary>
-    /// Set if the UI is visible or not. NOT WORKING YET
+    /// Set if the UI is visible or not. 
     /// </summary>
     /// <param name="_enabled">true UI is visible</param>
     public void SetActiveUI(bool _enabled)
@@ -89,12 +91,32 @@ public class ConfigurationManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Get if the UI is visible or not. NOT WORKING YET
+    /// Get if the UI is visible or not. 
     /// </summary>
     /// <returns>True if the UI is activated</returns>
     public bool GetActiveUI()
     {
         return UIEnabled;
+    }
+
+    /////////////////////   
+    /// <summary>
+    /// Set if the UI GIZMO is visible or not. 
+    /// </summary>
+    /// <param name="_enabled">true UI is visible</param>
+    public void SetActiveUIGizmo(bool _enabled)
+    {
+        UIGizmoEnabled = _enabled;
+        this.SendUpdateEvent();
+    }
+
+    /// <summary>
+    /// Get if the UI GIZMO is visible or not. 
+    /// </summary>
+    /// <returns>True if the UI is activated</returns>
+    public bool GetActiveUIGizmo()
+    {
+        return UIGizmoEnabled;
     }
 
     /// <summary>
