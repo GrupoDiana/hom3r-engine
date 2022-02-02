@@ -32,6 +32,7 @@ public class ConfigurationCommandReceiver : MonoBehaviour
 public enum TConfigurationCommands
 {
     ActiveUI,
+    ActiveUIGizmo,
     ActivateUIHierarchyPanel, ActivateUIOcclusionPanel, ActivateUISettingsPanel,
     ActiveUISelection, ActiveUIAutomaticSelection,    
     ActiveTouchInteration, ActiveMouseInteration,    
@@ -39,6 +40,7 @@ public enum TConfigurationCommands
     ActivePanNavigation,
     ActiveLabelEdition,
     ActiveExplosion,
+    SetDurationTransparencyAnimation,
     SetDurationRemoveAnimation,
     SetMouseMapping
 }
@@ -114,6 +116,9 @@ public class CConfigurationCommand : CCoreCommand
                 case TConfigurationCommands.ActiveUI:
                     hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetActiveUI(data.activate);
                     break;
+                case TConfigurationCommands.ActiveUIGizmo:
+                    hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetActiveUIGizmo(data.activate);
+                    break;
                 case TConfigurationCommands.ActivateUIHierarchyPanel:
                     hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetActiveUIHierarchyPanel(data.activate);
                     break;
@@ -161,6 +166,9 @@ public class CConfigurationCommand : CCoreCommand
                     break;
                 case TConfigurationCommands.SetNavigationSystemMode:
                     hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetNavigationSystemMode(data.navigationSystem);
+                    break;
+                case TConfigurationCommands.SetDurationTransparencyAnimation:
+                    hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetDurationTransparencyAnimation(data.value);
                     break;
                 case TConfigurationCommands.SetDurationRemoveAnimation:
                     hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetDurationRemoveAnimation(data.value);
