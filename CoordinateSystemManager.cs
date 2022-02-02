@@ -149,8 +149,10 @@ public class CSphericalCoordinatesManager : CCoordinateSystemManager
             /////////////////////////////////////////////////////////
             // Apply pseudoLatitude and pseudoLongitude correction
             /////////////////////////////////////////////////////////
-            float tVariation = latitudeVariation * CalculateCorrectionParameter(fieldOfView.x);
-            float angleVariation = longitudeVariation * CalculateCorrectionParameter(fieldOfView.y);
+            //float tVariation = latitudeVariation * CalculateCorrectionParameter(fieldOfView.x);
+            //float angleVariation = longitudeVariation * CalculateCorrectionParameter(fieldOfView.y);
+            float tVariation = Calculate_t_Variation(latitudeVariation, fieldOfView.x);
+            float angleVariation = CalculatePlaneAngleVariation(longitudeVariation, fieldOfView.y);
 
             /////////////////////////////////////////////////////
             // Mapping of parameters - Translation parameters
@@ -231,18 +233,129 @@ public class CSphericalCoordinatesManager : CCoordinateSystemManager
         return Vector3.zero;
     }
 
+
+    private float Calculate_t_Variation(float latitudeVariation, float fieldOfView_rad)
+    {
+        TInteractionMappingCorrectionMode latitudeCorrection = hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetLatitudeInteractionCorrectionMode();
+
+        float final_t_variation = latitudeVariation;
+
+        if (latitudeCorrection == TInteractionMappingCorrectionMode.distance)
+        {
+            // Get Semiaxes of the inscribed ellipse inside the object            
+            float inscribedCircunfereRadius = GetInscribedTranslationCircunferenceRadious();
+            //Calculate angle variation in function of the ARC variation
+            final_t_variation *= CalculateCircunferenceArcMappingFactor(inscribedCircunfereRadius);
+            //Calculate angle variation applying the distance between camera and object correction  
+            final_t_variation *= CalculateDistanceCorrectionFactor(inscribedCircunfereRadius, fieldOfView_rad);
+        }
+        else if (latitudeCorrection == TInteractionMappingCorrectionMode.ellipsePerimeter)
+        {
+            // Get Semiaxes of the camera rotation ellipse           
+            float radius = r;
+            //Calculate angle variation in function of the ARC variation
+            final_t_variation *= CalculateCircunferenceArcMappingFactor(radius);
+            // Calculate t-variation applying the ellipse perimeter correction
+            final_t_variation *= (0.5f * CalculateCircunferencePerimeter(radius));
+        }
+        else if (latitudeCorrection == TInteractionMappingCorrectionMode.none)
+        {
+            // Get Semiaxes of the camera rotation ellipse           
+            float radius = r;
+            //Calculate angle variation in function of the ARC variation
+            final_t_variation *= CalculateCircunferenceArcMappingFactor(radius);
+        }
+
+        return final_t_variation;
+    }
+
+    private float CalculatePlaneAngleVariation(float _longitudeVariation, float fieldOfView_rad)
+    {
+        TInteractionMappingCorrectionMode longitudeCorrection = hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetLongitudeInteractionCorrectionMode();
+
+        float finalAngleVariation = _longitudeVariation;
+
+        if (longitudeCorrection == TInteractionMappingCorrectionMode.distance)
+        {
+            // Get Semiaxes of the inscribed ellipse inside the object            
+            float inscribedCircunfereRadius = GetInscribedLongitudeCircunferenceRadious();
+            //Calculate angle variation in function of the ARC variation
+            finalAngleVariation *= CalculateCircunferenceArcMappingFactor(inscribedCircunfereRadius);
+            //Calculate angle variation applying the distance between camera and object correction  
+            finalAngleVariation *= CalculateDistanceCorrectionFactor(inscribedCircunfereRadius, fieldOfView_rad);
+        }
+        else if (longitudeCorrection == TInteractionMappingCorrectionMode.ellipsePerimeter)
+        {
+            // Get Semiaxes of the camera rotation ellipse           
+            float radius = r;
+            //Calculate angle variation in function of the ARC variation
+            finalAngleVariation *= CalculateCircunferenceArcMappingFactor(radius);
+            // Calculate t-variation applying the ellipse perimeter correction
+            finalAngleVariation *= (0.5f * CalculateCircunferencePerimeter(radius));
+        }
+        else if (longitudeCorrection == TInteractionMappingCorrectionMode.none)
+        {
+            // Get Semiaxes of the camera rotation ellipse           
+            float radius = r;
+            //Calculate angle variation in function of the ARC variation
+            finalAngleVariation *= CalculateCircunferenceArcMappingFactor(radius);
+        }
+
+        return finalAngleVariation;
+    }
+
+
+    private float CalculateCircunferencePerimeter(float r)
+    {
+        return 2 * Mathf.PI * r;
+    }
+
+    private float CalculateCircunferenceArcMappingFactor(float radious)
+    {
+        return (1 / radious);
+    }
+
+    private float GetInscribedTranslationCircunferenceRadious()
+    {
+        float rMin = MathHom3r.Max(extents.x, extents.z);
+        return rMin;
+    }
+    private float GetInscribedLongitudeCircunferenceRadious()
+    {
+        float rMin = MathHom3r.Max(extents.y, extents.z);
+        return rMin;
+    }
+
+    /// <summary>
+    /// Calculate pseudo latitude and pseudo longitude correction.
+    /// Based on the projection from the camera circumference to the circumference inscribed in the object.
+    /// </summary>
+    /// <param name="inscribedCircunferenRadious">radious of the inscribed circunference</param>
+    /// <param name="fieldOfView_rad">field of view of the camera in radians</param>
+    /// <returns></returns>
+    private float CalculateDistanceCorrectionFactor(float inscribedCircunferenRadious, float fieldOfView_rad)
+    {
+        // Calculate minimum circumference
+        float rMin = inscribedCircunferenRadious; //MathHom3r.Max(extents.y, extents.z);        
+            
+        float dPQ = r - rMin;
+        if (dPQ < 1) { dPQ = 1; }       //TODO Delete this Chapuza -> Maybe the problem is that the minimum ellipse is to big
+        float k = 2 * (dPQ) * Mathf.Tan(fieldOfView_rad);
+
+        return k;
+    }
     /// <summary>
     /// Calculate pseudo latitude and pseudo longitude correction.
     /// Based on the projection from the camera circumference to the circumference inscribed in the object.
     /// </summary>
     /// <param name="fieldOfView_rad">field of view of the camera in radians</param>
     /// <returns></returns>
-    private float CalculateCorrectionParameter(float fieldOfView_rad)
-    {        
-        float rMin = MathHom3r.Max(extents);     
-        float k = 2* (r - rMin) * Mathf.Tan(fieldOfView_rad);        
-        return k * (1/rMin) ;        
-    }
+    //private float CalculateCorrectionParameter(float fieldOfView_rad)
+    //{        
+    //    float rMin = MathHom3r.Max(extents);     
+    //    float k = 2* (r - rMin) * Mathf.Tan(fieldOfView_rad);        
+    //    return k * (1/rMin) ;        
+    //}
 
     /// <summary>
     /// Check navigation constraints and applied to the translation t parameter
@@ -913,7 +1026,7 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
             // Get Semiaxes of the inscribed ellipse inside the object
             CSemiAxes _incribedEllipseSemiAxes = GetInscribedTranslationEllipseSemiAxes();
             //Calculate t-variation in function of the ARC variation
-            final_t_Variation *= CalculateLatitudeArcMappingFactor(fieldOfViewX, _incribedEllipseSemiAxes.a, _incribedEllipseSemiAxes.b);
+            final_t_Variation *= CalculateLatitudeArcMappingFactor(_incribedEllipseSemiAxes.a, _incribedEllipseSemiAxes.b);
 
 
             //Calculate t-variation applying the distance between camera and object correction  
@@ -924,7 +1037,7 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
             // Get Semiaxes of the camera translation ellipse
             CSemiAxes _cameraEllipseSemiAxes = GetTranslationEllipseSemiAxes();
             //Calculate t-variation in function of the ARC variation
-            final_t_Variation *= CalculateLatitudeArcMappingFactor(fieldOfViewX, _cameraEllipseSemiAxes.a, _cameraEllipseSemiAxes.b);
+            final_t_Variation *= CalculateLatitudeArcMappingFactor(_cameraEllipseSemiAxes.a, _cameraEllipseSemiAxes.b);
             // Calculate t-variation applying the ellipse perimeter correction
             final_t_Variation *= (0.5f * CalculateEllipsePerimeter(_cameraEllipseSemiAxes.a, _cameraEllipseSemiAxes.b));
         } else if (latitudeCorrection == TInteractionMappingCorrectionMode.none)
@@ -986,7 +1099,7 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
         return _translationEllipseSemiAxes;
     }
 
-    private float CalculateLatitudeArcMappingFactor(float fieldOfView_rad, float a, float b)
+    private float CalculateLatitudeArcMappingFactor(float a, float b)
     {      
         //float aMin;
         //float bMin;
@@ -1894,7 +2007,7 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
             intersectionPoint = new Vector3(intersectionXaxis, 0, intersectionZaxis);
         }
 
-        Debug.Log(intersectionPoint);
+        //Debug.Log(intersectionPoint);
         return intersectionPoint;
     }
 
