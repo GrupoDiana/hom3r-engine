@@ -428,7 +428,10 @@ public class SelectionManager : MonoBehaviour
             {
                 float duration = 0.0f;
                 // If it is now hidden we have to do it with a delay
-                if (hom3r.quickLinks.scriptsObject.GetComponent<RemoveManager>().IsRemovedGameObject(objectArea)) { duration = 1.5f; }
+                if (hom3r.quickLinks.scriptsObject.GetComponent<RemoveManager>().IsRemovedGameObject(objectArea)) {
+                    hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetDurationRemoveAnimation();
+                    //duration = 1.5f;
+                } 
                 //Select that area.                            
                 // objectArea.GetComponent<ObjectStateManager>().SendEvent(TObjectVisualStateCommands.Confirmation_Multiple_On, duration, colour);
                 objectArea.GetComponent<ObjectStateManager>().Do(new CObjectVisualStateCommand(TObjectVisualStateCommands.Confirmation_Multiple_On, duration, colour));
