@@ -713,13 +713,18 @@ public class NavigationManager : MonoBehaviour {
         cameraSmoothlyMovementActivated = true;
 
         bool currentActivationNavigationStatus = hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetActiveNavigation();
-        hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetActiveNavigation(false);
+        bool currentActivationKeyboardStatus = hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetActiveKeyboard();
+        //hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetActiveNavigation(false);
+        hom3r.coreLink.Do(new CConfigurationCommand(TConfigurationCommands.ActiveNavigation, false));
+        hom3r.coreLink.Do(new CConfigurationCommand(TConfigurationCommands.ActiveKeyboard, false));
         //Start the Movement
         if (durationTime != 0) { yield return StartCoroutine(MoveCameraSmoothly(delayTime, durationTime, targetCameraPosition, pointToLook)); }
         else { MoveCameraWithinThePlane(targetCameraPosition); }
         // Final steps
         cameraSmoothlyMovementActivated = false;
-        hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetActiveNavigation(currentActivationNavigationStatus);
+        //hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetActiveNavigation(currentActivationNavigationStatus);
+        hom3r.coreLink.Do(new CConfigurationCommand(TConfigurationCommands.ActiveNavigation, currentActivationNavigationStatus));
+        hom3r.coreLink.Do(new CConfigurationCommand(TConfigurationCommands.ActiveKeyboard, currentActivationKeyboardStatus));
 
         Vector3 currentCameraPosition = Camera.main.transform.localPosition;
         if (currentCameraPosition != targetCameraPosition)

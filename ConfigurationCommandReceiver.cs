@@ -40,6 +40,7 @@ public enum TConfigurationCommands
     ActivePanNavigation,
     ActiveLabelEdition,
     ActiveExplosion,
+    ActiveKeyboard,
     SetDurationTransparencyAnimation,
     SetDurationRemoveAnimation,
     SetMouseMapping
@@ -172,6 +173,9 @@ public class CConfigurationCommand : CCoreCommand
                     break;
                 case TConfigurationCommands.SetDurationRemoveAnimation:
                     hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetDurationRemoveAnimation(data.value);
+                    break;
+                case TConfigurationCommands.ActiveKeyboard:
+                    hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetActiveKeyboard(data.activate);
                     break;
                 default:
                     Debug.LogError("Error: This command " + data.command + " is not valid.");

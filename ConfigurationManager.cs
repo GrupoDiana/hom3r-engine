@@ -42,6 +42,8 @@ public class ConfigurationManager : MonoBehaviour
     private float durationTransparencyAnimation;    // This control the duration of the fade-in, fade-out animation effect of the transparency 
     private float durationRemoveAnimation;          // This control the duration of the fade-in, fade-out animation effect of the remove
 
+    private bool keyboardEnabled;
+
     private void Awake()
     {
         UIEnabled                   = true;     // Initially the UI is activated
@@ -73,6 +75,8 @@ public class ConfigurationManager : MonoBehaviour
 
         durationTransparencyAnimation   = 0.4f;
         durationRemoveAnimation         = 0.75f;
+
+        keyboardEnabled             = true;
 
         Debug.Log("Configuration Manager Awake");     
     } 
@@ -495,6 +499,28 @@ public class ConfigurationManager : MonoBehaviour
     public float GetDurationRemoveAnimation()
     {
         return durationRemoveAnimation;
+    }
+
+
+    /////////////////////
+    // KEYBOARD
+    /////////////////////
+    /// <summary>
+    /// Set if the navigation is activated or not. 
+    /// </summary>
+    /// <param name="_enabled">true activate the mouse interaction</param>
+    public void SetActiveKeyboard(bool _enabled)
+    {
+        keyboardEnabled = _enabled;        
+        this.SendUpdateEvent();
+    }
+    /// <summary>
+    /// Get if the navigation is activated or not. 
+    /// </summary>
+    /// <returns>True if mouse interaction is activated</returns>
+    public bool GetActiveKeyboard()
+    {
+        return keyboardEnabled;
     }
 
 
