@@ -24,7 +24,9 @@ public class ConfigurationManager : MonoBehaviour
 
     private bool touchInteractionEnabled;       // This control if the touch interaction is On or not
     private bool mouseInteractionEnabled;       // This control if the mouse interaction is On or not
+    private bool mouseWheelEnabled;
     private TMouseMapping mouseMapping;         // This control which action is done by left mouse button and which by the right
+
 
     private bool navigationEnabled;                             // This control if the navigation is On or not
     private bool navigationZoomEnabled;                         // This control if the navigation Zoom is On or not
@@ -60,6 +62,7 @@ public class ConfigurationManager : MonoBehaviour
 
         touchInteractionEnabled     = false;
         mouseInteractionEnabled     = true;
+        mouseWheelEnabled            = true;
         mouseMapping                = TMouseMapping.standard;
 
         navigationEnabled           = false;
@@ -283,7 +286,25 @@ public class ConfigurationManager : MonoBehaviour
         return mouseMapping;
     }
 
-      
+    /// <summary>
+    /// Set if the mouse interaction is activated or not. 
+    /// </summary>
+    /// <param name="_enabled">true activate the mouse interaction</param>
+    public void SetActiveMouseWheelInteration(bool _enabled)
+    {
+        mouseWheelEnabled = _enabled;
+        this.SendUpdateEvent();
+    }
+    /// <summary>
+    /// Get if mouse interaction is activated or not. 
+    /// </summary>
+    /// <returns>True if mouse interaction is activated</returns>
+    public bool GetActiveMouseWheelInteration()
+    {
+        return mouseWheelEnabled;
+    }
+
+
     /////////////////////
     // Navigation
     /////////////////////

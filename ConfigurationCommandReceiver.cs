@@ -35,7 +35,7 @@ public enum TConfigurationCommands
     ActiveUIGizmo,
     ActivateUIHierarchyPanel, ActivateUIOcclusionPanel, ActivateUISettingsPanel,
     ActiveUISelection, ActiveUIAutomaticSelection,    
-    ActiveTouchInteration, ActiveMouseInteration,    
+    ActiveTouchInteration, ActiveMouseInteration, ActiveMouseWheelInteraction,    
     ActiveNavigation, ActiveNavigationZoom, SetNavigationLatitudeCorrectioFactorMode, SetNavigationLongitudeCorrectioFactorMode, SetNavigationSystemMode,
     ActivePanNavigation,
     ActiveLabelEdition,
@@ -140,6 +140,9 @@ public class CConfigurationCommand : CCoreCommand
                     break;
                 case TConfigurationCommands.ActiveMouseInteration:
                     hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetActiveMouseInteration(data.activate);
+                    break;
+                case TConfigurationCommands.ActiveMouseWheelInteraction:
+                    hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetActiveMouseWheelInteration(data.activate);
                     break;
                 case TConfigurationCommands.ActiveNavigation:
                     hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetActiveNavigation(data.activate);

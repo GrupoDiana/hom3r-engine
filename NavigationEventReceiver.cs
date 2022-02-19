@@ -50,7 +50,10 @@ public class NavigationEventReceiver : MonoBehaviour {
                     hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().SetActivePanNavitagion(false);
                     break;
                 case TCoreEvent.MouseManager_WheelMovement:
-                    hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().SetMouseMovement(0.0f, 0.0f, 0.0f, 0.0f, _event.data.mouseWhellMovement);
+                    if (hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetActiveMouseWheelInteration())
+                    {
+                        hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().SetMouseMovement(0.0f, 0.0f, 0.0f, 0.0f, _event.data.mouseWhellMovement);
+                    }                    
                     break;
                 case TCoreEvent.MouseManager_CentralButtonDragMovement:
                     hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().SetMouseMovement(_event.data.mouseDragMovementX, _event.data.mouseDragMovementY, _event.data.mouseDragMovementXPercentage, _event.data.mouseDragMovementYPercentage, 0.0f);
