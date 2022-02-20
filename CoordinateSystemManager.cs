@@ -212,11 +212,19 @@ public class CSphericalCoordinatesManager : CCoordinateSystemManager
         float new_r;
         if (radialVariation <= -10000)
         {
-            new_r = minimunRadious;
+            //new_r = minimunRadious;
+            float zoomPercentage = -0.01f * (radialVariation + 10000);
+            float offset = (initialRadious - minimunRadious) * (1 - zoomPercentage);
+            new_r = minimunRadious + offset;
+
         }
         else if (radialVariation >= 10000)
         {
-            new_r = initialRadious;
+            //new_r = initialRadious;
+            float zoomPercentage = 0.01f * (radialVariation - 10000);
+            float offset = (initialRadious - minimunRadious) * (1 - zoomPercentage);
+            new_r = minimunRadious + offset;
+
         }
         else
         {
