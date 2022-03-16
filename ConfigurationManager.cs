@@ -31,11 +31,14 @@ public class ConfigurationManager : MonoBehaviour
     private bool navigationEnabled;                             // This control if the navigation is On or not
     private bool navigationZoomEnabled;                         // This control if the navigation Zoom is On or not
     private TNavigationSystemMode navigationSystem;             // This control the navigation system that is going to be used
-    private TNavigationSystemConstraints navigationConstraints; // This control the constraints applied to the navigation
+    private TNavigationSystemConstraints navigationConstraints; // This control the constraints applied to the navigation    
     private bool panNavigationEnabled;                          // This control if the Pan navigation is On or not
+
 
     private TInteractionMappingCorrectionMode latitudeInteractionCorrectionFactorMode;     // This control if the correction factor of the latitude interaction is activated or not
     private TInteractionMappingCorrectionMode longitudeInteractionCorrectionFactorMode;    // This control if the correction factor of the lontigude interaction is activated or not
+    private bool spheroidNavigationOblateObjectsOrientationCorrectionMode;
+
 
     private bool labelEditionEnabled;           // This control if the labels can be edit or not
 
@@ -70,6 +73,7 @@ public class ConfigurationManager : MonoBehaviour
         navigationZoomEnabled       = true;
         navigationSystem            = TNavigationSystemMode.Ellipsoid;
         navigationConstraints       = TNavigationSystemConstraints.translationLimited;
+        spheroidNavigationOblateObjectsOrientationCorrectionMode = true;
 
         latitudeInteractionCorrectionFactorMode      = TInteractionMappingCorrectionMode.distance;
         longitudeInteractionCorrectionFactorMode     = TInteractionMappingCorrectionMode.distance;
@@ -435,6 +439,25 @@ public class ConfigurationManager : MonoBehaviour
         return longitudeInteractionCorrectionFactorMode;
     }
 
+
+    /// <summary>
+    /// Set if the navigation is activated or not. 
+    /// </summary>
+    /// <param name="_enabled">true activate the mouse interaction</param>
+    public void SetSpheroidNavigationOblateOrientationCorrectionMode(bool _enabled)
+    {
+        spheroidNavigationOblateObjectsOrientationCorrectionMode = _enabled;
+        this.SendUpdateEvent();
+    }
+
+    /// <summary>
+    /// Get if the navigation is activated or not. 
+    /// </summary>
+    /// <returns>True if mouse interaction is activated</returns>
+    public bool GetSpheroidNavigationOblateOrientationCorrectionMode()
+    {
+        return spheroidNavigationOblateObjectsOrientationCorrectionMode;
+    }
 
     /////////////////////
     // Label Edition
