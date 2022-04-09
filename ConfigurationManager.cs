@@ -73,7 +73,7 @@ public class ConfigurationManager : MonoBehaviour
         navigationZoomEnabled       = true;
         navigationSystem            = TNavigationSystemMode.Ellipsoid;
         navigationConstraints       = TNavigationSystemConstraints.translationLimited;
-        spheroidNavigationOblateObjectsOrientationCorrectionMode = true;
+        spheroidNavigationOblateObjectsOrientationCorrectionMode = false;
 
         latitudeInteractionCorrectionFactorMode      = TInteractionMappingCorrectionMode.distance;
         longitudeInteractionCorrectionFactorMode     = TInteractionMappingCorrectionMode.distance;
