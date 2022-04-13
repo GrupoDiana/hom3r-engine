@@ -25,8 +25,9 @@ public enum TCoreEvent
     MouseManager_RightButtonUp, MouseManager_RightButtonDown,
     MouseManager_CentralButtonUp, MouseManager_CentralButtonDown,
     MouseManager_LeftButtonDragMovement,
-    MouseManager_WheelMovement,
+    MouseManager_WheelMovement, 
     MouseManager_CentralButtonDragMovement,
+    MouseManager_WheelMovementSecundaryCamera,
 
     MouseManager_LabelDragGestureEnd, MouseManager_LabelDragGestureBegin,
     MouseManager_LabelDragGesture,

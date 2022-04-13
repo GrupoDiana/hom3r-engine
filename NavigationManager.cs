@@ -33,11 +33,17 @@ public class NavigationManager : MonoBehaviour {
     float radialVariationScale;
     float radialVariationJump;
 
+    public Camera mainCamera;
+    public GameObject secundaryCamera;
+    private float secundaryCameraDistance;
+
     /// <summary>Initialize variables and structures</summary>
     private void Awake()
     {
         hom3r.quickLinks.navigationSystemObject = GameObject.FindGameObjectWithTag("NavigationSystem_tag");       //Initialize the quick link to the orbit plane object
 
+        secundaryCamera = GameObject.FindGameObjectWithTag("secundarycamera");
+        secundaryCameraDistance = 3f;
         this.InitializeVariables();       
     }
 
@@ -487,6 +493,18 @@ public class NavigationManager : MonoBehaviour {
         radialVariationCorrection = radialVariationScale * (cameraInitialPosition.magnitude - cameraMinimumDistance) / 100;
     }
 
+
+    /// <summary>
+    /// Receive the movement of the mouse and transfers it to the appropriate navigation system
+    /// </summary>
+    /// <param name="mouseMovementX">Movement of the mouse in X axis, % of the screen size</param>
+    /// <param name="mouseMovementY">Movement of the mouse in Y axis, % of the screen size</param>
+    /// <param name="mouseWhellMovement">Movement of the whell mouse, % of the screen size</param>
+    public void SetMouseMovementSecundaryCamera(float mouseMovementX, float mouseMovementY, float mouseMovementPercentageX, float mouseMovementPercentageY, float mouseWhellMovement)
+    {
+        this.UpdateSecundaryCameraSize(mouseWhellMovement);
+    }
+
     ////////////////////////////
     // TOUCH RECEPTION METHODS
     ////////////////////////////
@@ -597,7 +615,7 @@ public class NavigationManager : MonoBehaviour {
 
     private void InitSecundaryCameraPosition(Vector3 newCameraPosition)
     {
-        GameObject secundaryCamera = GameObject.FindGameObjectWithTag("secundarycamera");
+        //GameObject secundaryCamera = GameObject.FindGameObjectWithTag("secundarycamera");
 
         Vector3 current = new Vector3(newCameraPosition.z * -5f, newCameraPosition.z * -5f, newCameraPosition.z * 5f);
         //float distance = Vector3.Distance(newCameraPosition, modelBoundingBox.center);        
@@ -606,7 +624,7 @@ public class NavigationManager : MonoBehaviour {
         direction.x = 1f;
         direction.y = 1f;
         direction.z = -1f;
-        Vector3 temp = newCameraPosition + 3f * distance * direction;
+        Vector3 temp = newCameraPosition + secundaryCameraDistance * distance * direction;
 
 
         //secundaryCamera.transform.localPosition = new Vector3(newCameraPosition.z * -5f, newCameraPosition.z * -5f, newCameraPosition.z * 5f);
@@ -614,22 +632,18 @@ public class NavigationManager : MonoBehaviour {
         InitSecundaryCameraOrientation();
     }
     private void InitSecundaryCameraOrientation()
-    {
-        GameObject secundaryCamera = GameObject.FindGameObjectWithTag("secundarycamera");
+    {        
         secundaryCamera.transform.LookAt(modelBoundingBox.center);
-
-        //Reorient the camera: fix the orientation of the camera to orientate it parallel to the orbit plane
-        //Vector3 rotation = new Vector3();
-        //if (mainAxis == TMainAxis.Vertical)
-        //{
-        //    rotation = new Vector3(secundaryCamera.transform.localEulerAngles.x, secundaryCamera.transform.localEulerAngles.y, -90);
-        //}
-        //else
-        //{
-        //    rotation = new Vector3(secundaryCamera.transform.localEulerAngles.x, secundaryCamera.transform.localEulerAngles.y, 0);
-        //}
-        //secundaryCamera.transform.localEulerAngles = rotation;
     }
+
+    private void UpdateSecundaryCameraSize(float value)
+    {        
+        float cameraSize = secundaryCamera.GetComponent<Camera>().orthographicSize;        
+        float newCameraSize = cameraSize * (1f + (0.05f * -value)); // +5% or -5%
+        if (newCameraSize < 10f) { newCameraSize = cameraSize; }
+        secundaryCamera.GetComponent<Camera>().orthographicSize = newCameraSize;
+    }
+
 
     /// <summary>Moves the navigation plane</summary>
     /// <param name="newPlanePosition">New plane position</param>
