@@ -36,7 +36,9 @@ public enum TConfigurationCommands
     ActivateUIHierarchyPanel, ActivateUIOcclusionPanel, ActivateUISettingsPanel,
     ActiveUISelection, ActiveUIAutomaticSelection,    
     ActiveTouchInteration, ActiveMouseInteration, ActiveMouseWheelInteraction,    
-    ActiveNavigation, ActiveNavigationZoom, SetNavigationLatitudeCorrectioFactorMode, SetNavigationLongitudeCorrectioFactorMode, SetNavigationSystemMode,
+    ActiveNavigation, ActiveNavigationZoom,
+    SetNavigationLatitudeCorrectioFactorMode, SetNavigationLongitudeCorrectioFactorMode, ActiveNavigationOblateOrientationCorrection,
+    SetNavigationSystemMode,
     ActivePanNavigation,
     ActiveLabelEdition,
     ActiveExplosion,
@@ -167,6 +169,9 @@ public class CConfigurationCommand : CCoreCommand
                     break;
                 case TConfigurationCommands.SetNavigationLongitudeCorrectioFactorMode:
                     hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetModeLongitudeInteractionCorrectionFactor(data.interactionMappingCorrectionMode);
+                    break;
+                case TConfigurationCommands.ActiveNavigationOblateOrientationCorrection:
+                    hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetActiveNavigationOblateOrientationCorrection(data.activate);
                     break;
                 case TConfigurationCommands.SetNavigationSystemMode:
                     hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetNavigationSystemMode(data.navigationSystem);

@@ -37,7 +37,7 @@ public class ConfigurationManager : MonoBehaviour
 
     private TInteractionMappingCorrectionMode latitudeInteractionCorrectionFactorMode;     // This control if the correction factor of the latitude interaction is activated or not
     private TInteractionMappingCorrectionMode longitudeInteractionCorrectionFactorMode;    // This control if the correction factor of the lontigude interaction is activated or not
-    private bool spheroidNavigationOblateObjectsOrientationCorrectionMode;
+    private bool navigationOblateObjectsOrientationCorrectionEnabled;
 
 
     private bool labelEditionEnabled;           // This control if the labels can be edit or not
@@ -73,7 +73,7 @@ public class ConfigurationManager : MonoBehaviour
         navigationZoomEnabled       = true;
         navigationSystem            = TNavigationSystemMode.Ellipsoid;
         navigationConstraints       = TNavigationSystemConstraints.translationLimited;
-        spheroidNavigationOblateObjectsOrientationCorrectionMode = false;
+        navigationOblateObjectsOrientationCorrectionEnabled = false;
 
         latitudeInteractionCorrectionFactorMode      = TInteractionMappingCorrectionMode.distance;
         longitudeInteractionCorrectionFactorMode     = TInteractionMappingCorrectionMode.distance;
@@ -444,9 +444,9 @@ public class ConfigurationManager : MonoBehaviour
     /// Set if the navigation is activated or not. 
     /// </summary>
     /// <param name="_enabled">true activate the mouse interaction</param>
-    public void SetSpheroidNavigationOblateOrientationCorrectionMode(bool _enabled)
+    public void SetActiveNavigationOblateOrientationCorrection(bool _enabled)
     {
-        spheroidNavigationOblateObjectsOrientationCorrectionMode = _enabled;
+        navigationOblateObjectsOrientationCorrectionEnabled = _enabled;
         this.SendUpdateEvent();
     }
 
@@ -454,9 +454,9 @@ public class ConfigurationManager : MonoBehaviour
     /// Get if the navigation is activated or not. 
     /// </summary>
     /// <returns>True if mouse interaction is activated</returns>
-    public bool GetSpheroidNavigationOblateOrientationCorrectionMode()
+    public bool GetActiveNavigationOblateOrientationCorrection()
     {
-        return spheroidNavigationOblateObjectsOrientationCorrectionMode;
+        return navigationOblateObjectsOrientationCorrectionEnabled;
     }
 
     /////////////////////
