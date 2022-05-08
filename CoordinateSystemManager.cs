@@ -19,6 +19,73 @@ class CSemiAxes
 }
 
 /// <summary>
+/// To store axis options
+/// </summary>
+enum TAxis { x, y, z };
+
+/// <summary>
+/// Class that stores all the information of the virtual ellipsoid over which the camera moves. 
+/// The desired evolutes cusps values are also stored for the x- and Z-axes.
+/// </summary>
+class CEllipsoidData
+{
+    public float radiousXAxis;
+    public float radiousZAxis;
+    public float radiousYAxis;
+
+    float evoluteCusp_XAxis;            //Desired value of the evolute cusp for the X-axis
+    float evoluteCusp_ZAxis;            //Desired value of the evolute cusp for the Z-axis
+
+    /// <summary>Stores the values of the evolute cusps</summary>
+    /// <param name="evoluteCusp_XAxis"></param>
+    /// <param name="evoluteCusp_ZAxis"></param>
+    public void SetEvoluteCups(float _evoluteCusp_XAxis, float _evoluteCusp_ZAxis)
+    {
+        evoluteCusp_XAxis = _evoluteCusp_XAxis;
+        evoluteCusp_ZAxis = _evoluteCusp_ZAxis;
+    }
+
+    /// <summary>Returns the value of the cuspid of the evolution along the requested axis. Only works for the x-axis and z-axis.</summary>
+    /// <param name="_axis">X or Z axis for which the evolute cusps is to be known.</param>
+    /// <returns></returns>
+    public float GetEvoluteCusp(TAxis _axis)
+    {
+        if (_axis == TAxis.x) { return evoluteCusp_XAxis; }
+        else if (_axis == TAxis.z) { return evoluteCusp_ZAxis; }
+        else return 0;
+    }
+}
+
+/// <summary>
+/// Store camera elliptical trajectory data
+/// </summary>
+class CTranslationEllipseData
+{
+    public float radiousZAxis;
+    public float radiousXAxis;
+    public float evoluteCusp;
+
+    /// <summary>
+    /// Returns both semi-axes of the ellipse
+    /// </summary>
+    /// <returns></returns>
+    public CSemiAxes GetSemiAxes()
+    {
+        if (radiousXAxis > radiousZAxis) { return new CSemiAxes(radiousXAxis, radiousZAxis); }
+        else { return new CSemiAxes(radiousZAxis, radiousXAxis); }
+    }
+    /// <summary>
+    /// Returns in which axis is the semi-major axis of the ellipse
+    /// </summary>
+    /// <returns></returns>
+    public TAxis GetSemiMajorAxis()
+    {
+        if (radiousXAxis > radiousZAxis) { return TAxis.x; }
+        else { return TAxis.z; }
+    }
+}
+
+/// <summary>
 /// translationLimited : limited only in t € [0, PI]
 /// </summary>
 //public enum TCoordinateSystemConstraints { none, translationLimited }
@@ -534,18 +601,24 @@ public class CLimitedSphericalCoordinatesManager : CCoordinateSystemManager
 
 public class CSpheroidCoordinatesManager : CCoordinateSystemManager
 {
-    
+
     // Parametric equations to implemented
     // x = a cos (t)         t€[0, 2PI]
     // z = b sin (t)         t€[0, 2PI]
 
     //Parameters that define the camera translation ellipse    
-    CEllipseData translationEllipse = new CEllipseData();
+    CEllipsoidData ellipsoidData = new CEllipsoidData();                            // Current ellipsoid data
+    CTranslationEllipseData translationEllipseNew = new CTranslationEllipseData();  // Current tranlation ellipse data
 
+    //CEllipseData translationEllipse = new CEllipseData();
+
+    
     float t_translationEllipse;                    // Current t parameter that define camera position on the ellipse
     //Plane rotation angle
     float planeAngle;                               // Current rotation angle    
+
     //Ellipse limits
+    CEllipsoidData minimunEllipsoidData;
     float minimunAllowedAxis;                       // Minimum possible minor axis
     float initialAxis;
 
@@ -560,6 +633,8 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
     Vector3 extents;            // Store the product bounding box extents
     //Vector2 fieldOfView;        // Store the camera field of View
     TNavigationSystemConstraints navigationConstraints;
+    float k_lastvalidvalue;     // TODO Delete me
+
 
     public bool Init(Vector3 _extents, Vector3 cameraInitialPosition, TNavigationSystemConstraints _navigationConstraints, out float minimumCameraDistance, out Vector3 pointToLook)
     {
@@ -573,14 +648,18 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
         // Identify object geometry type. Long or flat
         //////////////////////////////////////////////////   
         geometryType = ClassifyObjectGeometry(_extents);         // Get if the object is flat or long
+        // Init ellipsoid
+        ellipsoidData = CalculateEllipsoid(_extents, cameraInitialPosition);
 
         /////////////////////////////////////////////////////////////////
         // Get translation parameters from the initial camera position
         ///////////////////////////////////////////////////////////////      
-        translationEllipse.Ec = CalculateCParameter(_extents);                                           // Calculate the parameter c according to the geometry of the object and its dimensions.
-        CalculateEllipseSemiAxesParameters(cameraInitialPosition, ref translationEllipse);              // Calculate semi-axis of the ellipse a,b
-        t_translationEllipse = CalculateInitialTParameter(cameraInitialPosition, translationEllipse);   // Calculate the initial value of t parameter       
+        //translationEllipse.Ec = CalculateEvolute(_extents);                                             // Calculate the parameter c according to the geometry of the object and its dimensions.
+        //CalculateInitialTranslationEllipseParameters(cameraInitialPosition, ref translationEllipse);    // Calculate semi-axis of the ellipse a,b        
+        //t_translationEllipse = CalculateInitialTParameter(cameraInitialPosition, translationEllipse);   // Calculate the initial value of t parameter       
 
+        translationEllipseNew = CalculateInitialTranslationEllipse_new();
+        t_translationEllipse = CalculateTranslationEllipseInitialT_new();
         ///////////////////////////////////
         // Initialize plane angle to 0
         ///////////////////////////////////
@@ -589,21 +668,22 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
         ////////////////////////////////////////////
         // Calculate the minimum radius possible
         ////////////////////////////////////////////        
-        minimunAllowedAxis = CalculateMinimunEllipse(_extents, translationEllipse);      // Calculate the minimum ellipse semi-axes
+        //minimunAllowedAxis = CalculateMinimunEllipse(_extents, translationEllipse);      // Calculate the minimum ellipse semi-axes
+        minimunAllowedAxis = CalculateMinimunEllipse_new(_extents);
         minimumCameraDistance = minimunAllowedAxis;                 // update out parameter
 
         //////////////////////////////////////////////////
         // Calculate the point which camera has to look
         //////////////////////////////////////////////////        
-        pointToLook = CalculatePointToLook(t_translationEllipse, translationEllipse);
-
+        //pointToLook = CalculatePointToLook(t_translationEllipse, translationEllipse);
+        pointToLook = CalculatePointToLook_new(t_translationEllipse, translationEllipseNew);
 
         //////////////////////////////////////
         // HELPER
         //////////////////////////////////////
-        DrawTranslationTrajectory(translationEllipse);                            // Draw the trajectory of the translation, for debug reasons   
+        DrawTranslationTrajectory();                            // Draw the trajectory of the translation, for debug reasons   
         DrawRotationTrajectory(cameraInitialPosition);
-        DrawReferenceEllipses(translationEllipse); 
+        DrawReferenceEllipses(); 
 
         /////////////////////////////////////////////////////////////////
         //Check if the proposed initial position for the camera is OK
@@ -647,9 +727,9 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
             /////////////////////////////////////////////////////
             // Mapping of parameters - Translation parameters
             /////////////////////////////////////////////////////            
-            translationEllipse = CalculateNewEllipseSemiAxesParametersAfterRadialMovement(radialVariation, translationEllipse);
-            
-
+            //translationEllipse = CalculateNewEllipseSemiAxesParametersAfterRadialMovement(radialVariation, translationEllipse);
+            CalculateNewEllipseSemiAxesParametersAfterRadialMovement_New(radialVariation);
+            translationEllipseNew = CalculateInitialTranslationEllipse_new();
             // Latitude - which is a translation movement on the camera plane
             //t_translationEllipse += tVariation;                                             // Add to the current translation angle
             //t_translationEllipse = MathHom3r.NormalizeAngleInRad(t_translationEllipse);     // Normalize new t angle 
@@ -673,22 +753,22 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
             //////////////////////////////////////
             // Calculate new camera position
             //////////////////////////////////////            
-            cameraPlanePosition = CalculateNewCameraPosition(t_translationEllipse, translationEllipse);
-           
-            //////////////////////////////////////
-            // Calculate new plane rotation
-            //////////////////////////////////////
+            //cameraPlanePosition = CalculateNewCameraPosition(t_translationEllipse, translationEllipse);
+            cameraPlanePosition = CalculateNewCameraPosition_New(t_translationEllipse);
+             //////////////////////////////////////
+             // Calculate new plane rotation
+             //////////////////////////////////////
             planeRotation = planeAngle;
 
             //////////////////////////////////////////////////
             // Calculate the point which camera hast to look
             //////////////////////////////////////////////////        
-            pointToLook = CalculatePointToLook(t_translationEllipse, translationEllipse);
-
+            //pointToLook = CalculatePointToLook(t_translationEllipse, translationEllipse);
+            pointToLook = CalculatePointToLook_new(t_translationEllipse, translationEllipseNew);
             //////////////////////////////////////
             // HELPER
             //////////////////////////////////////
-            DrawTranslationTrajectory(translationEllipse);                            // Draw the trajectory of the translation, for debug reasons   
+            DrawTranslationTrajectory();                            // Draw the trajectory of the translation, for debug reasons   
             DrawRotationTrajectory(cameraPlanePosition);
             //DrawCameraPosition(cameraPlanePosition, pointToLook);
 
@@ -721,16 +801,69 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
     }
 
     /// <summary>
+    /// Calculate the reference ellipses, these are the ellipses on the xz and xy plane that frame the projections of the object on those planes
+    /// </summary>
+    /// <param name="extents"></param>
+    /// <param name="cameraPosition"></param>   
+    private CEllipsoidData CalculateEllipsoid(Vector3 extents, Vector3 cameraPosition)
+    {
+        CEllipsoidData _ellipsoidData = new CEllipsoidData();
+        
+        if (geometryType == TGeometryType.Prolate)
+        {            
+            _ellipsoidData.SetEvoluteCups(extents.x, extents.z);        // Evolute cusp will be in the limit of the object in X-axis
+            _ellipsoidData.radiousZAxis = Mathf.Abs(cameraPosition.z);
+            _ellipsoidData.radiousXAxis = CalculateMayorAxis(_ellipsoidData.radiousZAxis, extents.x);
+            _ellipsoidData.radiousYAxis = Mathf.Abs(cameraPosition.z);
+        }
+        else if (geometryType == TGeometryType.Oblate)
+        {
+            // The semimayor axis is on the z axis, but its value depends on whether it is mayor ez or ey
+            if (extents.z >= extents.y)
+            {
+                _ellipsoidData.SetEvoluteCups(extents.x, extents.z);
+                _ellipsoidData.radiousZAxis = Mathf.Abs(cameraPosition.z);                
+                _ellipsoidData.radiousXAxis = CalculateMinorAxis(_ellipsoidData.radiousZAxis, extents.z);
+            }
+            else {
+                _ellipsoidData.SetEvoluteCups(extents.x, extents.y);
+                _ellipsoidData.radiousZAxis = Mathf.Abs(cameraPosition.z);
+                _ellipsoidData.radiousXAxis = CalculateMinorAxis(_ellipsoidData.radiousZAxis, extents.y);
+            }
+            _ellipsoidData.radiousYAxis = Mathf.Abs(cameraPosition.z);      // Because it is a rotation around X (Spheroid)
+        } 
+
+        return _ellipsoidData;
+    }
+
+    private float CalculateMayorAxis(float minorAxis, float Ec)
+    {
+        return 0.5f * (Ec + Mathf.Sqrt(MathHom3r.Pow2(Ec) + 4 * MathHom3r.Pow2(minorAxis)));
+    }
+    private float CalculateMinorAxis(float mayorAxis, float Ec)
+    {
+        return Mathf.Sqrt(MathHom3r.Pow2(mayorAxis) - (Ec * mayorAxis));
+
+    }
+    private float CalculateEvoluteCusps(float a, float b)
+    {
+        return a - (MathHom3r.Pow2(b) / a);
+    }
+
+    /// <summary>
     /// Calculate the parameter c according to the geometry of the object and its dimensions.
     /// If the object is long, c is the extension of the object on the x-axis. 
     /// If the object is flat, c is the extension of the object on the z-axis.
     /// </summary>
     /// <param name="extents">Object Bounding Box extents</param>
     /// <returns></returns>
-    private float CalculateCParameter(Vector3 extents)
+    private float CalculateEvolute(Vector3 extents)
     {
         if (geometryType == TGeometryType.Prolate) { return extents.x; }
-        else { return extents.z; }
+        else {
+            return extents.z;
+            //return Mathf.Max(extents.z, extents.y) ;
+        }
     }
 
     /// <summary>
@@ -738,7 +871,7 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
     /// Store results into b and a class parameters.
     /// </summary>
     /// <param name="cameraPosition">Current camera position.</param>
-    private void CalculateEllipseSemiAxesParameters(Vector3 cameraPosition, ref CEllipseData ellipse)
+    private void CalculateInitialTranslationEllipseParameters(Vector3 cameraPosition, ref CEllipseData ellipse)
     {
         if (geometryType == TGeometryType.Prolate)
         {
@@ -752,6 +885,15 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
         }
     }
 
+    private CTranslationEllipseData CalculateInitialTranslationEllipse_new()
+    {        
+        CTranslationEllipseData _ellipse = new CTranslationEllipseData();
+        _ellipse.radiousXAxis = ellipsoidData.radiousXAxis;
+        _ellipse.radiousZAxis = ellipsoidData.radiousZAxis;
+        _ellipse.evoluteCusp = ellipsoidData.GetEvoluteCusp(_ellipse.GetSemiMajorAxis());
+
+        return _ellipse;        
+    }
     /// <summary>
     /// Calculate the initial T parameter of the ellipse based on b/a and current camera position
     /// </summary>
@@ -771,7 +913,18 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
 
         return MathHom3r.NormalizeAngleInRad(new_t);
     }
-        
+
+    /// <summary>
+    /// Calculate the initial T parameter of the ellipse based on b/a and current camera position
+    /// </summary>
+    /// <param name="cameraPosition">Current camera position</param>
+    /// <returns>return the t parameter float value</returns>
+    private float CalculateTranslationEllipseInitialT_new()
+    {
+        return (Mathf.PI * -0.5f);
+    }
+
+
     /// <summary>
     /// Calculate the minimum ellipse that which surrounds the 3d object without cross it. 
     /// In the case of long object this value is the b minimum, 
@@ -782,7 +935,7 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
     private float CalculateMinimunEllipse(Vector3 extents, CEllipseData ellipse)
     {
         float minimunAxis = 0.0f;
-
+        
         // Polynomial Coefficients: x^3 + a1 * x^2 + a2 * x + a3 = 0
         float a1 = -ellipse.Ec;
         float a2;
@@ -825,6 +978,62 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
         return minimunAxis;
     }
 
+    private float CalculateMinimunEllipse_new(Vector3 extents)
+    {
+        float minimunAxis = 0.0f;
+
+        // Initial data
+        float Ec = ellipsoidData.GetEvoluteCusp(translationEllipseNew.GetSemiMajorAxis());
+        float r2 = MathHom3r.Pow2(extents.y) + MathHom3r.Pow2(extents.z);
+
+        // Polynomial Coefficients: x^3 + a1 * x^2 + a2 * x + a3 = 0
+        float A = -Ec;
+        float B = -(MathHom3r.Pow2(Ec) + r2);
+        float C = Mathf.Pow(Ec, 3);
+
+        ////Calculate P, Q
+        //float P = (1 / 3.0f) * (3.0f * B - MathHom3r.Pow2(A));
+        //float Q = (1 / 27.0f) * (9.0f * A * B + 27 * C + 2 * Mathf.Pow(A, 3));
+
+        //// Calculate 
+        //float P3 = Mathf.Pow((P/3), 3);
+
+        ////Calculate roots
+        //float teta = Mathf.Acos( (-0.5f * Q) / Mathf.Sqrt(-P3));
+        //float temp1 = 4f * MathHom3r.Pow2(Ec) + 3f * r2;
+        //float x2 = ((2f/3f) * Mathf.Sqrt(temp1) * Mathf.Cos((teta/ 3.0f))) + (Ec / 3.0f);
+
+        //Calculate Q, R
+        float Q = (1 / 9.0f) * (3.0f * B - MathHom3r.Pow2(A));
+        float R = (1 / 54.0f) * (9.0f * A * B - 27 * C - 2 * Mathf.Pow(A, 3));
+        //Calculate Q^3 and R^2
+        float Q3 = Mathf.Pow(Q, 3);
+        // Calculate roots
+        float teta = Mathf.Acos(-R / Mathf.Sqrt(-Q3));
+        float x2 = -2.0f * Mathf.Sqrt(-Q) * Mathf.Cos((teta + (2.0f * Constants.Pi)) / 3.0f) - (A / 3.0f);
+
+
+        //Calculate minimum ellipsoid
+        minimunEllipsoidData = new CEllipsoidData();
+        if (geometryType == TGeometryType.Prolate)
+        {
+            // We have calculated the semi-mayor axis
+            minimunEllipsoidData.radiousXAxis = x2;
+            minimunEllipsoidData.radiousZAxis = CalculateMinorAxis(x2, Ec);
+            minimunEllipsoidData.radiousYAxis = minimunEllipsoidData.radiousZAxis;            
+        }
+        else
+        {
+            // We have calculated the semi-minor axis
+            minimunEllipsoidData.radiousZAxis = x2;
+            minimunEllipsoidData.radiousXAxis = CalculateMinorAxis(x2, Ec);
+            minimunEllipsoidData.radiousYAxis = minimunEllipsoidData.radiousZAxis;
+        }
+        minimunAxis = minimunEllipsoidData.radiousZAxis;
+
+        return minimunAxis;
+    }
+
     /// <summary>
     /// Check if the initial camera position proposed is correct or not
     /// </summary>
@@ -850,30 +1059,45 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
     /// Calculate the b and a parameters of the ellipse based of a pseudoRadio movement.    
     /// </summary>
     /// <param name="radialVariation"></param>
-    private CEllipseData CalculateNewEllipseSemiAxesParametersAfterRadialMovement(float radialVariation, CEllipseData currentEllipse)
+    //private CEllipseData CalculateNewEllipseSemiAxesParametersAfterRadialMovement(float radialVariation, CEllipseData currentEllipse)
+    //{
+    //    CEllipseData newEllipse = new CEllipseData();
+    //    newEllipse.Ec = currentEllipse.Ec;
+
+    //    if (geometryType == TGeometryType.Prolate)
+    //    {
+    //        //newEllipse.b = currentEllipse.b + radialVariation;
+    //        //if (Mathf.Abs(newEllipse.b) < minimunAllowedAxis) { newEllipse.b = minimunAllowedAxis; }  // We can not closer that minimum
+    //        newEllipse.b = CalculateNewEllipseRadious(currentEllipse.b, radialVariation);
+    //        newEllipse.a = 0.5f * (newEllipse.Ec + Mathf.Sqrt(MathHom3r.Pow2(newEllipse.Ec) + 4 * MathHom3r.Pow2(newEllipse.b)));
+    //    }
+    //    else
+    //    {
+    //        //newEllipse.a = currentEllipse.a + radialVariation;
+    //        //if (Mathf.Abs(newEllipse.a) < minimunAllowedAxis) { newEllipse.a = minimunAllowedAxis; }  // We can not closer that minimum
+    //        newEllipse.a = CalculateNewEllipseRadious(currentEllipse.a, radialVariation);
+    //        newEllipse.b = Mathf.Sqrt(MathHom3r.Pow2(newEllipse.a) - newEllipse.a * newEllipse.Ec);
+    //    }
+
+    //    DrawReferenceEllipses(newEllipse);
+
+    //    return newEllipse;
+    //}
+
+    private void CalculateNewEllipseSemiAxesParametersAfterRadialMovement_New(float radialVariation)
     {
-        CEllipseData newEllipse = new CEllipseData();
-        newEllipse.Ec = currentEllipse.Ec;
-
-        if (geometryType == TGeometryType.Prolate)
+        if (radialVariation != 0f)
         {
-            //newEllipse.b = currentEllipse.b + radialVariation;
-            //if (Mathf.Abs(newEllipse.b) < minimunAllowedAxis) { newEllipse.b = minimunAllowedAxis; }  // We can not closer that minimum
-            newEllipse.b = CalculateNewEllipseRadious(currentEllipse.b, radialVariation);
-            newEllipse.a = 0.5f * (newEllipse.Ec + Mathf.Sqrt(MathHom3r.Pow2(newEllipse.Ec) + 4 * MathHom3r.Pow2(newEllipse.b)));
-        }
-        else
-        {
-            //newEllipse.a = currentEllipse.a + radialVariation;
-            //if (Mathf.Abs(newEllipse.a) < minimunAllowedAxis) { newEllipse.a = minimunAllowedAxis; }  // We can not closer that minimum
-            newEllipse.a = CalculateNewEllipseRadious(currentEllipse.a, radialVariation);
-            newEllipse.b = Mathf.Sqrt(MathHom3r.Pow2(newEllipse.a) - newEllipse.a * newEllipse.Ec);
-        }
+            float new_z = CalculateNewEllipseRadious(ellipsoidData.radiousZAxis, radialVariation);
+            CEllipsoidData ellipsoidCandidate = CalculateEllipsoid(extents, new Vector3(0, 0, new_z));
 
-        DrawReferenceEllipses(newEllipse);
+            // TO Think Do I need to check if the full ellipsoid is valid instead only the radious in Z?
+            ellipsoidData = ellipsoidCandidate;
 
-        return newEllipse;
+            DrawReferenceEllipses();
+        }        
     }
+
 
     private float CalculateNewEllipseRadious(float currentEllipseRadious, float radialVariation)
     {
@@ -904,40 +1128,50 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
     /// Calculate the new camera position in function of a,b and t of the ellipse
     /// </summary>
     /// <returns>Returns the new camera position</returns>
-    private Vector3 CalculateNewCameraPosition(float t, CEllipseData currentEllipse)
+    //private Vector3 CalculateNewCameraPosition(float t, CEllipseData currentEllipse)
+    //{
+    //    Vector3 cameraPositionOnPlane;
+    //    if (geometryType == TGeometryType.Prolate)
+    //    {
+    //        cameraPositionOnPlane.x = currentEllipse.a * Mathf.Cos(t);
+    //        cameraPositionOnPlane.y = 0;
+    //        cameraPositionOnPlane.z = currentEllipse.b * Mathf.Sin(t);
+    //    }
+    //    else
+    //    {
+    //        cameraPositionOnPlane.x = currentEllipse.b * Mathf.Cos(t);
+    //        cameraPositionOnPlane.y = 0;
+    //        cameraPositionOnPlane.z = currentEllipse.a * Mathf.Sin(t);
+    //    }       
+    //    return cameraPositionOnPlane;
+    //}
+
+    private Vector3 CalculateNewCameraPosition_New(float t)
     {
-        Vector3 cameraPositionOnPlane;
-        if (geometryType == TGeometryType.Prolate)
-        {
-            cameraPositionOnPlane.x = currentEllipse.a * Mathf.Cos(t);
-            cameraPositionOnPlane.y = 0;
-            cameraPositionOnPlane.z = currentEllipse.b * Mathf.Sin(t);
-        }
-        else
-        {
-            cameraPositionOnPlane.x = currentEllipse.b * Mathf.Cos(t);
-            cameraPositionOnPlane.y = 0;
-            cameraPositionOnPlane.z = currentEllipse.a * Mathf.Sin(t);
-        }       
+        Vector3 cameraPositionOnPlane = Vector3.zero;
+        cameraPositionOnPlane.x =  translationEllipseNew.radiousXAxis * Mathf.Cos(t);
+        cameraPositionOnPlane.y = 0;
+        cameraPositionOnPlane.z = translationEllipseNew.radiousZAxis * Mathf.Sin(t);
+        
         return cameraPositionOnPlane;
     }
 
     /// <summary>Calculate the point which camera has to look</summary>
     /// <returns>Return the point which camera has to look</returns>
-    private Vector3 CalculatePointToLook_old(float t, CEllipseData currentEllipse)
-    {
-        float intersectionXaxis;
-        if (geometryType == TGeometryType.Prolate)
-        {
-            intersectionXaxis = (currentEllipse.a - (MathHom3r.Pow2(currentEllipse.b) / currentEllipse.a)) * Mathf.Cos(t);
-        }
-        else
-        {
-            intersectionXaxis = (currentEllipse.b - (MathHom3r.Pow2(currentEllipse.a) / currentEllipse.b)) * Mathf.Cos(t);
-        }
+    //private Vector3 CalculatePointToLook_old(float t, CEllipseData currentEllipse)
+    //{
+    //    float intersectionXaxis;
+    //    if (geometryType == TGeometryType.Prolate)
+    //    {
+    //        intersectionXaxis = (currentEllipse.a - (MathHom3r.Pow2(currentEllipse.b) / currentEllipse.a)) * Mathf.Cos(t);
+    //    }
+    //    else
+    //    {
+    //        intersectionXaxis = (currentEllipse.b - (MathHom3r.Pow2(currentEllipse.a) / currentEllipse.b)) * Mathf.Cos(t);
+    //    }
 
-        return new Vector3(intersectionXaxis, 0, 0);
-    }
+    //    return new Vector3(intersectionXaxis, 0, 0);
+    //}
 
     /// <summary>Calculate the point which camera has to look</summary>
     /// <returns>Return the point which camera has to look</returns>
@@ -970,6 +1204,41 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
         return intersectionPoint;
     }
 
+    private Vector3 CalculatePointToLook_new(float t, CTranslationEllipseData currentEllipse)
+    {
+        Vector3 intersectionPoint = new Vector3();
+        
+        // Get semiaxes
+        CSemiAxes _translationEllipseSemiAxes = currentEllipse.GetSemiAxes();
+        float a = _translationEllipseSemiAxes.a;
+        float b = _translationEllipseSemiAxes.b;
+        
+        //Calculate point to look
+        if (geometryType == TGeometryType.Prolate)
+        {
+            float intersectionXaxis = (a - (MathHom3r.Pow2(b) / a)) * Mathf.Cos(t);
+            intersectionPoint = new Vector3(intersectionXaxis, 0, 0);
+        }
+        else
+        {
+            if (hom3r.coreLink.GetComponent<ConfigurationManager>().GetActiveNavigationOblateOrientationCorrection())
+            {
+                float evoluteZAxis = (a - (MathHom3r.Pow2(b) / a));
+                float intersectionZaxis = evoluteZAxis * Mathf.Sin(t);
+                float evoluteDesired = Mathf.Sqrt(MathHom3r.Pow2(extents.z * Mathf.Sin(planeAngle)) + MathHom3r.Pow2(extents.x * Mathf.Cos(planeAngle)));
+                intersectionZaxis = CalculateLinearInterpolation(intersectionZaxis, evoluteZAxis, evoluteDesired);
+                intersectionPoint = new Vector3(0, 0, intersectionZaxis);
+            }
+            else
+            {
+                float intersectionZaxis = (a - (MathHom3r.Pow2(b) / a)) * Mathf.Sin(t);
+                intersectionPoint = new Vector3(0, 0, intersectionZaxis);
+            }
+        }
+
+        //Debug.Log("Plane point to look : " + intersectionPoint);
+        return intersectionPoint;
+    }
     /// <summary>
     /// Calculates linear interpolation to keep the direction the camera is facing always inside the object.
     /// </summary>
@@ -984,16 +1253,18 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
     }
 
     /// <summary>Draw the translation trajectory, just for support in the editor</summary>
-    private void DrawTranslationTrajectory(CEllipseData currentEllipse)
+    private void DrawTranslationTrajectory(/*CEllipseData currentEllipse*/)
     {
-        if (geometryType == TGeometryType.Prolate)
-        {
-            hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawTranslationEllipse(currentEllipse.a, currentEllipse.b);                
-        }
-        else
-        {
-            hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawTranslationEllipse(currentEllipse.b, currentEllipse.a);
-        }
+        hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawTranslationEllipse(translationEllipseNew.radiousXAxis, translationEllipseNew.radiousZAxis);
+
+        //if (geometryType == TGeometryType.Prolate)
+        //{
+        //    hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawTranslationEllipse(currentEllipse.a, currentEllipse.b);                
+        //}
+        //else
+        //{
+        //    hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawTranslationEllipse(currentEllipse.b, currentEllipse.a);
+        //}
     }
 
     /// <summary>Draw the translation trajectory, just for support in the editor</summary>
@@ -1006,28 +1277,30 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
     /// <summary>
     /// Draw a reference ellipses to help understand camera movements.
     /// </summary>
-    private void DrawReferenceEllipses(CEllipseData currentEllipse)
+    private void DrawReferenceEllipses(/*CEllipseData currentEllipse*/)
     {
-        float xRadious;
-        float zRadious;
-        float yRadious;
+        //float xRadious;
+        //float zRadious;
+        //float yRadious;
 
-        if (geometryType == TGeometryType.Prolate)
-        {
-            zRadious = currentEllipse.b;
-            xRadious = currentEllipse.a;
+        //if (geometryType == TGeometryType.Prolate)
+        //{
+        //    zRadious = currentEllipse.b;
+        //    xRadious = currentEllipse.a;
 
-        }
-        else
-        {
-            xRadious = currentEllipse.b;
-            zRadious = currentEllipse.a;
-        }
+        //}
+        //else
+        //{
+        //    xRadious = currentEllipse.b;
+        //    zRadious = currentEllipse.a;
+        //}
 
-        yRadious = zRadious;
+        //yRadious = zRadious;
 
-        hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawHorizontalFrameworkEllipse(xRadious, zRadious);
-        hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawVerticalFrameworkEllipse(xRadious, yRadious);        
+        //hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawHorizontalFrameworkEllipse(xRadious, zRadious);
+        //hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawVerticalFrameworkEllipse(xRadious, yRadious);        
+        hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawHorizontalFrameworkEllipse(ellipsoidData.radiousXAxis, ellipsoidData.radiousZAxis);
+        hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawVerticalFrameworkEllipse(ellipsoidData.radiousXAxis, ellipsoidData.radiousYAxis);
     }
 
     private float Calculate_t_Variation(float _latitudeVariation, float fieldOfViewX)
@@ -1051,7 +1324,8 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
         else if (latitudeCorrection == TInteractionMappingCorrectionMode.ellipsePerimeter)
         {
             // Get Semiaxes of the camera translation ellipse
-            CSemiAxes _cameraEllipseSemiAxes = GetTranslationEllipseSemiAxes();
+            //CSemiAxes _cameraEllipseSemiAxes = GetTranslationEllipseSemiAxes();
+            CSemiAxes _cameraEllipseSemiAxes = translationEllipseNew.GetSemiAxes();
             //Calculate t-variation in function of the ARC variation
             final_t_Variation *= CalculateLatitudeArcMappingFactor(_cameraEllipseSemiAxes.a, _cameraEllipseSemiAxes.b);
             // Calculate t-variation applying the ellipse perimeter correction
@@ -1105,15 +1379,15 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
         return _inscribedEllipseSemiAxes;
     }
 
-    private CSemiAxes GetTranslationEllipseSemiAxes()
-    {
-        CSemiAxes _translationEllipseSemiAxes = new CSemiAxes();
+    //private CSemiAxes GetTranslationEllipseSemiAxes()
+    //{
+    //    CSemiAxes _translationEllipseSemiAxes = new CSemiAxes();
 
-        _translationEllipseSemiAxes.a = translationEllipse.a;
-        _translationEllipseSemiAxes.b = translationEllipse.b;
+    //    _translationEllipseSemiAxes.a = translationEllipse.a;
+    //    _translationEllipseSemiAxes.b = translationEllipse.b;
 
-        return _translationEllipseSemiAxes;
-    }
+    //    return _translationEllipseSemiAxes;
+    //}
 
     private float CalculateLatitudeArcMappingFactor(float a, float b)
     {      
@@ -1145,8 +1419,7 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
     /// Based on the projection from the camera ellipse to the ellipse inscribed in the object.
     /// </summary>
     /// <param name="fieldOfView_rad">field of view of the camera in rads</param>
-    /// <returns></returns>
-    //private float CalculateLatitudeDistanceCorrectionFactor(CEllipseData currentEllipse, float fieldOfView_rad)
+    /// <returns></returns>    
     private float CalculateLatitudeDistanceCorrectionFactor(float t, float horizontalFieldOfViewAngle_rad)
     {
         // Get Semiaxes of the inscribed ellipse inside the object
@@ -1154,34 +1427,29 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
 
         float aMin = _incribedEllipseSemiAxes.a;
         float bMin = _incribedEllipseSemiAxes.b;
-        //// Calculate minimum ellipse
-        //if (geometryType == TGeometryType.Prolate)
-        //{
-        //    aMin = extents.x;
-        //    bMin = extents.z;
-        //}
-        //else
-        //{
-        //    aMin = extents.z;
-        //    bMin = extents.x;
-        //}
+
+
+        // CalculateMappingCorrectionParameterK
+        float k = 1f;
+
         float aMin2 = MathHom3r.Pow2(aMin);
         float bMin2 = MathHom3r.Pow2(bMin);
 
         //Calculate normal to camera ellipse
-        float a2 = MathHom3r.Pow2(translationEllipse.a);
-        float b2 = MathHom3r.Pow2(translationEllipse.b);
+        CSemiAxes _translationEllipseSemiAxes = translationEllipseNew.GetSemiAxes();
+        float a2 = MathHom3r.Pow2(_translationEllipseSemiAxes.a);
+        float b2 = MathHom3r.Pow2(_translationEllipseSemiAxes.b);
 
         
-        float M = (translationEllipse.a / translationEllipse.b) * Mathf.Tan(t_translationEllipse);
-        float D = ((a2 / translationEllipse.b) - translationEllipse.b) * Mathf.Sin(t_translationEllipse);
+        float M = (_translationEllipseSemiAxes.a / _translationEllipseSemiAxes.b) * Mathf.Tan(t);
+        float D = ((a2 / _translationEllipseSemiAxes.b) - _translationEllipseSemiAxes.b) * Mathf.Sin(t);
         float M2 = MathHom3r.Pow2(M);
         float D2 = MathHom3r.Pow2(D);
 
         //Calculate P        
-        Vector3 P = CalculateNewCameraPosition(t_translationEllipse, translationEllipse);
-        //Debug.Log("P: " + P);
-
+        //Vector3 P = CalculateNewCameraPosition(t_translationEllipse, _translationEllipseSemiAxes);
+        Vector3 P = CalculateNewCameraPosition_New(t);
+        
         //Calculate Q
         float raiz = Mathf.Sqrt(bMin2 - D2 + aMin2 * M2);
         float secondTerm = bMin * aMin * raiz;
@@ -1203,7 +1471,17 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
         //Debug.Log(dPQ);
                
         //float rMin = MathHom3r.Max(extents);
-        float k = 2 * dPQ * Mathf.Tan(horizontalFieldOfViewAngle_rad);
+        k = 2 * dPQ * Mathf.Tan(horizontalFieldOfViewAngle_rad);
+
+        if (float.IsNaN(k))
+        {        
+            k = k_lastvalidvalue;
+        }
+        else
+        {
+            k_lastvalidvalue = k;
+        }
+
         //Debug.Log(k);
         //float arco = Mathf.Sqrt(MathHom3r.Pow2(aMin * Mathf.Sin(t_translationEllipse)) + MathHom3r.Pow2(bMin * Mathf.Cos(t_translationEllipse)));
 
@@ -1258,11 +1536,13 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
 
     private float GetRotationCameraCircunferenceRadius()
     {
-        float r;        // Long 
-        if (geometryType == TGeometryType.Prolate) { r = translationEllipse.b; }
-        else { r = translationEllipse.a; }
+        //float r;        // Long 
+        //if (geometryType == TGeometryType.Prolate) { r = translationEllipse.b; }
+        //else { r = translationEllipse.a; }
 
-        return r;
+        //return r;
+
+        return ellipsoidData.radiousYAxis;
     }
 
     private float CalculateCircunferencePerimeter(float r)
@@ -1324,43 +1604,43 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
 
 public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
 {
-    /// <summary>
-    /// To store axis options
-    /// </summary>
-    enum TAxis { x, y, z /*, xz*/ };
+    ///// <summary>
+    ///// To store axis options
+    ///// </summary>
+    //enum TAxis { x, y, z };
 
-    /// <summary>
-    /// Class that stores all the information of the virtual ellipsoid over which the camera moves. 
-    /// The desired evolutes cusps values are also stored for the x- and Z-axes.
-    /// </summary>
-    class CEllipsoidData
-    {
-        public float radiousXAxis;
-        public float radiousZAxis;
-        public float radiousYAxis;
+    ///// <summary>
+    ///// Class that stores all the information of the virtual ellipsoid over which the camera moves. 
+    ///// The desired evolutes cusps values are also stored for the x- and Z-axes.
+    ///// </summary>
+    //class CEllipsoidData
+    //{
+    //    public float radiousXAxis;
+    //    public float radiousZAxis;
+    //    public float radiousYAxis;
         
-        float evoluteCusp_XAxis;            //Desired value of the evolute cusp for the X-axis
-        float evoluteCusp_ZAxis;            //Desired value of the evolute cusp for the Z-axis
+    //    float evoluteCusp_XAxis;            //Desired value of the evolute cusp for the X-axis
+    //    float evoluteCusp_ZAxis;            //Desired value of the evolute cusp for the Z-axis
 
-        /// <summary>Stores the values of the evolute cusps</summary>
-        /// <param name="evoluteCusp_XAxis"></param>
-        /// <param name="evoluteCusp_ZAxis"></param>
-        public void SetEvoluteCups(float _evoluteCusp_XAxis, float _evoluteCusp_ZAxis)
-        {
-            evoluteCusp_XAxis = _evoluteCusp_XAxis;
-            evoluteCusp_ZAxis = _evoluteCusp_ZAxis;
-        }
+    //    /// <summary>Stores the values of the evolute cusps</summary>
+    //    /// <param name="evoluteCusp_XAxis"></param>
+    //    /// <param name="evoluteCusp_ZAxis"></param>
+    //    public void SetEvoluteCups(float _evoluteCusp_XAxis, float _evoluteCusp_ZAxis)
+    //    {
+    //        evoluteCusp_XAxis = _evoluteCusp_XAxis;
+    //        evoluteCusp_ZAxis = _evoluteCusp_ZAxis;
+    //    }
 
-        /// <summary>Returns the value of the cuspid of the evolution along the requested axis. Only works for the x-axis and z-axis.</summary>
-        /// <param name="_axis">X or Z axis for which the evolute cusps is to be known.</param>
-        /// <returns></returns>
-        public float GetEvoluteCusp(TAxis _axis)
-        {
-            if (_axis == TAxis.x) { return evoluteCusp_XAxis; }
-            else if (_axis == TAxis.z) { return evoluteCusp_ZAxis; }
-            else return 0;
-        }       
-    }
+    //    /// <summary>Returns the value of the cuspid of the evolution along the requested axis. Only works for the x-axis and z-axis.</summary>
+    //    /// <param name="_axis">X or Z axis for which the evolute cusps is to be known.</param>
+    //    /// <returns></returns>
+    //    public float GetEvoluteCusp(TAxis _axis)
+    //    {
+    //        if (_axis == TAxis.x) { return evoluteCusp_XAxis; }
+    //        else if (_axis == TAxis.z) { return evoluteCusp_ZAxis; }
+    //        else return 0;
+    //    }       
+    //}
 
 
 
