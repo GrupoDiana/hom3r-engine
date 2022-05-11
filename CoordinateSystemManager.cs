@@ -897,51 +897,51 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
     /// </summary>
     /// <param name="extents">Bounding box extends of the 3D object</param>
     /// <returns>Return the minimum a of b of the allowed ellipse between the camera and the object</returns>
-    private float CalculateMinimunEllipse(Vector3 extents, CEllipseData ellipse)
-    {
-        float minimunAxis = 0.0f;
+    //private float CalculateMinimunEllipse(Vector3 extents, CEllipseData ellipse)
+    //{
+    //    float minimunAxis = 0.0f;
         
-        // Polynomial Coefficients: x^3 + a1 * x^2 + a2 * x + a3 = 0
-        float a1 = -ellipse.Ec;
-        float a2;
-        if (geometryType == TGeometryType.Prolate) {
-            a2 = -(MathHom3r.Pow2(ellipse.Ec) + MathHom3r.Pow2(extents.y) + MathHom3r.Pow2(extents.z));
-        }
-        else
-        {
-            a2 = -(MathHom3r.Pow2(ellipse.Ec) + MathHom3r.Pow2(extents.y) + MathHom3r.Pow2(extents.z));
-        }
-        float a3 = Mathf.Pow(ellipse.Ec, 3);        
+    //    // Polynomial Coefficients: x^3 + a1 * x^2 + a2 * x + a3 = 0
+    //    float a1 = -ellipse.Ec;
+    //    float a2;
+    //    if (geometryType == TGeometryType.Prolate) {
+    //        a2 = -(MathHom3r.Pow2(ellipse.Ec) + MathHom3r.Pow2(extents.y) + MathHom3r.Pow2(extents.z));
+    //    }
+    //    else
+    //    {
+    //        a2 = -(MathHom3r.Pow2(ellipse.Ec) + MathHom3r.Pow2(extents.y) + MathHom3r.Pow2(extents.z));
+    //    }
+    //    float a3 = Mathf.Pow(ellipse.Ec, 3);        
         
-        //Calculate Q, R
-        float Q = (1 / 9.0f) * (3.0f * a2 - MathHom3r.Pow2(a1));
-        float R = (1 / 54.0f) * (9.0f * a1 * a2 - 27 * a3 - 2 * Mathf.Pow(a1, 3));
-        //Calculate Q^3 and R^2
-        float Q3 = Mathf.Pow(Q, 3);
-        //float R2 = Mathf.Pow(R, 2);
-        //Calculate D
-        //float D = Q3 + R2;
+    //    //Calculate Q, R
+    //    float Q = (1 / 9.0f) * (3.0f * a2 - MathHom3r.Pow2(a1));
+    //    float R = (1 / 54.0f) * (9.0f * a1 * a2 - 27 * a3 - 2 * Mathf.Pow(a1, 3));
+    //    //Calculate Q^3 and R^2
+    //    float Q3 = Mathf.Pow(Q, 3);
+    //    //float R2 = Mathf.Pow(R, 2);
+    //    //Calculate D
+    //    //float D = Q3 + R2;
                        
-        // D is always < 0 in our case
-        //if (D < 0)
-        //{            
-            float teta = Mathf.Acos(-R / Mathf.Sqrt(-Q3));
-            float x2 = -2.0f * Mathf.Sqrt(-Q) * Mathf.Cos((teta + (2.0f * Constants.Pi)) / 3.0f) - (a1 / 3.0f);        
+    //    // D is always < 0 in our case
+    //    //if (D < 0)
+    //    //{            
+    //        float teta = Mathf.Acos(-R / Mathf.Sqrt(-Q3));
+    //        float x2 = -2.0f * Mathf.Sqrt(-Q) * Mathf.Cos((teta + (2.0f * Constants.Pi)) / 3.0f) - (a1 / 3.0f);        
             
-        //}
+    //    //}
 
-        if (geometryType == TGeometryType.Prolate)
-        {
-            float b = Mathf.Sqrt(MathHom3r.Pow2(x2) - x2 * ellipse.Ec);
-            minimunAxis = b;        // Long object return the b minimum of the ellipse
-        }
-        else
-        {
-            minimunAxis = x2;       //Flat object return a minimum of the ellipse
-        }
-        //Debug.Log(minimunAxis);
-        return minimunAxis;
-    }
+    //    if (geometryType == TGeometryType.Prolate)
+    //    {
+    //        float b = Mathf.Sqrt(MathHom3r.Pow2(x2) - x2 * ellipse.Ec);
+    //        minimunAxis = b;        // Long object return the b minimum of the ellipse
+    //    }
+    //    else
+    //    {
+    //        minimunAxis = x2;       //Flat object return a minimum of the ellipse
+    //    }
+    //    //Debug.Log(minimunAxis);
+    //    return minimunAxis;
+    //}
 
     private float CalculateMinimunEllipse_new(Vector3 extents)
     {
@@ -1641,31 +1641,31 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
     /// <summary>
     /// Store camera elliptical trajectory data
     /// </summary>
-    class CTranslationEllipseData
-    {
-        public float radiousZAxis;
-        public float radiousXAxis;
-        public float evoluteCusp;        
+    //class CTranslationEllipseData
+    //{
+    //    public float radiousZAxis;
+    //    public float radiousXAxis;
+    //    public float evoluteCusp;        
 
-        /// <summary>
-        /// Returns both semi-axes of the ellipse
-        /// </summary>
-        /// <returns></returns>
-        public CSemiAxes GetSemiAxes()
-        {            
-            if (radiousXAxis > radiousZAxis)    { return new CSemiAxes(radiousXAxis, radiousZAxis); }
-            else                                { return  new CSemiAxes(radiousZAxis, radiousXAxis);}            
-        }
-        /// <summary>
-        /// Returns in which axis is the semi-major axis of the ellipse
-        /// </summary>
-        /// <returns></returns>
-        public TAxis GetSemiMajorAxis()
-        {
-            if (radiousXAxis > radiousZAxis) { return TAxis.x; }
-            else {                             return TAxis.z; }
-        }
-    }
+    //    /// <summary>
+    //    /// Returns both semi-axes of the ellipse
+    //    /// </summary>
+    //    /// <returns></returns>
+    //    public CSemiAxes GetSemiAxes()
+    //    {            
+    //        if (radiousXAxis > radiousZAxis)    { return new CSemiAxes(radiousXAxis, radiousZAxis); }
+    //        else                                { return  new CSemiAxes(radiousZAxis, radiousXAxis);}            
+    //    }
+    //    /// <summary>
+    //    /// Returns in which axis is the semi-major axis of the ellipse
+    //    /// </summary>
+    //    /// <returns></returns>
+    //    public TAxis GetSemiMajorAxis()
+    //    {
+    //        if (radiousXAxis > radiousZAxis) { return TAxis.x; }
+    //        else {                             return TAxis.z; }
+    //    }
+    //}
     
     class CMovementEllipses {        
         public CTranslationEllipseData translation;
@@ -2054,12 +2054,7 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
         }
 
 
-            //else
-            //{
-            //    minimunAxis = x2;       //Flat object return a minimum of the ellipse
-            //}
-            //Debug.Log(minimunAxis);
-            return minimunAxis;
+        return minimunAxis;
     }
 
     private float CalculateRealMinimumZRadious(float zRadious)
