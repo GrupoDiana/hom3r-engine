@@ -56,6 +56,7 @@ public class CConfigurationCommandData
     public TMouseMapping mouseMapping;
     public TNavigationSystemMode navigationSystem;
     public TInteractionMappingCorrectionMode interactionMappingCorrectionMode;
+    public TOblateSpheroidCorrectionMode oblateSpheroidCorrectionMode;
     public float value;
 
     public CConfigurationCommandData(TConfigurationCommands _command)
@@ -99,6 +100,12 @@ public class CConfigurationCommand : CCoreCommand
     {
         data = new CConfigurationCommandData(_command);
         data.interactionMappingCorrectionMode = _interactionMappingCorrectionMode;
+    }
+
+    public CConfigurationCommand(TConfigurationCommands _command, TOblateSpheroidCorrectionMode _oblateSpheroidCorrectionMode)
+    {
+        data = new CConfigurationCommandData(_command);
+        data.oblateSpheroidCorrectionMode = _oblateSpheroidCorrectionMode;
     }
 
     public CConfigurationCommand(TConfigurationCommands _command, float _value)
@@ -171,7 +178,7 @@ public class CConfigurationCommand : CCoreCommand
                     hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetModeLongitudeInteractionCorrectionFactor(data.interactionMappingCorrectionMode);
                     break;
                 case TConfigurationCommands.ActiveNavigationOblateOrientationCorrection:
-                    hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetActiveNavigationOblateOrientationCorrection(data.activate);
+                    hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetActiveNavigationOblateOrientationCorrection(data.oblateSpheroidCorrectionMode);
                     break;
                 case TConfigurationCommands.SetNavigationSystemMode:
                     hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetNavigationSystemMode(data.navigationSystem);

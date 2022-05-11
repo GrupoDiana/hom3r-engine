@@ -83,6 +83,12 @@ class CTranslationEllipseData
         if (radiousXAxis > radiousZAxis) { return TAxis.x; }
         else { return TAxis.z; }
     }
+
+    public TAxis GetSemiMinorAxis()
+    {
+        if (radiousXAxis < radiousZAxis) { return TAxis.x; }
+        else { return TAxis.z; }
+    }
 }
 
 /// <summary>
@@ -648,18 +654,15 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
         // Identify object geometry type. Long or flat
         //////////////////////////////////////////////////   
         geometryType = ClassifyObjectGeometry(_extents);         // Get if the object is flat or long
-        // Init ellipsoid
-        ellipsoidData = CalculateEllipsoid(_extents, cameraInitialPosition);
+
 
         /////////////////////////////////////////////////////////////////
         // Get translation parameters from the initial camera position
         ///////////////////////////////////////////////////////////////      
-        //translationEllipse.Ec = CalculateEvolute(_extents);                                             // Calculate the parameter c according to the geometry of the object and its dimensions.
-        //CalculateInitialTranslationEllipseParameters(cameraInitialPosition, ref translationEllipse);    // Calculate semi-axis of the ellipse a,b        
-        //t_translationEllipse = CalculateInitialTParameter(cameraInitialPosition, translationEllipse);   // Calculate the initial value of t parameter       
 
-        translationEllipseNew = CalculateInitialTranslationEllipse_new();
-        t_translationEllipse = CalculateTranslationEllipseInitialT_new();
+        ellipsoidData = CalculateEllipsoid(_extents, cameraInitialPosition);    // Init ellipsoid
+        translationEllipseNew = CalculateInitialTranslationEllipse_new();       // Calculate semi-axis of the ellipse a,b    
+        t_translationEllipse = CalculateTranslationEllipseInitialT_new();       // Calculate the initial value of t parameter 
         ///////////////////////////////////
         // Initialize plane angle to 0
         ///////////////////////////////////
@@ -845,10 +848,10 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
         return Mathf.Sqrt(MathHom3r.Pow2(mayorAxis) - (Ec * mayorAxis));
 
     }
-    private float CalculateEvoluteCusps(float a, float b)
-    {
-        return a - (MathHom3r.Pow2(b) / a);
-    }
+    //private float CalculateEvoluteCusps(float a, float b)
+    //{
+    //    return a - (MathHom3r.Pow2(b) / a);
+    //}
 
     /// <summary>
     /// Calculate the parameter c according to the geometry of the object and its dimensions.
@@ -866,25 +869,6 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
         }
     }
 
-    /// <summary>
-    /// Calculate the initial b and a parameter of the ellipse based on the object geometry and initial camera position.
-    /// Store results into b and a class parameters.
-    /// </summary>
-    /// <param name="cameraPosition">Current camera position.</param>
-    private void CalculateInitialTranslationEllipseParameters(Vector3 cameraPosition, ref CEllipseData ellipse)
-    {
-        if (geometryType == TGeometryType.Prolate)
-        {
-            ellipse.b = Mathf.Abs(cameraPosition.z);
-            ellipse.a = 0.5f * (ellipse.Ec + Mathf.Sqrt(MathHom3r.Pow2(ellipse.Ec) + 4 * MathHom3r.Pow2(ellipse.b)));
-        }
-        else
-        {
-            ellipse.a = Mathf.Abs(cameraPosition.z);
-            ellipse.b = Mathf.Sqrt(MathHom3r.Pow2(ellipse.a) - ellipse.a * ellipse.Ec);
-        }
-    }
-
     private CTranslationEllipseData CalculateInitialTranslationEllipse_new()
     {        
         CTranslationEllipseData _ellipse = new CTranslationEllipseData();
@@ -893,25 +877,6 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
         _ellipse.evoluteCusp = ellipsoidData.GetEvoluteCusp(_ellipse.GetSemiMajorAxis());
 
         return _ellipse;        
-    }
-    /// <summary>
-    /// Calculate the initial T parameter of the ellipse based on b/a and current camera position
-    /// </summary>
-    /// <param name="cameraPosition">Current camera position</param>
-    /// <returns>return the t parameter float value</returns>
-    private float CalculateInitialTParameter(Vector3 cameraPosition, CEllipseData ellipse)
-    {
-        float new_t = 0f;
-        if (geometryType == TGeometryType.Prolate)
-        {
-            new_t = Mathf.Asin((cameraPosition.z) / ellipse.b);
-        }
-        else
-        {
-            new_t = Mathf.Asin((cameraPosition.z) / ellipse.a);
-        }
-
-        return MathHom3r.NormalizeAngleInRad(new_t);
     }
 
     /// <summary>
@@ -1175,39 +1140,40 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
 
     /// <summary>Calculate the point which camera has to look</summary>
     /// <returns>Return the point which camera has to look</returns>
-    private Vector3 CalculatePointToLook(float t, CEllipseData currentEllipse)
-    {
-        Vector3 intersectionPoint = new Vector3();    
-        if (geometryType == TGeometryType.Prolate)
-        {
-            float intersectionXaxis = (currentEllipse.a - (MathHom3r.Pow2(currentEllipse.b) / currentEllipse.a)) * Mathf.Cos(t);
-            intersectionPoint = new Vector3(intersectionXaxis, 0, 0);
-        }
-        else
-        {            
-            if (hom3r.coreLink.GetComponent<ConfigurationManager>().GetActiveNavigationOblateOrientationCorrection())
-            {
-                float evoluteZAxis = (currentEllipse.a - (MathHom3r.Pow2(currentEllipse.b) / currentEllipse.a));
-                float intersectionZaxis = evoluteZAxis * Mathf.Sin(t);
-                float evoluteDesired = Mathf.Sqrt(MathHom3r.Pow2(extents.z * Mathf.Sin(planeAngle)) + MathHom3r.Pow2(extents.x * Mathf.Cos(planeAngle)));
-                intersectionZaxis = CalculateLinearInterpolation(intersectionZaxis, evoluteZAxis, evoluteDesired);
-                intersectionPoint = new Vector3(0, 0, intersectionZaxis);
-            }
-            else
-            {
-                float intersectionZaxis = (currentEllipse.a - (MathHom3r.Pow2(currentEllipse.b) / currentEllipse.a)) * Mathf.Sin(t);
-                intersectionPoint = new Vector3(0, 0, intersectionZaxis);
-            }
-        }
+    //private Vector3 CalculatePointToLook(float t, CEllipseData currentEllipse)
+    //{
+    //    Vector3 intersectionPoint = new Vector3();    
+    //    if (geometryType == TGeometryType.Prolate)
+    //    {
+            
+    //        float intersectionXaxis = (currentEllipse.a - (MathHom3r.Pow2(currentEllipse.b) / currentEllipse.a)) * Mathf.Cos(t);
+    //        intersectionPoint = new Vector3(intersectionXaxis, 0, 0);
+    //    }
+    //    else
+    //    {            
+    //        if (hom3r.coreLink.GetComponent<ConfigurationManager>().GetActiveNavigationOblateOrientationCorrection())
+    //        {
+    //            float evoluteZAxis = (currentEllipse.a - (MathHom3r.Pow2(currentEllipse.b) / currentEllipse.a));
+    //            float intersectionZaxis = evoluteZAxis * Mathf.Sin(t);
+    //            float evoluteDesired = Mathf.Sqrt(MathHom3r.Pow2(extents.z * Mathf.Sin(planeAngle)) + MathHom3r.Pow2(extents.x * Mathf.Cos(planeAngle)));
+    //            intersectionZaxis = CalculateLinearInterpolation(intersectionZaxis, evoluteZAxis, evoluteDesired);
+    //            intersectionPoint = new Vector3(0, 0, intersectionZaxis);
+    //        }
+    //        else
+    //        {
+    //            float intersectionZaxis = (currentEllipse.a - (MathHom3r.Pow2(currentEllipse.b) / currentEllipse.a)) * Mathf.Sin(t);
+    //            intersectionPoint = new Vector3(0, 0, intersectionZaxis);
+    //        }
+    //    }
 
-        //Debug.Log("Plane point to look : " + intersectionPoint);
-        return intersectionPoint;
-    }
+    //    //Debug.Log("Plane point to look : " + intersectionPoint);
+    //    return intersectionPoint;
+    //}
 
     private Vector3 CalculatePointToLook_new(float t, CTranslationEllipseData currentEllipse)
     {
-        Vector3 intersectionPoint = new Vector3();
-        
+        Vector3 intersectionPoint = new Vector3();       
+
         // Get semiaxes
         CSemiAxes _translationEllipseSemiAxes = currentEllipse.GetSemiAxes();
         float a = _translationEllipseSemiAxes.a;
@@ -1216,24 +1182,35 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
         //Calculate point to look
         if (geometryType == TGeometryType.Prolate)
         {
-            float intersectionXaxis = (a - (MathHom3r.Pow2(b) / a)) * Mathf.Cos(t);
+
+            //float evoluteCusp = (a - (MathHom3r.Pow2(b) / a));            
+            float intersectionXaxis = currentEllipse.evoluteCusp * Mathf.Cos(t);
             intersectionPoint = new Vector3(intersectionXaxis, 0, 0);
         }
         else
         {
-            if (hom3r.coreLink.GetComponent<ConfigurationManager>().GetActiveNavigationOblateOrientationCorrection())
+            float intersectionZaxis = 0.0f; ;
+            if (hom3r.coreLink.GetComponent<ConfigurationManager>().GetActiveNavigationOblateOrientationCorrection() == TOblateSpheroidCorrectionMode.none)
+            {
+                //float evoluteCusp = (a - (MathHom3r.Pow2(b) / a));
+                intersectionZaxis = currentEllipse.evoluteCusp * Mathf.Sin(t);
+                //intersectionPoint = new Vector3(0, 0, intersectionZaxis);
+            }
+            else if (hom3r.coreLink.GetComponent<ConfigurationManager>().GetActiveNavigationOblateOrientationCorrection() == TOblateSpheroidCorrectionMode.minimun)
+            {
+                float evoluteCusp = ellipsoidData.GetEvoluteCusp(currentEllipse.GetSemiMinorAxis());
+                float temp = currentEllipse.evoluteCusp;
+                intersectionZaxis = evoluteCusp * Mathf.Sin(t);
+            }
+            else if (hom3r.coreLink.GetComponent<ConfigurationManager>().GetActiveNavigationOblateOrientationCorrection() == TOblateSpheroidCorrectionMode.interpolation)
             {
                 float evoluteZAxis = (a - (MathHom3r.Pow2(b) / a));
-                float intersectionZaxis = evoluteZAxis * Mathf.Sin(t);
+                intersectionZaxis = evoluteZAxis * Mathf.Sin(t);
                 float evoluteDesired = Mathf.Sqrt(MathHom3r.Pow2(extents.z * Mathf.Sin(planeAngle)) + MathHom3r.Pow2(extents.x * Mathf.Cos(planeAngle)));
                 intersectionZaxis = CalculateLinearInterpolation(intersectionZaxis, evoluteZAxis, evoluteDesired);
                 intersectionPoint = new Vector3(0, 0, intersectionZaxis);
             }
-            else
-            {
-                float intersectionZaxis = (a - (MathHom3r.Pow2(b) / a)) * Mathf.Sin(t);
-                intersectionPoint = new Vector3(0, 0, intersectionZaxis);
-            }
+            intersectionPoint = new Vector3(0, 0, intersectionZaxis);           
         }
 
         //Debug.Log("Plane point to look : " + intersectionPoint);
@@ -2267,27 +2244,48 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
         {
             float intersectionZaxis = (a - (MathHom3r.Pow2(b) / a)) * Mathf.Sin(t);
 
-            if (hom3r.coreLink.GetComponent<ConfigurationManager>().GetActiveNavigationOblateOrientationCorrection())
-            {
-                //float intersectionZaxis = (a - (MathHom3r.Pow2(b) / a)) * Mathf.Sin(t);
-                //float evoluteCusps = ellipsoidData.GetEvoluteCusp(TAxis.z);
-                //intersectionZaxis = CalculateLinearInterpolation(intersectionZaxis, currentEllipse.evoluteCusp, evoluteCusps);
-                float evoluteCuspsZ = ellipsoidData.GetEvoluteCusp(TAxis.z);
-                float evoluteCuspsX = ellipsoidData.GetEvoluteCusp(TAxis.x);
-                float evoluteCusps = Mathf.Sqrt(MathHom3r.Pow2(evoluteCuspsX * Mathf.Sin(planeAngle)) + MathHom3r.Pow2(evoluteCuspsZ * Mathf.Cos(planeAngle)));
-                intersectionZaxis = CalculateLinearInterpolation(intersectionZaxis, currentEllipse.evoluteCusp, evoluteCusps);
-            } else
+            if (hom3r.coreLink.GetComponent<ConfigurationManager>().GetActiveNavigationOblateOrientationCorrection() == TOblateSpheroidCorrectionMode.none)
             {
                 //float intersectionZaxis = (a - (MathHom3r.Pow2(b) / a)) * Mathf.Sin(t);
                 float evoluteCusps = ellipsoidData.GetEvoluteCusp(TAxis.z);
                 intersectionZaxis = CalculateLinearInterpolation(intersectionZaxis, currentEllipse.evoluteCusp, evoluteCusps);
+            } else if ((hom3r.coreLink.GetComponent<ConfigurationManager>().GetActiveNavigationOblateOrientationCorrection() == TOblateSpheroidCorrectionMode.interpolation))
+            {
+                float evoluteCuspsZ = ellipsoidData.GetEvoluteCusp(TAxis.z);
+                float evoluteCuspsX = ellipsoidData.GetEvoluteCusp(TAxis.x);
+                float evoluteCusps = Mathf.Sqrt(MathHom3r.Pow2(evoluteCuspsX * Mathf.Sin(planeAngle)) + MathHom3r.Pow2(evoluteCuspsZ * Mathf.Cos(planeAngle)));
+                intersectionZaxis = CalculateLinearInterpolation(intersectionZaxis, currentEllipse.evoluteCusp, evoluteCusps);
             }
+            //if (hom3r.coreLink.GetComponent<ConfigurationManager>().GetActiveNavigationOblateOrientationCorrection())
+            //{
+                
+            //    float evoluteCuspsZ = ellipsoidData.GetEvoluteCusp(TAxis.z);
+            //    float evoluteCuspsX = ellipsoidData.GetEvoluteCusp(TAxis.x);
+            //    float evoluteCusps = Mathf.Sqrt(MathHom3r.Pow2(evoluteCuspsX * Mathf.Sin(planeAngle)) + MathHom3r.Pow2(evoluteCuspsZ * Mathf.Cos(planeAngle)));
+            //    intersectionZaxis = CalculateLinearInterpolation(intersectionZaxis, currentEllipse.evoluteCusp, evoluteCusps);
+            //} else
+            //{
+            //    //float intersectionZaxis = (a - (MathHom3r.Pow2(b) / a)) * Mathf.Sin(t);
+            //    float evoluteCusps = ellipsoidData.GetEvoluteCusp(TAxis.z);
+            //    intersectionZaxis = CalculateLinearInterpolation(intersectionZaxis, currentEllipse.evoluteCusp, evoluteCusps);
+            //}
             intersectionPoint = new Vector3(0, 0, intersectionZaxis);
         }
         if (geometryType == TGeometryType3.Type_III || geometryType == TGeometryType3.Type_IV /*|| geometryType == TGeometryType3.Type_V*/)
         {
-            if (hom3r.coreLink.GetComponent<ConfigurationManager>().GetActiveNavigationOblateOrientationCorrection())
+
+            if (hom3r.coreLink.GetComponent<ConfigurationManager>().GetActiveNavigationOblateOrientationCorrection() == TOblateSpheroidCorrectionMode.none)
             {
+                float evoluteCuspsX = ellipsoidData.GetEvoluteCusp(TAxis.x);
+                float intersectionXaxis = (a - (MathHom3r.Pow2(b) / a)) * Mathf.Cos(t);
+                intersectionXaxis = CalculateLinearInterpolation(intersectionXaxis, currentEllipse.evoluteCusp, evoluteCuspsX);
+
+                float evoluteCuspsZ = ellipsoidData.GetEvoluteCusp(TAxis.z);
+                float intersectionZaxis = (a - (MathHom3r.Pow2(b) / a)) * Mathf.Sin(t);
+                intersectionZaxis = CalculateLinearInterpolation(intersectionZaxis, currentEllipse.evoluteCusp, evoluteCuspsZ);
+
+                intersectionPoint = new Vector3(intersectionXaxis, 0, intersectionZaxis);
+            } else if (hom3r.coreLink.GetComponent<ConfigurationManager>().GetActiveNavigationOblateOrientationCorrection() == TOblateSpheroidCorrectionMode.interpolation) {
                 float evoluteCuspsX = ellipsoidData.GetEvoluteCusp(TAxis.x);
                 float evoluteCuspsZ = ellipsoidData.GetEvoluteCusp(TAxis.z);
                 float evoluteCusps = Mathf.Sqrt(MathHom3r.Pow2(evoluteCuspsX * Mathf.Sin(planeAngle)) + MathHom3r.Pow2(evoluteCuspsZ * Mathf.Cos(planeAngle)));
@@ -2299,18 +2297,34 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
 
                 intersectionPoint = new Vector3(intersectionXaxis, 0, intersectionZaxis);
             }
-            else
-            {
-                float evoluteCuspsX = ellipsoidData.GetEvoluteCusp(TAxis.x);
-                float intersectionXaxis = (a - (MathHom3r.Pow2(b) / a)) * Mathf.Cos(t);                
-                intersectionXaxis = CalculateLinearInterpolation(intersectionXaxis, currentEllipse.evoluteCusp, evoluteCuspsX);
 
-                float evoluteCuspsZ = ellipsoidData.GetEvoluteCusp(TAxis.z);
-                float intersectionZaxis = (a - (MathHom3r.Pow2(b) / a)) * Mathf.Sin(t);
-                intersectionZaxis = CalculateLinearInterpolation(intersectionZaxis, currentEllipse.evoluteCusp, evoluteCuspsZ);
 
-                intersectionPoint = new Vector3(intersectionXaxis, 0, intersectionZaxis);
-            }
+
+            //    if (hom3r.coreLink.GetComponent<ConfigurationManager>().GetActiveNavigationOblateOrientationCorrection())
+            //{
+            //    float evoluteCuspsX = ellipsoidData.GetEvoluteCusp(TAxis.x);
+            //    float evoluteCuspsZ = ellipsoidData.GetEvoluteCusp(TAxis.z);
+            //    float evoluteCusps = Mathf.Sqrt(MathHom3r.Pow2(evoluteCuspsX * Mathf.Sin(planeAngle)) + MathHom3r.Pow2(evoluteCuspsZ * Mathf.Cos(planeAngle)));
+
+            //    float intersectionXaxis = (a - (MathHom3r.Pow2(b) / a)) * Mathf.Cos(t);
+            //    intersectionXaxis = CalculateLinearInterpolation(intersectionXaxis, currentEllipse.evoluteCusp, evoluteCusps);
+            //    float intersectionZaxis = (a - (MathHom3r.Pow2(b) / a)) * Mathf.Sin(t);
+            //    intersectionZaxis = CalculateLinearInterpolation(intersectionZaxis, currentEllipse.evoluteCusp, evoluteCusps);
+
+            //    intersectionPoint = new Vector3(intersectionXaxis, 0, intersectionZaxis);
+            //}
+            //else
+            //{
+            //    float evoluteCuspsX = ellipsoidData.GetEvoluteCusp(TAxis.x);
+            //    float intersectionXaxis = (a - (MathHom3r.Pow2(b) / a)) * Mathf.Cos(t);                
+            //    intersectionXaxis = CalculateLinearInterpolation(intersectionXaxis, currentEllipse.evoluteCusp, evoluteCuspsX);
+
+            //    float evoluteCuspsZ = ellipsoidData.GetEvoluteCusp(TAxis.z);
+            //    float intersectionZaxis = (a - (MathHom3r.Pow2(b) / a)) * Mathf.Sin(t);
+            //    intersectionZaxis = CalculateLinearInterpolation(intersectionZaxis, currentEllipse.evoluteCusp, evoluteCuspsZ);
+
+            //    intersectionPoint = new Vector3(intersectionXaxis, 0, intersectionZaxis);
+            //}
         }
 
 

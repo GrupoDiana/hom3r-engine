@@ -9,6 +9,7 @@ public enum TNavigationSystemMode { Spherical, LimitedSpherical, Spheroid, Ellip
 /// </summary>
 public enum TNavigationSystemConstraints { none, translationLimited }
 public enum TInteractionMappingCorrectionMode { none, ellipsePerimeter, distance}
+public enum TOblateSpheroidCorrectionMode { none, minimun, interpolation }
 public enum TMouseMapping { standard, inverse }
 
 public class ConfigurationManager : MonoBehaviour
@@ -37,7 +38,7 @@ public class ConfigurationManager : MonoBehaviour
 
     private TInteractionMappingCorrectionMode latitudeInteractionCorrectionFactorMode;     // This control if the correction factor of the latitude interaction is activated or not
     private TInteractionMappingCorrectionMode longitudeInteractionCorrectionFactorMode;    // This control if the correction factor of the lontigude interaction is activated or not
-    private bool navigationOblateObjectsOrientationCorrectionEnabled;
+    private TOblateSpheroidCorrectionMode navigationOblateObjectsOrientationCorrectionMode;
 
 
     private bool labelEditionEnabled;           // This control if the labels can be edit or not
@@ -73,7 +74,7 @@ public class ConfigurationManager : MonoBehaviour
         navigationZoomEnabled       = true;
         navigationSystem            = TNavigationSystemMode.Ellipsoid;
         navigationConstraints       = TNavigationSystemConstraints.translationLimited;
-        navigationOblateObjectsOrientationCorrectionEnabled = false;
+        navigationOblateObjectsOrientationCorrectionMode = TOblateSpheroidCorrectionMode.none;
 
         latitudeInteractionCorrectionFactorMode      = TInteractionMappingCorrectionMode.distance;
         longitudeInteractionCorrectionFactorMode     = TInteractionMappingCorrectionMode.distance;
@@ -444,9 +445,9 @@ public class ConfigurationManager : MonoBehaviour
     /// Set if the navigation is activated or not. 
     /// </summary>
     /// <param name="_enabled">true activate the mouse interaction</param>
-    public void SetActiveNavigationOblateOrientationCorrection(bool _enabled)
+    public void SetActiveNavigationOblateOrientationCorrection(TOblateSpheroidCorrectionMode _mode)
     {
-        navigationOblateObjectsOrientationCorrectionEnabled = _enabled;
+        navigationOblateObjectsOrientationCorrectionMode = _mode;
         this.SendUpdateEvent();
     }
 
@@ -454,9 +455,9 @@ public class ConfigurationManager : MonoBehaviour
     /// Get if the navigation is activated or not. 
     /// </summary>
     /// <returns>True if mouse interaction is activated</returns>
-    public bool GetActiveNavigationOblateOrientationCorrection()
+    public TOblateSpheroidCorrectionMode GetActiveNavigationOblateOrientationCorrection()
     {
-        return navigationOblateObjectsOrientationCorrectionEnabled;
+        return navigationOblateObjectsOrientationCorrectionMode;
     }
 
     /////////////////////
