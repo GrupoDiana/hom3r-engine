@@ -2042,8 +2042,7 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
         minimunEllipsoidData = new CEllipsoidData();
         minimunEllipsoidData.radiousXAxis = a_min;
         minimunEllipsoidData.radiousZAxis = b_min;
-        minimunEllipsoidData.radiousYAxis = c_min;           
-        //}
+        minimunEllipsoidData.radiousYAxis = c_min;
         if (geometryType == TGeometryType3.Type_I || geometryType == TGeometryType3.Type_II || geometryType == TGeometryType3.Type_IV)
         {
             minimunAxis = b_min;
@@ -2052,6 +2051,25 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
         {
             minimunAxis = a_min;
         }
+
+        ///
+        if (geometryType == TGeometryType3.Type_I || geometryType == TGeometryType3.Type_II)
+        {
+            minimunEllipsoidData.radiousXAxis = x2;
+            minimunEllipsoidData.radiousZAxis = CalculateMinorAxis(x2, Ec);
+            minimunEllipsoidData.radiousYAxis = c_min;
+        }
+        else 
+        {
+            // Falla para D?
+            minimunEllipsoidData.radiousZAxis = x2;
+            minimunEllipsoidData.radiousXAxis = CalculateMinorAxis(x2, Ec);
+            minimunEllipsoidData.radiousYAxis = c_min;
+        }
+        minimunAxis = minimunEllipsoidData.radiousZAxis;
+        ///
+
+        
 
 
         return minimunAxis;
