@@ -1895,16 +1895,16 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
 
 
 
-    private float CalculateMayorAxis(float minorAxis, float Ec)
+    private float CalculateEllipseMayorAxis(float minorAxis, float Ec)
     {
         return 0.5f * (Ec + Mathf.Sqrt(MathHom3r.Pow2(Ec) + 4 * MathHom3r.Pow2(minorAxis)));
     }
-    private float CalculateMinorAxis(float mayorAxis, float Ec)
+    private float CalculateEllipseMinorAxis(float mayorAxis, float Ec)
     {
         return Mathf.Sqrt(MathHom3r.Pow2(mayorAxis) - (Ec * mayorAxis));
 
     }
-    private float CalculateEvoluteCusps(float a, float b)
+    private float CalculateEllipseEvoluteCusps(float a, float b)
     {
         return a - (MathHom3r.Pow2(b) / a);
     }
@@ -1925,7 +1925,7 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
             //ellipsoideData.Ec = extents.x;                      // Evolute cusp will be in the limit of the object in X-axis
             _ellipsoidData.SetEvoluteCups(extents.x, extents.z);        // Evolute cusp will be in the limit of the object in X-axis
             _ellipsoidData.radiousZAxis = Mathf.Abs(cameraPosition.z);
-            _ellipsoidData.radiousXAxis = CalculateMayorAxis(_ellipsoidData.radiousZAxis, extents.x);
+            _ellipsoidData.radiousXAxis = CalculateEllipseMayorAxis(_ellipsoidData.radiousZAxis, extents.x);
             _ellipsoidData.radiousYAxis = cameraObjectDistance + extents.y;
         }
         else if (geometryType == TGeometryType3.Type_V || geometryType == TGeometryType3.Type_VI)
@@ -1934,7 +1934,7 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
             //ellipsoideData.Ec = extents.z;              // Evolute cusp will be in the limit of the object in Z-axis
             _ellipsoidData.SetEvoluteCups(extents.x, extents.z);
             _ellipsoidData.radiousZAxis = Mathf.Abs(cameraPosition.z);
-            _ellipsoidData.radiousXAxis = CalculateMinorAxis(_ellipsoidData.radiousZAxis, extents.z);
+            _ellipsoidData.radiousXAxis = CalculateEllipseMinorAxis(_ellipsoidData.radiousZAxis, extents.z);
             _ellipsoidData.radiousYAxis = cameraObjectDistance + extents.y;
         }
         else if (geometryType == TGeometryType3.Type_III)
@@ -1943,7 +1943,7 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
             //ellipsoideData.Ec = extents.z;              // Evolute cusp will be in the limit of the object in Z-axis
             _ellipsoidData.SetEvoluteCups(extents.x, extents.z);
             _ellipsoidData.radiousZAxis = Mathf.Abs(cameraPosition.z);
-            _ellipsoidData.radiousXAxis = CalculateMinorAxis(_ellipsoidData.radiousZAxis, extents.z);
+            _ellipsoidData.radiousXAxis = CalculateEllipseMinorAxis(_ellipsoidData.radiousZAxis, extents.z);
             _ellipsoidData.radiousYAxis = cameraObjectDistance + extents.y;
         }
         else if (geometryType == TGeometryType3.Type_IV)
@@ -1952,7 +1952,7 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
             //ellipsoideData.Ec = extents.x;                  // Evolute cusp will be in the limit of the object in Z-axis
             _ellipsoidData.SetEvoluteCups(extents.x, extents.z);
             _ellipsoidData.radiousZAxis = Mathf.Abs(cameraPosition.z);
-            _ellipsoidData.radiousXAxis = CalculateMayorAxis(_ellipsoidData.radiousZAxis, extents.x);
+            _ellipsoidData.radiousXAxis = CalculateEllipseMayorAxis(_ellipsoidData.radiousZAxis, extents.x);
             _ellipsoidData.radiousYAxis = cameraObjectDistance + extents.y;
         }
 
@@ -1988,14 +1988,14 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
     /// In the case of long object this value is the b minimum, 
     /// while in the case of flat objects this vale is the a minimum.
     /// </summary>
-    /// <param name="extents">Bounding box extends of the 3D object</param>
+    /// <param name="_extents">Bounding box extends of the 3D object</param>
     /// <returns>Return the minimum a of b of the allowed ellipse between the camera and the object</returns>
-    private float CalculateMinimunEllipsoid(Vector3 extents)
+    private float CalculateMinimunEllipsoid(Vector3 _extents)
     {
         float minimunAxis = 0.0f;
 
         float Ec = ellipsoidData.GetEvoluteCusp(movementEllipses.translation.GetSemiMajorAxis());
-        float r2 = MathHom3r.Pow2(extents.y) + MathHom3r.Pow2(extents.z);
+        float r2 = MathHom3r.Pow2(_extents.y) + MathHom3r.Pow2(_extents.z);
         
         // Polynomial Coefficients: x^3 + a1 * x^2 + a2 * x + a3 = 0
         float A = -Ec;                      
@@ -2028,44 +2028,44 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
         //float a_min = amin;
         
         //Calculate ellipsoide minimal
-        float a_min = x2;            
-        float b_min2 = MathHom3r.Pow2(a_min) - a_min * Ec;
-        float b_min = Mathf.Sqrt(b_min2);
+        //float a_min = x2;            
+        //float b_min2 = MathHom3r.Pow2(a_min) - a_min * Ec;
+        //float b_min = Mathf.Sqrt(b_min2);
 
         // Calculate c minimal
-        float b_p2 = b_min2 * (1 - MathHom3r.Pow2(Ec/a_min));
-        float c_p2 = (MathHom3r.Pow2(extents.y) * b_p2) / (b_p2- MathHom3r.Pow2(extents.z));
-        float temp = MathHom3r.Pow2(a_min) / (MathHom3r.Pow2(a_min) - (MathHom3r.Pow2(Ec)));
-        float c_min = Mathf.Sqrt(temp * c_p2);
-            
+        //float b_p2 = b_min2 * (1 - MathHom3r.Pow2(Ec/a_min));
+        //float c_p2 = (MathHom3r.Pow2(extents.y) * b_p2) / (b_p2- MathHom3r.Pow2(extents.z));
+        //float temp = MathHom3r.Pow2(a_min) / (MathHom3r.Pow2(a_min) - (MathHom3r.Pow2(Ec)));
+        //float c_min = Mathf.Sqrt(temp * c_p2);
+
 
         minimunEllipsoidData = new CEllipsoidData();
-        minimunEllipsoidData.radiousXAxis = a_min;
-        minimunEllipsoidData.radiousZAxis = b_min;
-        minimunEllipsoidData.radiousYAxis = c_min;
-        if (geometryType == TGeometryType3.Type_I || geometryType == TGeometryType3.Type_II || geometryType == TGeometryType3.Type_IV)
-        {
-            minimunAxis = b_min;
-        }
-        else if (geometryType == TGeometryType3.Type_V || geometryType == TGeometryType3.Type_VI || geometryType == TGeometryType3.Type_III)
-        {
-            minimunAxis = a_min;
-        }
+        //minimunEllipsoidData.radiousXAxis = a_min;
+        //minimunEllipsoidData.radiousZAxis = b_min;
+        //minimunEllipsoidData.radiousYAxis = c_min;
+        //if (geometryType == TGeometryType3.Type_I || geometryType == TGeometryType3.Type_II || geometryType == TGeometryType3.Type_IV)
+        //{
+        //    minimunAxis = b_min;
+        //}
+        //else if (geometryType == TGeometryType3.Type_V || geometryType == TGeometryType3.Type_VI || geometryType == TGeometryType3.Type_III)
+        //{
+        //    minimunAxis = a_min;
+        //}
 
         ///
-        if (geometryType == TGeometryType3.Type_I || geometryType == TGeometryType3.Type_II)
+        if (geometryType == TGeometryType3.Type_I || geometryType == TGeometryType3.Type_II || geometryType == TGeometryType3.Type_IV)
         {
             minimunEllipsoidData.radiousXAxis = x2;
-            minimunEllipsoidData.radiousZAxis = CalculateMinorAxis(x2, Ec);
-            minimunEllipsoidData.radiousYAxis = c_min;
+            minimunEllipsoidData.radiousZAxis = CalculateEllipseMinorAxis(x2, Ec);
+            //minimunEllipsoidData.radiousYAxis = c_min;            
         }
         else 
-        {
-            // Falla para D?
+        {           
             minimunEllipsoidData.radiousZAxis = x2;
-            minimunEllipsoidData.radiousXAxis = CalculateMinorAxis(x2, Ec);
-            minimunEllipsoidData.radiousYAxis = c_min;
+            minimunEllipsoidData.radiousXAxis = CalculateEllipseMinorAxis(x2, Ec);
+            //minimunEllipsoidData.radiousYAxis = c_min;
         }
+        minimunEllipsoidData.radiousYAxis = CalculateEllipsoidMinimunYAxis(minimunEllipsoidData.radiousXAxis, minimunEllipsoidData.radiousZAxis, _extents);
         minimunAxis = minimunEllipsoidData.radiousZAxis;
         ///
 
@@ -2073,6 +2073,18 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
 
 
         return minimunAxis;
+    }
+
+    private float CalculateEllipsoidMinimunYAxis(float xAxisMin, float zAxisMin, Vector3 _extents)
+    {
+        float yAxis = 0f;
+
+        float rZp2 = MathHom3r.Pow2(zAxisMin) * (1 - MathHom3r.Pow2(_extents.x / xAxisMin));
+        float rYp2 = (MathHom3r.Pow2(_extents.y) * rZp2) / (rZp2 - MathHom3r.Pow2(_extents.z));
+        float temp = MathHom3r.Pow2(xAxisMin) / (MathHom3r.Pow2(xAxisMin) - (MathHom3r.Pow2(_extents.x)));
+        yAxis = Mathf.Sqrt(temp * rYp2);
+      
+        return yAxis;
     }
 
     private float CalculateRealMinimumZRadious(float zRadious)
@@ -2139,7 +2151,7 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
         
         //The evolute cusps has to be calculated because this ellipse is changing after any rotation or radial movement
         CSemiAxes _semiAxes = newTranslationEllipse.GetSemiAxes();
-        newTranslationEllipse.evoluteCusp = CalculateEvoluteCusps(_semiAxes.a, _semiAxes.b);
+        newTranslationEllipse.evoluteCusp = CalculateEllipseEvoluteCusps(_semiAxes.a, _semiAxes.b);
        
         return newTranslationEllipse;
     }
