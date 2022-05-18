@@ -13,6 +13,7 @@ public class NavigationHelper : MonoBehaviour {
     GameObject navigationAssistantsGO;
     GameObject planeGO;
     GameObject helperPointToLookCameraGO;
+    GameObject helperEvoluteCuspGO;
 
     LineRenderer lineTranslationEllipse;
     LineRenderer lineRotationEllipse;
@@ -62,6 +63,10 @@ public class NavigationHelper : MonoBehaviour {
             {
                 helperPointToLookCameraGO = child.gameObject;
             }
+            if (child.name == "HelperPointEvoluteCusp1")
+            {
+                helperEvoluteCuspGO = child.gameObject;
+            }
         }
 
         segments = 3600;
@@ -78,6 +83,7 @@ public class NavigationHelper : MonoBehaviour {
             helperTranslationTrajectoryGO.SetActive(true);
             helperCameraGO.SetActive(true);
             helperPointToLookCameraGO.SetActive(true);
+            helperEvoluteCuspGO.SetActive(true);
             planeGO.SetActive(true);
             navigationAssistantsGO.SetActive(true);
 
@@ -94,6 +100,7 @@ public class NavigationHelper : MonoBehaviour {
             planeGO.SetActive(false);
             navigationAssistantsGO.SetActive(false);
             helperPointToLookCameraGO.SetActive(false);
+            helperEvoluteCuspGO.SetActive(false);
         }
     }
 
@@ -233,7 +240,12 @@ public class NavigationHelper : MonoBehaviour {
         }
     }
 
-    
+    public void SetEvoluteCuspHelper(Vector3 pointEvoluteCusp)
+    {
+        Vector3 pointEvoluteCuspWorld = hom3r.quickLinks.navigationSystemObject.transform.TransformPoint(pointEvoluteCusp);
+        helperEvoluteCuspGO.GetComponent<Transform>().SetPositionAndRotation(pointEvoluteCuspWorld, Quaternion.identity);
+
+    }
 
     /// <summary>
     /// Draw a ellipse, in one plane, using a lineRenderer of the scene

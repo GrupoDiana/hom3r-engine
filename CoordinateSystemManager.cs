@@ -2769,9 +2769,20 @@ public class CEllipsoidCoordinatesManager : CCoordinateSystemManager
     /// <summary>Draw the ellipse that the camera follows as a trajectory in its translational movements in the plane.</summary>
     private void DrawTranslationTrajectory()
     {        
-        hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawTranslationEllipse(movementEllipses.translation.radiousXAxis, movementEllipses.translation.radiousZAxis);        
+        hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().DrawTranslationEllipse(movementEllipses.translation.radiousXAxis, movementEllipses.translation.radiousZAxis);
+        
+        
+        Vector3 evoluteCuspVector = Vector3.zero;
+        if (movementEllipses.translation.GetSemiMajorAxis() == TAxis.x)
+        {
+            evoluteCuspVector.x = ellipsoidData.GetEvoluteCusp(TAxis.x);
+        } else if (movementEllipses.translation.GetSemiMajorAxis() == TAxis.z)
+        {
+            evoluteCuspVector.z = ellipsoidData.GetEvoluteCusp(TAxis.z);
+        }
+        hom3r.quickLinks.navigationSystemObject.GetComponentInChildren<NavigationHelper>().SetEvoluteCuspHelper(evoluteCuspVector);
     }
-
+   
     /// <summary>
     /// Draw the ellipse that the camera follows as a trajectory in its rotational movements.
     /// </summary>
