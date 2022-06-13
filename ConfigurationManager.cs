@@ -9,7 +9,7 @@ public enum TNavigationSystemMode { Spherical, LimitedSpherical, Spheroid, Ellip
 /// </summary>
 public enum TNavigationSystemConstraints { none, translationLimited }
 public enum TInteractionMappingCorrectionMode { none, ellipsePerimeter, distance}
-public enum TOblateSpheroidCorrectionMode { none, minimun, interpolation }
+public enum TOblateSpheroidCorrectionMode { none, minimun, interpolation, interpolationRotation }
 public enum TMouseMapping { standard, inverse }
 
 public class ConfigurationManager : MonoBehaviour

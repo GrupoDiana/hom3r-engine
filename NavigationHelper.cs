@@ -13,7 +13,8 @@ public class NavigationHelper : MonoBehaviour {
     GameObject navigationAssistantsGO;
     GameObject planeGO;
     GameObject helperPointToLookCameraGO;
-    GameObject helperEvoluteCuspGO;
+    GameObject helperEvoluteCusp1GO;
+    GameObject helperEvoluteCusp2GO;
 
     LineRenderer lineTranslationEllipse;
     LineRenderer lineRotationEllipse;
@@ -65,7 +66,11 @@ public class NavigationHelper : MonoBehaviour {
             }
             if (child.name == "HelperPointEvoluteCusp1")
             {
-                helperEvoluteCuspGO = child.gameObject;
+                helperEvoluteCusp1GO = child.gameObject;
+            }
+            if (child.name == "HelperPointEvoluteCusp2")
+            {
+                helperEvoluteCusp2GO = child.gameObject;
             }
         }
 
@@ -83,7 +88,8 @@ public class NavigationHelper : MonoBehaviour {
             helperTranslationTrajectoryGO.SetActive(true);
             helperCameraGO.SetActive(true);
             helperPointToLookCameraGO.SetActive(true);
-            helperEvoluteCuspGO.SetActive(true);
+            helperEvoluteCusp1GO.SetActive(true);
+            helperEvoluteCusp2GO.SetActive(true);
             planeGO.SetActive(true);
             navigationAssistantsGO.SetActive(true);
 
@@ -100,7 +106,8 @@ public class NavigationHelper : MonoBehaviour {
             planeGO.SetActive(false);
             navigationAssistantsGO.SetActive(false);
             helperPointToLookCameraGO.SetActive(false);
-            helperEvoluteCuspGO.SetActive(false);
+            helperEvoluteCusp1GO.SetActive(false);
+            helperEvoluteCusp2GO.SetActive(false);
         }
     }
 
@@ -240,11 +247,13 @@ public class NavigationHelper : MonoBehaviour {
         }
     }
 
-    public void SetEvoluteCuspHelper(Vector3 pointEvoluteCusp)
+    public void SetEvoluteCuspHelper(Vector3 pointEvoluteCusp1, Vector3 pointEvoluteCusp2)
     {
-        Vector3 pointEvoluteCuspWorld = hom3r.quickLinks.navigationSystemObject.transform.TransformPoint(pointEvoluteCusp);
-        helperEvoluteCuspGO.GetComponent<Transform>().SetPositionAndRotation(pointEvoluteCuspWorld, Quaternion.identity);
+        Vector3 pointEvoluteCusp1World = hom3r.quickLinks.navigationSystemObject.transform.TransformPoint(pointEvoluteCusp1);
+        helperEvoluteCusp1GO.GetComponent<Transform>().SetPositionAndRotation(pointEvoluteCusp1World, Quaternion.identity);
 
+        Vector3 pointEvoluteCusp2World = hom3r.quickLinks.navigationSystemObject.transform.TransformPoint(pointEvoluteCusp2);
+        helperEvoluteCusp2GO.GetComponent<Transform>().SetPositionAndRotation(pointEvoluteCusp2World, Quaternion.identity);        
     }
 
     /// <summary>
