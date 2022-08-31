@@ -31,6 +31,7 @@ public class ConfigurationManager : MonoBehaviour
 
     private bool navigationEnabled;                             // This control if the navigation is On or not
     private bool navigationZoomEnabled;                         // This control if the navigation Zoom is On or not
+    private bool navigationZoomLimitEnabled;                    // This control if the zoom limits are enabled or not
     private TNavigationSystemMode navigationSystem;             // This control the navigation system that is going to be used
     private TNavigationSystemConstraints navigationConstraints; // This control the constraints applied to the navigation    
     private bool panNavigationEnabled;                          // This control if the Pan navigation is On or not
@@ -72,6 +73,7 @@ public class ConfigurationManager : MonoBehaviour
         navigationEnabled           = false;
         panNavigationEnabled         = false;
         navigationZoomEnabled       = true;
+        navigationZoomLimitEnabled  = true;
         navigationSystem            = TNavigationSystemMode.Ellipsoid;
         navigationConstraints       = TNavigationSystemConstraints.translationLimited;
         navigationOblateObjectsOrientationCorrectionMode = TOblateSpheroidCorrectionMode.none;
@@ -349,6 +351,23 @@ public class ConfigurationManager : MonoBehaviour
         return navigationZoomEnabled;
     }
 
+    /// <summary>
+    /// Set if the Zoom is activated or not. 
+    /// </summary>
+    /// <param name="_enabled">true activate Zoom interaction</param>
+    public void SetActiveNavigationZoomLimit(bool _enabled)
+    {
+        navigationZoomLimitEnabled = _enabled;
+        this.SendUpdateEvent();
+    }
+    /// <summary>
+    /// Get if the zoom is activated or not. 
+    /// </summary>
+    /// <returns>True if Zoom interaction is activated</returns>
+    public bool GetActiveNavigationZoomLimit()
+    {
+        return navigationZoomLimitEnabled;
+    }
     /// <summary>
     /// Set if the navigation mode  
     /// </summary>    

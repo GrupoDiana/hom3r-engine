@@ -36,7 +36,7 @@ public enum TConfigurationCommands
     ActivateUIHierarchyPanel, ActivateUIOcclusionPanel, ActivateUISettingsPanel,
     ActiveUISelection, ActiveUIAutomaticSelection,    
     ActiveTouchInteration, ActiveMouseInteration, ActiveMouseWheelInteraction,    
-    ActiveNavigation, ActiveNavigationZoom,
+    ActiveNavigation, ActiveNavigationZoom, ActiveNavigationZoomLimit,
     SetNavigationLatitudeCorrectioFactorMode, SetNavigationLongitudeCorrectioFactorMode, ActiveNavigationOblateOrientationCorrection,
     SetNavigationSystemMode,
     ActivePanNavigation,
@@ -161,6 +161,9 @@ public class CConfigurationCommand : CCoreCommand
                     break;
                 case TConfigurationCommands.ActiveNavigationZoom:
                     hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetActiveNavigationZoom(data.activate);
+                    break;
+                case TConfigurationCommands.ActiveNavigationZoomLimit:
+                    hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetActiveNavigationZoomLimit(data.activate);
                     break;
                 case TConfigurationCommands.SetMouseMapping:
                     hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetMouseMapping(data.mouseMapping);

@@ -302,7 +302,14 @@ public class CSphericalCoordinatesManager : CCoordinateSystemManager
         else
         {
             new_r = r + radialVariation;                                           // Circumference Radius
-            if (Mathf.Abs(new_r) < minimunRadious) { new_r = minimunRadious; }  // We can not closer that minimum
+
+            if (hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetActiveNavigationZoomLimit())
+            {
+                if (Mathf.Abs(new_r) < minimunRadious) { new_r = minimunRadious; }  // We can not closer that minimum
+            } else
+            {
+                if (new_r <= 0.5f) { new_r = 0.5f; } // To avoid going back // Todo do it in a smarter way                
+            }      
         }
         return new_r;
     }
@@ -1479,6 +1486,7 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
         //float arco = Mathf.Sqrt(MathHom3r.Pow2(aMin * Mathf.Sin(t_translationEllipse)) + MathHom3r.Pow2(bMin * Mathf.Cos(t_translationEllipse)));
 
         //Debug.Log("CalculatePseudoLatitudeCorrectionParameter " + k);
+        
         return k;///arco;
     }
 
