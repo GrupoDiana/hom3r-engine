@@ -140,7 +140,7 @@ public class NavigationManager : MonoBehaviour {
         TNavigationSystemConstraints navigationConstraints = hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetNavigationConstraints();
         if (navigationSystem.Init(extentsVector, cameraInitialPosition, navigationConstraints, out cameraMinimumDistance, out pointToLook))
         {
-            panNavigationSystem.Init(extentsVector, /*fielOfViewVector,*/ cameraMinimumDistance);
+            panNavigationSystem.Init(extentsVector, /*fielOfViewVector,*/ cameraMinimumDistance, this.transform.position);
             navigationInitialized = true;            
             MoveCameraWithinThePlane(cameraInitialPosition);        // Move camera to the initial position
             InitPseudoRadioCorrection();
@@ -331,7 +331,8 @@ public class NavigationManager : MonoBehaviour {
             this.SetMouseMovementRegularNavigation(mouseMovementX, mouseMovementY, mouseMovementPercentageX, mouseMovementPercentageY, mouseWhellMovement);
         } else
         {
-            this.SetMouseMovementPanNavigation(mouseMovementX, mouseMovementY, mouseWhellMovement);
+            //this.SetMouseMovementPanNavigation(mouseMovementX, mouseMovementY, mouseWhellMovement);
+            this.SetMouseMovementPanNavigation(mouseMovementPercentageX, mouseMovementPercentageY, mouseWhellMovement);
         }
     }
 
@@ -472,10 +473,20 @@ public class NavigationManager : MonoBehaviour {
     /// <param name="mouseWhellMovement">Movement of the whell mouse, % of the screen size</param>
     private void SetMouseMovementPanNavigation(float mouseMovementX, float mouseMovementY, float mouseWhellMovement)
     {
+        // Check if the navigation is activated or not
         if (!hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetActivePanNavigation()) { return; }
+                
+        if (!hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetActiveNavigation()) { return; }
+        if (hom3r.state.navigationBlocked) { return; }
 
         Vector2 fielOfViewVector = GetFieldOfView(true);    // Get current field of view
         Vector3 newPlanePosition = panNavigationSystem.CalculatePlanePosition(mouseMovementX, mouseMovementY, this.transform.position, fielOfViewVector);        
+        this.MovePlane(newPlanePosition);
+    }
+
+    public void ResetPanNavigation()
+    {
+        Vector3 newPlanePosition = panNavigationSystem.ResetPlanePosition();
         this.MovePlane(newPlanePosition);
     }
 

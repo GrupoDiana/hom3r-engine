@@ -34,7 +34,8 @@ public enum TNavigationCommands
 {
     InitializeNavigation, StopNavigation,
     MouseMovement,
-    ZoomToClosest, ZoomToInitial
+    ZoomToClosest, ZoomToInitial,
+    ResetPanNavigation
 }
 
 /// <summary>Navigation data</summary>
@@ -103,6 +104,9 @@ public class CNavigationCommand : CCoreCommand
                     break;
                 case TNavigationCommands.ZoomToInitial:
                     hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().SetRadialPosition(TNavigationRadialPositions.initial, data.value);
+                    break;
+                case TNavigationCommands.ResetPanNavigation:
+                    hom3r.quickLinks.navigationSystemObject.GetComponent<NavigationManager>().ResetPanNavigation();
                     break;
                 default:
                     Debug.LogError("Error: This command " + data.commandEvent + " is not valid.");
