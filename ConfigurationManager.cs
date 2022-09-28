@@ -31,7 +31,10 @@ public class ConfigurationManager : MonoBehaviour
 
     private bool navigationEnabled;                             // This control if the navigation is On or not
     private bool navigationZoomEnabled;                         // This control if the navigation Zoom is On or not
-    private bool navigationZoomLimitEnabled;                    // This control if the zoom limits are enabled or not
+    private bool navigationZoomMinimumLimitEnabled;             // This control if the zoom limits are enabled or not 
+    private float navigationZoomMinimumLimit;                   // INITIAL - far away distance
+    private bool navigationZoomMaximumLimitEnabled;             // This control if the zoom limits are enabled or not 
+    private float navigationZoomMaximumLimit;                   // CLOSEST -
     private TNavigationSystemMode navigationSystem;             // This control the navigation system that is going to be used
     private TNavigationSystemConstraints navigationConstraints; // This control the constraints applied to the navigation    
     private bool panNavigationEnabled;                          // This control if the Pan navigation is On or not
@@ -73,7 +76,8 @@ public class ConfigurationManager : MonoBehaviour
         navigationEnabled           = false;
         panNavigationEnabled         = false;
         navigationZoomEnabled       = true;
-        navigationZoomLimitEnabled  = true;
+        navigationZoomMinimumLimitEnabled  = true;
+        navigationZoomMaximumLimitEnabled = false;
         navigationSystem            = TNavigationSystemMode.Ellipsoid;
         navigationConstraints       = TNavigationSystemConstraints.translationLimited;
         navigationOblateObjectsOrientationCorrectionMode = TOblateSpheroidCorrectionMode.none;
@@ -355,19 +359,54 @@ public class ConfigurationManager : MonoBehaviour
     /// Set if the Zoom is activated or not. 
     /// </summary>
     /// <param name="_enabled">true activate Zoom interaction</param>
-    public void SetActiveNavigationZoomLimit(bool _enabled)
+    public void SetActiveNavigationZoomMinimumLimit(bool _enabled)
     {
-        navigationZoomLimitEnabled = _enabled;
+        navigationZoomMinimumLimitEnabled = _enabled;
         this.SendUpdateEvent();
     }
     /// <summary>
     /// Get if the zoom is activated or not. 
     /// </summary>
     /// <returns>True if Zoom interaction is activated</returns>
-    public bool GetActiveNavigationZoomLimit()
+    public bool GetActiveNavigationZoomMinimumLimit()
     {
-        return navigationZoomLimitEnabled;
+        return navigationZoomMinimumLimitEnabled;
     }
+
+
+    public void SetNavigationZoomMinimumLimit(float _value)
+    {
+        navigationZoomMinimumLimit = _value;
+        this.SendUpdateEvent();
+    }
+    public float GetNavigationZoomMinimumLimit() { return navigationZoomMinimumLimit; }
+
+    public void SetNavigationZoomMaximumLimit(float _value)
+    {
+        navigationZoomMaximumLimit = _value;
+        this.SendUpdateEvent();
+    }
+    public float GetNavigationZoomMaximumLimit() { return navigationZoomMaximumLimit; }
+
+    /// <summary>
+    /// Set if the Zoom is activated or not. 
+    /// </summary>
+    /// <param name="_enabled">true activate Zoom interaction</param>
+    public void SetActiveNavigationZoomMaximumLimit(bool _enabled)
+    {
+        navigationZoomMaximumLimitEnabled = _enabled;
+        this.SendUpdateEvent();
+    }
+    /// <summary>
+    /// Get if the zoom is activated or not. 
+    /// </summary>
+    /// <returns>True if Zoom interaction is activated</returns>
+    public bool GetActiveNavigationZoomMaximumLimit()
+    {
+        return navigationZoomMaximumLimitEnabled;
+    }
+
+
     /// <summary>
     /// Set if the navigation mode  
     /// </summary>    

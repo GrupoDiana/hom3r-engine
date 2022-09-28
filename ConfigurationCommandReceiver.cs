@@ -36,7 +36,7 @@ public enum TConfigurationCommands
     ActivateUIHierarchyPanel, ActivateUIOcclusionPanel, ActivateUISettingsPanel,
     ActiveUISelection, ActiveUIAutomaticSelection,    
     ActiveTouchInteration, ActiveMouseInteration, ActiveMouseWheelInteraction,    
-    ActiveNavigation, ActiveNavigationZoom, ActiveNavigationZoomLimit,
+    ActiveNavigation, ActiveNavigationZoom, ActiveNavigationZoomMinimumLimit, ActiveNavigationZoomMaximumLimit, SetNavigationZoomMinimumLimit, SetNavigationZoomMaximumLimit,
     SetNavigationLatitudeCorrectioFactorMode, SetNavigationLongitudeCorrectioFactorMode, ActiveNavigationOblateOrientationCorrection,
     SetNavigationSystemMode,
     ActivePanNavigation,
@@ -162,8 +162,17 @@ public class CConfigurationCommand : CCoreCommand
                 case TConfigurationCommands.ActiveNavigationZoom:
                     hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetActiveNavigationZoom(data.activate);
                     break;
-                case TConfigurationCommands.ActiveNavigationZoomLimit:
-                    hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetActiveNavigationZoomLimit(data.activate);
+                case TConfigurationCommands.ActiveNavigationZoomMinimumLimit:
+                    hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetActiveNavigationZoomMinimumLimit(data.activate);
+                    break;
+                case TConfigurationCommands.ActiveNavigationZoomMaximumLimit:
+                    hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetActiveNavigationZoomMaximumLimit(data.activate);
+                    break;
+                case TConfigurationCommands.SetNavigationZoomMinimumLimit:
+                    hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetNavigationZoomMinimumLimit(data.value);
+                    break;
+                case TConfigurationCommands.SetNavigationZoomMaximumLimit:
+                    hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetNavigationZoomMaximumLimit(data.value);
                     break;
                 case TConfigurationCommands.SetMouseMapping:
                     hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetMouseMapping(data.mouseMapping);

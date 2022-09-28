@@ -303,13 +303,22 @@ public class CSphericalCoordinatesManager : CCoordinateSystemManager
         {
             new_r = r + radialVariation;                                           // Circumference Radius
 
-            if (hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetActiveNavigationZoomLimit())
+            if (hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetActiveNavigationZoomMaximumLimit())
             {
                 if (Mathf.Abs(new_r) < minimunRadious) { new_r = minimunRadious; }  // We can not closer that minimum
-            } else
+            }
+            else if (new_r <= 0.5f)
             {
-                if (new_r <= 0.5f) { new_r = 0.5f; } // To avoid going back // Todo do it in a smarter way                
-            }      
+                new_r = 0.5f;   // To avoid going back // TODO do it in a better/smarter wa
+            }
+            else if (hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetActiveNavigationZoomMinimumLimit())
+            {
+                float zoomPercentage = 0.01f * hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetNavigationZoomMinimumLimit();
+                float offset = (initialRadious - minimunRadious) * (1 - zoomPercentage);
+                float limit_new_r = minimunRadious + offset;
+
+                if (new_r > limit_new_r) { new_r = limit_new_r; }
+            }                           
         }
         return new_r;
     }
@@ -1092,6 +1101,19 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
         {
             new_r = currentEllipseRadious + radialVariation;                                           // Circumference Radius
             if (Mathf.Abs(new_r) < minimunAllowedAxis) { new_r = minimunAllowedAxis; }  // We can not closer that minimum
+           
+            else if (new_r <= 0.5f)
+            {
+                new_r = 0.5f;   // To avoid going back // TODO do it in a better/smarter wa
+            }
+            else if (hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetActiveNavigationZoomMinimumLimit())
+            {
+                float zoomPercentage = 0.01f * hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetNavigationZoomMinimumLimit();
+                float offset = (initialAxis - minimunAllowedAxis) * (1 - zoomPercentage);
+                float limit_new_r = minimunAllowedAxis + offset;
+
+                if (new_r > limit_new_r) { new_r = limit_new_r; }
+            }
         }
         return new_r;
     }
