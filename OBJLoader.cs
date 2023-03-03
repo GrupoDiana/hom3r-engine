@@ -771,7 +771,7 @@ public class OBJLoader : MonoBehaviour
     {
         string url = GetResourcesFileURL(materialFileName);         //Get file URL
         loadingMaterialFile = true;
-        if ((Application.platform == RuntimePlatform.WebGLPlayer) || (Application.platform == RuntimePlatform.Android)) //if we work from internet
+        if (Application.platform == RuntimePlatform.WebGLPlayer || Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer) //if we work from internet
         {                        
             yield return StartCoroutine(CoroutineLoadMaterialFile_fromUrl(materialFileName, url)); //loads the file from URL
         }
@@ -1221,7 +1221,7 @@ public class OBJLoader : MonoBehaviour
     /// <param name="objectParentName"></param>
     private void StartOBJLoad()
     {                
-        if ((Application.platform == RuntimePlatform.WebGLPlayer) || Application.platform==RuntimePlatform.Android)
+        if (Application.platform == RuntimePlatform.WebGLPlayer || Application.platform==RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer)
         {            
             StartCoroutine(LoadOBJFile_fromUrl(fullFileUrl)); //loads the file from URL
         }
@@ -1236,7 +1236,7 @@ public class OBJLoader : MonoBehaviour
             {                
                 StartCoroutine(LoadOBJFile_fromUrl(fullFileUrl)); //loads the file from URL
             }
-        }        
+        }
     }
     
     /// <summary>Get the object file base URL</summary>
