@@ -76,7 +76,7 @@ public class ConfigurationManager : MonoBehaviour
         navigationEnabled           = false;
         panNavigationEnabled         = false;
         navigationZoomEnabled       = true;
-        navigationZoomMinimumLimitEnabled  = true;
+        navigationZoomMinimumLimitEnabled  = false;
         navigationZoomMaximumLimitEnabled = false;
         navigationSystem            = TNavigationSystemMode.Ellipsoid;
         navigationConstraints       = TNavigationSystemConstraints.translationLimited;
