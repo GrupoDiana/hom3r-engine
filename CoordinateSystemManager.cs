@@ -842,12 +842,14 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
             {                        
 				_ellipsoidData.SetEvoluteCups(extents.x, extents.z);
 				_ellipsoidData.radiousZAxis = Mathf.Abs(cameraPosition.z);
-                _ellipsoidData.radiousXAxis = CalculateMinorAxis(_ellipsoidData.radiousZAxis, extents.z);
+                _ellipsoidData.radiousXAxis = CalculateMinorAxis(_ellipsoidData.radiousZAxis, extents.z); 
             }
             else {                        
 				_ellipsoidData.SetEvoluteCups(extents.x, extents.y);
-				_ellipsoidData.radiousZAxis = Mathf.Abs(cameraPosition.z);
+                //_ellipsoidData.SetEvoluteCups(extents.x, extents.z); //Testing solve limitation 
+                _ellipsoidData.radiousZAxis = Mathf.Abs(cameraPosition.z);
                 _ellipsoidData.radiousXAxis = CalculateMinorAxis(_ellipsoidData.radiousZAxis, extents.y);
+                //_ellipsoidData.radiousXAxis = CalculateMinorAxis(_ellipsoidData.radiousZAxis, extents.z); //Testing solve limitation 
             }
             _ellipsoidData.radiousYAxis = Mathf.Abs(cameraPosition.z);      // Because it is a rotation around X (Spheroid)
         } 
@@ -1504,7 +1506,7 @@ public class CSpheroidCoordinatesManager : CCoordinateSystemManager
             k_lastvalidvalue = k;
         }
 
-        Debug.Log(k);
+        //Debug.Log(k);
         //float arco = Mathf.Sqrt(MathHom3r.Pow2(aMin * Mathf.Sin(t_translationEllipse)) + MathHom3r.Pow2(bMin * Mathf.Cos(t_translationEllipse)));
 
         //Debug.Log("CalculatePseudoLatitudeCorrectionParameter " + k);
