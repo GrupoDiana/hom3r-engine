@@ -265,22 +265,25 @@ public class ExplosionManager : MonoBehaviour
             // hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Occlusion_ExplosionModel_Empty));
             hom3r.coreLink.Do(new CConfigurationCommand(TConfigurationCommands.ActiveExplosion, false));
             return;
+        }else
+        {
+            hom3r.coreLink.Do(new CConfigurationCommand(TConfigurationCommands.ActiveExplosion, true));
         }
         // Create product from XML file        
-        if (Application.isEditor)
-        {            
-            StartCoroutine(CreateProductFromWWW(url));
-            Debug.Log("Loading Explosion : " + url);         
-        }
-        else if (Application.platform == RuntimePlatform.WebGLPlayer)
-        {                                       
+        //if (Application.isEditor)
+        //{            
+        //    StartCoroutine(CreateProductFromWWW(url));
+        //    Debug.Log("Loading Explosion : " + url);         
+        //}
+        //else if (Application.platform == RuntimePlatform.WebGLPlayer)
+        //{                                       
             StartCoroutine(CreateProductFromWWW(url));
             goScript = GameObject.FindGameObjectWithTag("go_script");
             Debug.Log("Loading Explosion : " + url);
             //goScript.GetComponent<Core>().DebugConsoleWeb("Loading Explosion XML: " + url);
             string message = "Loading Explosion XML: " + url;
             //hom3r.coreLink.Do(new CIOCommand(TIOCommands.DebugConsoleWeb, message), Constants.undoNotAllowed);
-        }
+        //}
     }//END LoadProducExplosionModel
 
     //**********************************************************************************************************************
