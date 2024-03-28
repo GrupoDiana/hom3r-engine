@@ -61,7 +61,7 @@ public class Core : MonoBehaviour {
         hom3r.state.currentMode = THom3rMode.idle;                                 // Initially HOM3R is not in a specific mode
         hom3r.state.currentExplosionMode = THom3rExplosionMode.IMPLODE;            // Initially HOM3R objects are imploded
         //hom3r.state.currentSelectionMode = THom3rSelectionMode.SPECIAL_NODE;     // Initially HOM3R is selecting by component
-        hom3r.state.currentSelectionMode = THom3rSelectionMode.AREA;               // Initially HOM3R is selecting by area
+        hom3r.state.currentSelectionMode = THom3rSelectionMode.SPECIAL_NODE;               // Initially HOM3R is selecting by area
         hom3r.state.currentIsolateMode = THom3rIsolationMode.idle;           // Initially HOM3R show every node of the product
         hom3r.state.currentLabelMode = THom3rLabelMode.idle;                       // Initially HOM3R doesn't show any label                 
         hom3r.state.currentPointCaptureMode = THom3rPointCaptureMode.iddle;
