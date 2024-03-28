@@ -75,8 +75,9 @@ public class NavigationHelper : MonoBehaviour {
         }
 
         segments = 3600;
-        if (hom3r.state.platform == THom3rPlatform.Editor || hom3r.state.platform == THom3rPlatform.Windows) { SetActivatedNavigationHelper(true); }
-        else { SetActivatedNavigationHelper(false); } 
+        //if (hom3r.state.platform == THom3rPlatform.Editor || hom3r.state.platform == THom3rPlatform.Windows) { SetActivatedNavigationHelper(true); }
+        //else { SetActivatedNavigationHelper(false); }
+        SetActivatedNavigationHelper(true);
     }
 
     public void SetActivatedNavigationHelper(bool _activated)
