@@ -11,7 +11,7 @@ Official website of the project is https://proyectos.diana.uma.es/hom3r
 ## HOM3R Viewer
 
 HOM3R Viewer is a 3D viewer for complex products that was developed alongside this library, integrating it to offer all its functions.  
-You can see it running on the web demonstrator located on our official website https://proyectos.diana.uma.es/hom3r/demo/demo.html. You can also download a Windows x64 version of it from URL. If you want to see/use the source code it is available at URL.
+You can see it running on the web demonstrator located on our official website, or you can also download a Windows x64 version. If you wish to view/use the source code it is also available.
 
 * HOM3R Viewer WebGL version demonstrator: https://proyectos.diana.uma.es/hom3r/demo/demo.html. Code available at: https://github.com/GrupoDiana/SOON
 * HOM3R Viewer Windows x64 standalone version: https://github.com/GrupoDiana/SOON
@@ -49,4 +49,4 @@ The copyright (c) of the module belongs to the authors cited above.
 
 ## Acknowledgements 
 
-![European Union](docs/images/EU_flag.png "European Union") This work was partially supported by the Use-it-wisely Project (https://cordis.europa.eu/project/id/609027) European Community’s Seventh Framework Pro-gramme under grant agreement No. 609027 and the PLUGGY project (https://www.pluggy-project.eu/), European Union’s Horizon 2020 research and innovation programme under grant agreement No 726765, and the Spanish National Project SAVLab, under grant No. PID2019-107854GB-I00, funded by MCIN/AEI/ 10.13039/ 501100011033/ FEDER UE. 
+![European Union](docs/images/EU_flag.png "European Union") This work was partially supported by the Use-it-wisely Project (https://cordis.europa.eu/project/id/609027) European Community’s Seventh Framework Pro-gramme under grant agreement No. 609027 and the PLUGGY project (https://www.pluggy-project.eu/), European Union’s Horizon 2020 research and innovation programme under grant agreement No 726765. 
