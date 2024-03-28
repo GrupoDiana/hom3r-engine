@@ -97,10 +97,12 @@ public class CGeometryFileData
     public double   rotation_x;
     public double   rotation_y;
     public double   rotation_z;
-
+    public double   scale_x;    
+    public double   scale_y;
+    public double   scale_z;
 
     public CGeometryFileData() { }
-    public CGeometryFileData(string _fileName, string _fileUrl, string _fileType, int _version, string _assetName, bool _active, bool _invertZAxis, double _position_x, double _position_y, double _position_z, double _rotation_w, double _rotation_x, double _rotation_y, double _rotation_z)
+    public CGeometryFileData(string _fileName, string _fileUrl, string _fileType, int _version, string _assetName, bool _active, bool _invertZAxis, double _position_x, double _position_y, double _position_z, double _rotation_w, double _rotation_x, double _rotation_y, double _rotation_z, double _scale_x, double _scale_y, double _scale_z)
     {        
         this.fileName = _fileName;
         this.fileUrl = _fileUrl;
@@ -116,6 +118,9 @@ public class CGeometryFileData
         this.rotation_x = _rotation_x;
         this.rotation_y = _rotation_y;
         this.rotation_z = _rotation_z;
+        this.scale_x = _scale_x;
+        this.scale_y = _scale_y;
+        this.scale_z = _scale_z;
     }
 
 }

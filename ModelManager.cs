@@ -18,7 +18,7 @@ public class ModelManager : MonoBehaviour {
     private List<CResourceFileData> listResourceFiles;      //To store the list of resource files (material and textures files)
     private Bounds modelBoundingBox;                        // Store the 3D model bounding box
     private bool modelBoundingBoxInit;                      // If the 3D model bounding box has been initiated or not
-    private float modelScale;                               // Store the model scale
+    private Vector3 modelScale;                               // Store the model scale
 
 
     //Others    
@@ -43,7 +43,7 @@ public class ModelManager : MonoBehaviour {
         files3DID = 0;                            // Store 3D files ID
         _3DFilePath = "";                           // Store the 3D file path when we are on the Editor   
         modelBoundingBoxInit = false;                       //
-        modelScale = 1.0f;                                  // Initialization of model scale
+        modelScale = Vector3.one;                // Initialization of model scale
     }
 
     void Start()
@@ -356,7 +356,7 @@ public class ModelManager : MonoBehaviour {
         listOfGeometryData = new List<CGeometryFileData>();
         C3DFileData fileData = Get3DFileData(fileID);
         string fileName = System.IO.Path.GetFileNameWithoutExtension(fileData.fileName);        
-        geometryData = new CGeometryFileData(fileData.fileName, fileData.fileUrl, fileData.fileType, 1, fileName, true, false, 0d, 0d, 0d, 0d, 0d, 0d, 0d);
+        geometryData = new CGeometryFileData(fileData.fileName, fileData.fileUrl, fileData.fileType, 1, fileName, true, false, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 1d, 1d, 1d);
         listOfGeometryData.Add(geometryData);
     }
 
@@ -670,34 +670,54 @@ public class ModelManager : MonoBehaviour {
         Invoke("Calculate3DModelBoundingBox", 0.2f);
 
     }
-   
 
-    public void Set3DModelScale(float _modelScale)
+    public void Set3DModelScale(Vector3 _modelScale)
     {
         if (modelScale != _modelScale)
-        {
-            modelScale = _modelScale;
-            Apply3DModelScale();
+        {            
+            Apply3DModelScale(_modelScale);
+        }
+    }
+
+    public void Set3DModelScale(float _modelScaleScalar)
+    {
+        Vector3 _modelScale = new Vector3(_modelScaleScalar, _modelScaleScalar, _modelScaleScalar);
+        if (modelScale != _modelScale)
+        {            
+            Apply3DModelScale(_modelScale);
         }        
     }
 
-    private void Apply3DModelScale()
+    private void Modify3DModelScale(Vector3 _modelScale)
     {
         Vector3 currentScale = hom3r.quickLinks._3DModelRoot.transform.localScale;
-        Vector3 newScale = modelScale * currentScale;
-        hom3r.quickLinks._3DModelRoot.transform.localScale = newScale;
+        Vector3 newScale = new Vector3(modelScale.x * currentScale.x, modelScale.y * currentScale.y, modelScale.z * currentScale.z);
+        Apply3DModelScale(newScale);        
+    }
+
+    private void Modify3DModelScale(float _modelScaleScalar)
+    {
+        Vector3 _modelScale = new Vector3(_modelScaleScalar, _modelScaleScalar, _modelScaleScalar);
+        Modify3DModelScale(_modelScale);
+    }
+
+    private void Apply3DModelScale(Vector3 _newModelScale)
+    {
+        modelScale = _newModelScale;
+        //Vector3 currentScale = hom3r.quickLinks._3DModelRoot.transform.localScale;
+        //Vector3 newScale(modelScale.x * currentScale.x, modelScale.x* currentScale.x, modelScale.x* currentScale.x);
+        hom3r.quickLinks._3DModelRoot.transform.localScale = modelScale;
         Invoke("Calculate3DModelBoundingBox", 0.2f);
     }
 
     private void ApplyDefault3DModelScale()
     {
-        modelBoundingBox = Get3DModelBoundingBox(true);
-
+        modelBoundingBox = Get3DModelBoundingBox(true);     
         float max = Mathf.Max(modelBoundingBox.extents.x, modelBoundingBox.extents.y, modelBoundingBox.extents.z);
         if (max > 100f)
         {
             float scale = 100f / max;
-            Set3DModelScale(scale);
+            Modify3DModelScale(scale);
         }             
     }
 

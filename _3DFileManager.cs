@@ -39,7 +39,10 @@ public class C3DFileData : CGeometryFileData
         this.rotation_x = _fileData.rotation_x;
         this.rotation_y = _fileData.rotation_y;
         this.rotation_z = _fileData.rotation_z;
-}
+        this.scale_x = _fileData.scale_x;
+        this.scale_y = _fileData.scale_y;
+        this.scale_z = _fileData.scale_z;
+    }
 
     public void Clear()
     {
@@ -246,6 +249,13 @@ public class _3DFileManager : MonoBehaviour {
         //Emplace the object
         _object.transform.position = new Vector3(position_x, position_y, position_z);                   //Move the object        
         _object.transform.rotation = new Quaternion(rotation_x, rotation_y, rotation_z, rotation_w);    //Rotate the object
+
+        // Aplly scale
+        Vector3 newScale = new Vector3((float)geometryData.scale_x, (float)geometryData.scale_y, (float)geometryData.scale_z);
+        if (newScale != Vector3.zero)
+        {
+            _object.transform.localScale = newScale;
+        }
     }
 
     /// <summary>Go through all the objects loaded and add to them: scripts, colliders, ID.</summary>
