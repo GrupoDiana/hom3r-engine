@@ -22,7 +22,7 @@ You can see it running on the web demonstrator located on our official website, 
 These developments have been used in the tools developed throughout the Use-It-Wisely and PLUGGY projects. In particular, it is possible to publicly use the 3D applications developed in the Pluggy (https://pluggy.eu/exhibitions?type=ar) project on desktop, web and mobile platforms, for augmented reality and virtual reality environments (see the videos at https://www.pluggy-project.eu/pluggy3d/).
 
 
-## Scientific articles
+## Scientific papers
 Gonzalez-Toledo, D., Cuevas-Rodríguez, M., Garre-Del-Olmo, C., Molina-Tanco, L., & Reyes-Lecuona, A. (2018). HOM3R: A 3D Viewer for Complex Hierarchical Product Models. Journal of Virtual Reality and Broadcasting, 14(3). https://doi.org/10.20385/1860-2037/14.2017.3
 
 Gonzalez-Toledo, D., Cuevas-Rodriguez, M., Molina-Tanco, L., & Reyes-Lecuona, A. (2022). Still room for improvement in traditional 3D interaction: selecting the fixed axis in the virtual trackball. Visual Computer. https://doi.org/10.1007/s00371-021-02394-x2016.
