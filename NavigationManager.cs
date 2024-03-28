@@ -22,6 +22,7 @@ public class NavigationManager : MonoBehaviour {
     TNavigationSystemMode navigationSystemMode;         // Store the navigation mode in use
     CCoordinateSystemManager navigationSystem;      // Define the navigation mode
     PanNavigatioManager panNavigationSystem;
+    TOblateSpheroidCorrectionMode OlateObjectsCorrectionMode;                    
 
     // Control parameters
     bool navigationInitialized;             // Store if the navigation has been initialized or not 
@@ -104,6 +105,12 @@ public class NavigationManager : MonoBehaviour {
             this.StopNavigation();
             this.InitNavigation();
         }
+        if (hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetActiveNavigationOblateCorrection() != OlateObjectsCorrectionMode)
+        {
+            OlateObjectsCorrectionMode = hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().GetActiveNavigationOblateCorrection();
+            this.StopNavigation();
+            this.InitNavigation();
+        }
     }
 
     public void StopNavigation()
@@ -145,7 +152,7 @@ public class NavigationManager : MonoBehaviour {
             MoveCameraWithinThePlane(cameraInitialPosition);        // Move camera to the initial position
             InitPseudoRadioCorrection();
             OrientateCamera(pointToLook);
-            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Navigation_NavigationInitiaded));
+            hom3r.coreLink.EmitEvent(new CCoreEvent(TCoreEvent.Navigation_NavigationInitiaded));            
         }
         else
         {

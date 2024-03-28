@@ -39,6 +39,7 @@ public enum TConfigurationCommands
     ActiveNavigation, ActiveNavigationZoom, ActiveNavigationZoomMinimumLimit, ActiveNavigationZoomMaximumLimit, SetNavigationZoomMinimumLimit, SetNavigationZoomMaximumLimit,
     SetNavigationLatitudeCorrectioFactorMode, SetNavigationLongitudeCorrectioFactorMode, ActiveNavigationOblateOrientationCorrection,
     SetNavigationSystemMode,
+    SetNavigationObjectType,
     ActivePanNavigation,
     ActiveLabelEdition,
     ActiveExplosion,
@@ -58,6 +59,7 @@ public class CConfigurationCommandData
     public TInteractionMappingCorrectionMode interactionMappingCorrectionMode;
     public TOblateSpheroidCorrectionMode oblateSpheroidCorrectionMode;
     public float value;
+    public string stringValue;
 
     public CConfigurationCommandData(TConfigurationCommands _command)
     {
@@ -114,6 +116,11 @@ public class CConfigurationCommand : CCoreCommand
         data.value = _value;
     }
 
+    public CConfigurationCommand(TConfigurationCommands _command, string _stringValue)
+    {
+        data = new CConfigurationCommandData(_command);
+        data.stringValue = _stringValue;
+    }
     //////////////////
     //   Execute    //
     //////////////////
@@ -190,10 +197,13 @@ public class CConfigurationCommand : CCoreCommand
                     hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetModeLongitudeInteractionCorrectionFactor(data.interactionMappingCorrectionMode);
                     break;
                 case TConfigurationCommands.ActiveNavigationOblateOrientationCorrection:
-                    hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetActiveNavigationOblateOrientationCorrection(data.oblateSpheroidCorrectionMode);
+                    hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetActiveNavigationOblateCorrection(data.oblateSpheroidCorrectionMode);
                     break;
                 case TConfigurationCommands.SetNavigationSystemMode:
                     hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetNavigationSystemMode(data.navigationSystem);
+                    break;
+                case TConfigurationCommands.SetNavigationObjectType:
+                    hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetNavigationObjectType(data.stringValue);
                     break;
                 case TConfigurationCommands.SetDurationTransparencyAnimation:
                     hom3r.quickLinks.scriptsObject.GetComponent<ConfigurationManager>().SetDurationTransparencyAnimation(data.value);
